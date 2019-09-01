@@ -1,9 +1,9 @@
-﻿using Eto;
-using Eto.Drawing;
-using Eto.Forms;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Eto;
+using Eto.Drawing;
+using Eto.Forms;
 
 namespace Catalog.Forms.Controls
 {
@@ -34,7 +34,7 @@ namespace Catalog.Forms.Controls
         // Parameters:
         //   collection:
         //     Collection of items to populate this collection with
-        public RichListItemCollection(IEnumerable<IRichListItem> collection): base(collection)
+        public RichListItemCollection(IEnumerable<IRichListItem> collection) : base(collection)
         {
 
         }
@@ -77,7 +77,7 @@ namespace Catalog.Forms.Controls
         }
     }
 
-    class RichListItemSubtitleBinding : PropertyBinding<string>
+    internal class RichListItemSubtitleBinding : PropertyBinding<string>
     {
         public RichListItemSubtitleBinding()
             : base("Subtitle")
@@ -96,7 +96,7 @@ namespace Catalog.Forms.Controls
     [Handler(typeof(RichListBox.IHandler))]
     public class RichListBox : ListBox
     {
-        new IHandler Handler { get { return (IHandler)base.Handler; } }
+        private new IHandler Handler { get { return (IHandler)base.Handler; } }
 
         /// <summary>
         /// Gets or sets the binding for the Image of each item
@@ -115,7 +115,7 @@ namespace Catalog.Forms.Controls
             ItemSubtitleBinding = new RichListItemSubtitleBinding();
         }
 
-        static readonly object callback = new Callback();
+        private static readonly object callback = new Callback();
         /// <summary>
         /// Gets an instance of an object used to perform callbacks to the widget from handler implementations
         /// </summary>
@@ -134,8 +134,7 @@ namespace Catalog.Forms.Controls
         /// <value>The items.</value>
         public new RichListItemCollection Items
         {
-            get
-            {
+            get {
                 if (!(DataStore is RichListItemCollection items))
                 {
                     items = (RichListItemCollection)CreateDefaultDataStore();

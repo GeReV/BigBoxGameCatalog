@@ -1,7 +1,5 @@
-﻿using LiteDB;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Catalog.Model
 {
@@ -9,8 +7,8 @@ namespace Catalog.Model
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public string Developer { get; set; }
-        public string Publisher { get; set; }
+        public Developer[] Developers { get; set; }
+        public Publisher Publisher { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string[] TwoLetterISOLanguageName { get; set; }
         public Platform Platform { get; set; }

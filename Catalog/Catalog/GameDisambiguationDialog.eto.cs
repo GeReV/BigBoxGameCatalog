@@ -3,10 +3,11 @@ using Eto.Forms;
 using Eto.Drawing;
 using Catalog.Forms.Controls;
 using Catalog.Scrapers.MobyGames;
+using Catalog.Scrapers.MobyGames.Model;
 
 namespace Catalog
 {
-	partial class GameDisambiguationDialog : Dialog<GameEntry>
+	partial class GameDisambiguationDialog : Dialog<SearchResult>
 	{
         protected RichListBox List { get; private set; }
 
@@ -23,7 +24,7 @@ namespace Catalog
             PositiveButtons.Add(new Button
             {
                 Text = "OK",
-                Command = new Command((sender, e) => Close(List.SelectedValue as GameEntry))
+                Command = new Command((sender, e) => Close(List.SelectedValue as SearchResult))
             });
 
             NegativeButtons.Add(new Button
@@ -46,7 +47,7 @@ namespace Catalog
         {
             if (List.SelectedValue != null && e.Key == Keys.Enter)
             {
-                Close(List.SelectedValue as GameEntry);
+                Close(List.SelectedValue as SearchResult);
             }
         }
 
@@ -54,7 +55,7 @@ namespace Catalog
         { 
             if (List.SelectedValue != null)
             {
-                Close(List.SelectedValue as GameEntry);
+                Close(List.SelectedValue as SearchResult);
             }
         }
     }

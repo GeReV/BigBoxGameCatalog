@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Linq;
-using Eto.Forms;
-using swc = System.Windows.Controls;
-using sw = System.Windows;
-using swd = System.Windows.Data;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using Eto.Drawing;
-using Eto.Wpf.Forms;
+using System.Linq;
 using Catalog.Forms.Controls;
+using Eto.Drawing;
+using Eto.Forms;
+using Eto.Wpf.Forms;
+using sw = System.Windows;
+using swc = System.Windows.Controls;
+using swd = System.Windows.Data;
 
 namespace Catalog.Wpf.Forms.Controls
 {
@@ -25,8 +25,8 @@ namespace Catalog.Wpf.Forms.Controls
 
     public class RichListBoxHandler : WpfControl<swc.ListBox, RichListBox, RichListBox.ICallback>, RichListBox.IHandler
     {
-        IEnumerable<object> store;
-        ContextMenu contextMenu;
+        private IEnumerable<object> store;
+        private ContextMenu contextMenu;
 
         protected override sw.Size DefaultSize => new sw.Size(100, 120);
 
@@ -81,7 +81,7 @@ namespace Catalog.Wpf.Forms.Controls
             }
         }
 
-        void Control_Loaded(object sender, sw.RoutedEventArgs e)
+        private void Control_Loaded(object sender, sw.RoutedEventArgs e)
         {
             Focus();
             Control.Loaded -= Control_Loaded;
@@ -94,8 +94,7 @@ namespace Catalog.Wpf.Forms.Controls
         public IEnumerable<object> DataStore
         {
             get { return store; }
-            set
-            {
+            set {
                 store = value;
                 var source = store as IEnumerable<object>;
                 if (source != null && !(source is INotifyCollectionChanged))
@@ -107,8 +106,7 @@ namespace Catalog.Wpf.Forms.Controls
         public int SelectedIndex
         {
             get { return Control.SelectedIndex; }
-            set
-            {
+            set {
                 Control.SelectedIndex = value;
                 if (value >= 0 && store != null)
                 {
@@ -121,29 +119,27 @@ namespace Catalog.Wpf.Forms.Controls
         public ContextMenu ContextMenu
         {
             get { return contextMenu; }
-            set
-            {
+            set {
                 contextMenu = value;
                 Control.ContextMenu = contextMenu != null ? contextMenu.ControlObject as sw.Controls.ContextMenu : null;
             }
         }
 
-        IIndirectBinding<string> _itemTextBinding;
+        private IIndirectBinding<string> _itemTextBinding;
         public IIndirectBinding<string> ItemTextBinding
         {
             get => _itemTextBinding;
-            set
-            {
+            set {
                 _itemTextBinding = value;
                 Control.InvalidateVisual();
             }
         }
-        IIndirectBinding<string> _itemSubtitleBinding;
+
+        private IIndirectBinding<string> _itemSubtitleBinding;
         public IIndirectBinding<string> ItemSubtitleBinding
         {
             get => _itemSubtitleBinding;
-            set
-            {
+            set {
                 _itemSubtitleBinding = value;
                 Control.InvalidateVisual();
             }

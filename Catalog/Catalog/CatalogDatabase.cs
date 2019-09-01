@@ -1,8 +1,8 @@
-﻿using Catalog.Model;
-using LiteDB;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Catalog.Model;
+using LiteDB;
 
 namespace Catalog
 {
@@ -12,7 +12,16 @@ namespace Catalog
 
         public CatalogDatabase(string path)
         {
-            Database = new LiteDatabase(path);
+            var mapper = BsonMapper.Global;
+
+            mapper.Entity<GameCopy>()
+                .DbRef(x => x.Developers, "developers")
+                .DbRef(x => x.Publisher, "publishers")
+                .DbRef(x => x.Media, "media")
+                .DbRef(x => x.Appendices, "appendices")
+                .Field(x => x.GameBox, "game_box");
+
+            Database = new LiteDatabase(path, mapper);
 
             var gameCollection = GetGamesCollection();
 

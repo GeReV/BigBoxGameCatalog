@@ -1,7 +1,7 @@
 using System;
-using Eto.Forms;
-using Eto.Drawing;
 using Catalog.Model;
+using Eto.Drawing;
+using Eto.Forms;
 
 namespace Catalog
 {

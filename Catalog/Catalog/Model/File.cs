@@ -6,7 +6,7 @@ namespace Catalog.Model
 {
     public class File
     {
-        string Path { get; set; }
-        string SHA256Checksum { get; set; }
+        public string Path { get; set; }
+        public string SHA256Checksum { get; set; }
     }
 }

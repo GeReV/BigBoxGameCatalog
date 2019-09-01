@@ -1,10 +1,10 @@
 ﻿using System;
-using sw = System.Windows;
-using swc = System.Windows.Controls;
-using swd = System.Windows.Data;
 using Eto.Drawing;
 using Eto.Forms;
 using Eto.Wpf.Forms.Controls;
+using sw = System.Windows;
+using swc = System.Windows.Controls;
+using swd = System.Windows.Data;
 
 namespace Catalog.Wpf.Forms.Controls
 {
@@ -17,7 +17,7 @@ namespace Catalog.Wpf.Forms.Controls
 
             AppendChild(new WpfImageBindingBlock(imageBinding));
 
-            var titles = new sw.FrameworkElementFactory(typeof (swc.StackPanel));
+            var titles = new sw.FrameworkElementFactory(typeof(swc.StackPanel));
             titles.SetValue(swc.StackPanel.OrientationProperty, swc.Orientation.Vertical);
 
             AppendChild(titles);

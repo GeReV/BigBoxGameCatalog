@@ -1,13 +1,13 @@
-﻿using Catalog.Model;
-using Eto;
-using Eto.Forms;
-using LiteDB;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Catalog.Model;
+using Eto;
+using Eto.Forms;
+using LiteDB;
 
 namespace Catalog
 {

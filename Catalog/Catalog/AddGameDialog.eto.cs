@@ -81,7 +81,9 @@ namespace Catalog
 
         private void SearchMobyGames(string term)
         {
-            var entries = new MobyGamesScraper().Search(term);
+            var scraper = new MobyGamesScraper();
+
+            var entries = scraper.Search(term);
 
             var choice = new GameDisambiguationDialog(entries).ShowModal();
 
@@ -90,7 +92,7 @@ namespace Catalog
                 return;
             }
 
-            MessageBox.Show(choice.Name);
+            var game = scraper.GetGame(choice.Slug);
         }
     }
 }

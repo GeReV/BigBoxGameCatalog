@@ -1,15 +1,15 @@
 ﻿using System;
-using Eto.Forms;
-using Eto.Drawing;
 using Catalog.Forms.Controls;
 using Catalog.Wpf.Forms.Controls;
+using Eto.Drawing;
+using Eto.Forms;
 
 namespace Catalog.Desktop
 {
-    class Program
+    internal class Program
     {
         [STAThread]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var platform = new Eto.Wpf.Platform();
 

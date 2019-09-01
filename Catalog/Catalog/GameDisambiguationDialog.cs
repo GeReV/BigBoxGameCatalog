@@ -1,20 +1,21 @@
 using System;
-using Eto.Forms;
-using Eto.Drawing;
-using Catalog.Scrapers.MobyGames;
 using System.Collections.Generic;
+using Catalog.Scrapers.MobyGames;
+using Catalog.Scrapers.MobyGames.Model;
+using Eto.Drawing;
+using Eto.Forms;
 
 namespace Catalog
 {
-	public partial class GameDisambiguationDialog : Dialog<GameEntry>
-	{
-        public List<GameEntry> Entries { get; set; }
+    public partial class GameDisambiguationDialog : Dialog<SearchResult>
+    {
+        public List<SearchResult> Entries { get; set; }
 
-        public GameDisambiguationDialog(List<GameEntry> entries)
-		{
+        public GameDisambiguationDialog(List<SearchResult> entries)
+        {
             Entries = entries;
 
-			InitializeComponent();
+            InitializeComponent();
         }
 
         protected override void OnShown(EventArgs e)
@@ -23,9 +24,9 @@ namespace Catalog
 
             List.DataStore = Entries;
 
-            List.ItemKeyBinding = Binding.Property<GameEntry, string>(ge => ge.Href);
-            List.ItemTextBinding = Binding.Property<GameEntry, string>(ge => ge.Name);
-            List.ItemSubtitleBinding = Binding.Property<GameEntry, string>(ge => string.Join(", ", ge.Releases));
+            List.ItemKeyBinding = Binding.Property<SearchResult, string>(ge => ge.Url);
+            List.ItemTextBinding = Binding.Property<SearchResult, string>(ge => ge.Name);
+            List.ItemSubtitleBinding = Binding.Property<SearchResult, string>(ge => string.Join(", ", ge.Releases));
 
             List.Focus();
         }
