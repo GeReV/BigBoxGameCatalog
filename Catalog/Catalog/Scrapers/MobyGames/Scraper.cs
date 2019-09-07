@@ -8,39 +8,63 @@ using HtmlAgilityPack;
 
 namespace Catalog.Scrapers.MobyGames
 {
-
     [Serializable]
     public class ScraperException : Exception
     {
-        public ScraperException() { }
-        public ScraperException(string message) : base(message) { }
-        public ScraperException(string message, Exception inner) : base(message, inner) { }
+        public ScraperException()
+        {
+        }
+
+        public ScraperException(string message) : base(message)
+        {
+        }
+
+        public ScraperException(string message, Exception inner) : base(message, inner)
+        {
+        }
+
         protected ScraperException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+            System.Runtime.Serialization.SerializationInfo info,
+            System.Runtime.Serialization.StreamingContext context) : base(info, context)
+        {
+        }
     }
 
     public class Scraper
     {
+
         public Scraper()
         {
         }
+
+        const string SEARCH_RESULT = "searchResult";
+        const string SEARCH_TITLE = "searchTitle";
+        const string SEARCH_DETAILS = "searchDetails";
+            
+        const string CORE_GAME_RELEASE_ID = "coreGameRelease";
+        const string GAME_NAME_TITLE = "niceHeaderTitle";
+
+        const string OFFICIAL_SCREENSHOTS_ID = "official_screenshots";
+        const string THUMBNAIL_GALLERY = "thumbnailGallery";
 
         public List<SearchResult> Search(string term)
         {
             var doc = LoadUrl(BuildSearchUrl(term));
 
-            var results = doc.DocumentNode.SelectNodesByClass("searchResult", "div");
+            var results = doc.DocumentNode.SelectNodesByClass(SEARCH_RESULT, "div");
+
 
             var entries = results
-                .Where(result => result.SelectSingleNodeByClass("searchTitle")?.PlainInnerText().StartsWith("Game:") ?? false)
+                .Where(result =>
+                    result.SelectSingleNodeByClass(SEARCH_TITLE)?.PlainInnerText().StartsWith("Game:") ?? false)
                 .Select(result =>
                 {
-                    var entryLink = result.SelectSingleNodeByClass("searchTitle").SelectSingleNode("a");
+                    var entryLink = result.SelectSingleNodeByClass(SEARCH_TITLE).SelectSingleNode("a");
 
                     var searchResult = ExtractNamedEntryFromNode<SearchResult>(entryLink);
 
-                    searchResult.Releases = result.SelectSingleNodeByClass("searchDetails").SelectNodes("span").Select(sp => sp.PlainInnerText()).ToArray();
+                    searchResult.Releases = result.SelectSingleNodeByClass(SEARCH_DETAILS).SelectNodes("span")
+                        .Select(sp => sp.PlainInnerText()).ToArray();
 
                     return searchResult;
                 })
@@ -55,12 +79,12 @@ namespace Catalog.Scrapers.MobyGames
 
             var doc = LoadUrl(url).DocumentNode;
 
-            var details = doc.SelectSingleNodeById("coreGameRelease");
+            var details = doc.SelectSingleNodeById(CORE_GAME_RELEASE_ID);
 
 
             return new GameEntry
             {
-                Name = doc.SelectSingleNodeByClass("niceHeaderTitle").SelectSingleNode("a").PlainInnerText(),
+                Name = doc.SelectSingleNodeByClass(GAME_NAME_TITLE).SelectSingleNode("a").PlainInnerText(),
                 Slug = slug,
                 Url = url,
                 Publisher = ExtractPublisher(details),
@@ -70,9 +94,38 @@ namespace Catalog.Scrapers.MobyGames
             };
         }
 
+        public ScreenshotEntry[] GetGameScreenshots(string slug)
+        {
+            var url = $"{BuildGameUrl(slug)}/screenshots";
+
+            var doc = LoadUrl(url).DocumentNode;
+
+            var officialScreenshots = doc
+                .SelectSingleNodeById(OFFICIAL_SCREENSHOTS_ID)
+                ?.SelectSingleNode($"./following-sibling::*[@class='{THUMBNAIL_GALLERY}']");
+
+            return ExtractScreenshots(new Uri(url), officialScreenshots).ToArray();
+        }
+
+        private IEnumerable<ScreenshotEntry> ExtractScreenshots(Uri baseUri, HtmlNode gallery)
+        {
+            if (gallery == null)
+            {
+                return new List<ScreenshotEntry>();
+            }
+            
+            return gallery
+                .SelectNodes(".//a")
+                .Select(thumbnail => new ScreenshotEntry
+                {
+                    Url = thumbnail.GetAttributeValue("href", null),
+                    Thumbnail = new Uri(baseUri,thumbnail.SelectSingleNode("img").GetAttributeValue("src", null)).ToString()
+                });
+        }
+
         private static string BuildGameUrl(string slug)
         {
-            return string.Format("https://www.mobygames.com/game/{0}", Uri.EscapeUriString(slug));
+            return $"https://www.mobygames.com/game/{Uri.EscapeUriString(slug)}";
         }
 
         private static string BuildSearchUrl(string term)
@@ -117,7 +170,7 @@ namespace Catalog.Scrapers.MobyGames
 
         private static HtmlNode SelectNodeFollowingTitle(HtmlNode details, string title)
         {
-            return details.SelectSingleNode(string.Format(".//*[.='{0}']", title)).NextSibling;
+            return details.SelectSingleNode($".//*[.='{title}']").NextSibling;
         }
 
         private static PublisherEntry ExtractPublisher(HtmlNode details)

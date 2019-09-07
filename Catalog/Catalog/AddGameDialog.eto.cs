@@ -2,11 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Eto.Forms;
 using Eto.Drawing;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Scrapers.MobyGames.Model;
+using Image = Eto.Drawing.Image;
 
 namespace Catalog
 {
@@ -18,11 +22,12 @@ namespace Catalog
         protected ComboBox publisherList;
         protected GridView<Developer> developerList;
         protected CheckBox hasBoxCheckbox;
+        protected StackLayout screenshots;
 
         private ObservableCollection<Publisher> publishers = new ObservableCollection<Publisher>(
             CatalogApplication.Instance.Database.GetPublishersCollection().FindAll()
         );
-        
+
         private ObservableCollection<Developer> developers = new ObservableCollection<Developer>(
             CatalogApplication.Instance.Database.GetDevelopersCollection().FindAll()
         );
@@ -125,6 +130,20 @@ namespace Catalog
 
             AddRow(layout, "Has Game Box", hasBoxCheckbox);
 
+            screenshots = new StackLayout
+            {
+                BackgroundColor = Colors.White,
+                Padding = new Padding(5),
+                Spacing = 5,
+                Orientation = Orientation.Horizontal,
+                Height = 120 + 10 * 2
+            };
+
+            AddRow(layout, "Screenshots", new Scrollable
+            {
+                Content = screenshots,
+            });
+
             layout.EndVertical();
 
             layout.BeginVertical();
@@ -176,6 +195,8 @@ namespace Catalog
 
             var gameEntry = scraper.GetGame(choice.Slug);
 
+            ShowScreenshots(gameEntry);
+
             game = new GameCopy
             {
                 Title = gameEntry.Name,
@@ -225,7 +246,35 @@ namespace Catalog
 
             game.Developers = gameDevelopers;
 
+
             DataContext = game;
+        }
+
+        private async void ShowScreenshots(GameEntry gameEntry)
+        {
+            IEnumerable<ScreenshotEntry> screenshotEntries = new Scraper().GetGameScreenshots(gameEntry.Slug);
+
+            var requests = screenshotEntries.Take(5)
+                .Select(async ss => new Bitmap(await new WebClient().DownloadDataTaskAsync(ss.Thumbnail)))
+                .ToList();
+
+            while (requests.Count > 0)
+            {
+                var task = await Task.WhenAny(requests);
+
+                requests.Remove(task);
+                
+                screenshots.Items.Add(new Panel
+                {
+                    BackgroundColor = Colors.LightBlue,
+                    Padding = new Padding(5),
+                    Content = new ImageView
+                    {
+                        Image = task.Result,
+                        Height = 120,
+                    }
+                });
+            }
         }
     }
 }
