@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using Catalog.Model;
 using Eto.Drawing;
 using Eto.Forms;
+using LiteDB;
 
 namespace Catalog
 {
@@ -28,11 +30,23 @@ namespace Catalog
                 return;
             }
 
-            var collection = CatalogApplication.Instance.Database.GetGamesCollection();
-
-            collection.Insert(game);
+            InsertGame(game);
 
             UpdateList();
+        }
+
+        private static void InsertGame(GameCopy game)
+        {
+            var database = CatalogApplication.Instance.Database;
+
+            if (game.Publisher.PublisherId == 0)
+            {
+                database.GetPublishersCollection().Insert(game.Publisher);
+            }
+
+            database.GetDevelopersCollection().InsertBulk(game.Developers.Where(d => d.DeveloperId == 0));
+
+            database.GetGamesCollection().Insert(game);
         }
 
         private void UpdateList()
