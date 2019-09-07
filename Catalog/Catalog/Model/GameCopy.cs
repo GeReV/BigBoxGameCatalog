@@ -7,7 +7,7 @@ namespace Catalog.Model
     {
         public int GameCopyId { get; set; }
         public string Title { get; set; }
-        public HashSet<Developer> Developers { get; set; }
+        public List<Developer> Developers { get; set; }
         public Publisher Publisher { get; set; }
         public DateTime ReleaseDate { get; set; }
         public List<string> TwoLetterISOLanguageName { get; set; }

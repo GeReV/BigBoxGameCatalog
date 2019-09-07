@@ -99,7 +99,7 @@ namespace Catalog
                 DataCell = new CheckBoxCell
                 {
                     Binding = Binding.Delegate<Developer, bool?>(
-                        d => game.Developers.Contains(d),
+                        d => game?.Developers.Exists(developer => developer.Slug == d.Slug) ?? false,
                         (developer, b) =>
                         {
                             if (b.GetValueOrDefault(false))
@@ -124,7 +124,7 @@ namespace Catalog
 
             hasBoxCheckbox = new CheckBox();
             hasBoxCheckbox.CheckedBinding.BindDataContext<GameCopy>(
-                g => g.GameBox != null,
+                g => g?.GameBox != null,
                 (g, b) => g.GameBox = b.GetValueOrDefault(true) ? new GameBox() : null
             );
 
@@ -223,7 +223,7 @@ namespace Catalog
 
             var developerCollection = developers.ToList();
 
-            var gameDevelopers = new HashSet<Developer>();
+            var gameDevelopers = new List<Developer>();
 
             foreach (var devEntry in gameEntry.Developers)
             {
