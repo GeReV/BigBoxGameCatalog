@@ -1,22 +1,39 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Eto.Forms;
 using Eto.Drawing;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
+using Catalog.Scrapers.MobyGames.Model;
 
 namespace Catalog
 {
-	partial class AddGameDialog : Dialog<GameCopy>
-	{
+    partial class AddGameDialog : Dialog<GameCopy>
+    {
         private GameCopy game;
+
+        protected TextBox titleTextbox;
+        protected ComboBox publisherList;
+        protected GridView<Developer> developerList;
+        protected CheckBox hasBoxCheckbox;
+
+        private ObservableCollection<Publisher> publishers = new ObservableCollection<Publisher>(
+            CatalogApplication.Instance.Database.GetPublishersCollection().FindAll()
+        );
+        
+        private ObservableCollection<Developer> developers = new ObservableCollection<Developer>(
+            CatalogApplication.Instance.Database.GetDevelopersCollection().FindAll()
+        );
 
         protected Control DefaultControl { get; private set; }
 
-		void InitializeComponent()
-		{
-			Title = "Add Game Dialog";
-			ClientSize = new Size(800, 600);
-			Padding = 10;
+        void InitializeComponent()
+        {
+            Title = "Add Game Dialog";
+            ClientSize = new Size(800, 600);
+            Padding = 10;
 
             PositiveButtons.Add(new Button
             {
@@ -29,30 +46,85 @@ namespace Catalog
                 Command = new Command((sender, e) => Close())
             });
 
-            game = new GameCopy();
-
-            var titleTextbox = new TextBox();
-            titleTextbox.TextBinding.Bind(game, g => g.Title);
-            titleTextbox.KeyUp += TitleTextbox_KeyUp;
-
-            DefaultControl = titleTextbox;
-
             var layout = new DynamicLayout
             {
-                Spacing = new Size(5, 5),
+                DefaultSpacing = new Size(5, 5),
             };
 
             layout.BeginVertical();
-            layout.BeginHorizontal();
-            layout.Add(new Label { Text = "Title", Width = 200 });
-            layout.Add(titleTextbox, true);
-            layout.Add(new Button
+
+            titleTextbox = new TextBox();
+            titleTextbox.KeyUp += TitleTextbox_KeyUp;
+            titleTextbox.BindDataContext<TextBox, GameCopy, string>(c => c.Text, g => g.Title);
+
+            DefaultControl = titleTextbox;
+
+            AddRow(layout, "Title", l =>
+            {
+                l.Add(titleTextbox, true);
+                layout.Add(new Button
                 {
                     Text = "Search MobyGames",
                     Command = new Command((sender, e) => SearchMobyGames(titleTextbox.Text.Trim()))
-                }
+                });
+            });
+
+            publisherList = new ComboBox
+            {
+                AutoComplete = true,
+                DataStore = publishers,
+            };
+
+            publisherList.BindDataContext<ComboBox, GameCopy, object>(
+                c => c.SelectedValue,
+                g => g.Publisher
             );
-            layout.EndHorizontal();
+
+            AddRow(layout, "Publisher", publisherList);
+
+            developerList = new GridView<Developer>
+            {
+                AllowMultipleSelection = true,
+                ShowHeader = false,
+                DataStore = developers,
+            };
+
+            developerList.Columns.Add(new GridColumn
+            {
+                DataCell = new CheckBoxCell
+                {
+                    Binding = Binding.Delegate<Developer, bool?>(
+                        d => game.Developers.Contains(d),
+                        (developer, b) =>
+                        {
+                            if (b.GetValueOrDefault(false))
+                            {
+                                game.Developers.Add(developer);
+                            }
+                            else
+                            {
+                                game.Developers.Remove(developer);
+                            }
+                        }
+                    )
+                },
+                Editable = true,
+            });
+            developerList.Columns.Add(new GridColumn
+            {
+                DataCell = new ImageTextCell {TextBinding = Binding.Property<Developer, string>(d => d.Name)}
+            });
+
+            AddRow(layout, "Developers", developerList);
+
+            hasBoxCheckbox = new CheckBox();
+            hasBoxCheckbox.CheckedBinding.BindDataContext<GameCopy>(
+                g => g.GameBox != null,
+                (g, b) => g.GameBox = b.GetValueOrDefault(true) ? new GameBox() : null
+            );
+
+            AddRow(layout, "Has Game Box", hasBoxCheckbox);
+
             layout.EndVertical();
 
             layout.BeginVertical();
@@ -66,13 +138,23 @@ namespace Catalog
             layout.EndVertical();
 
             Content = layout;
+        }
 
+        private void AddRow(DynamicLayout layout, string label, Control control)
+        {
+            AddRow(layout, label, l => l.Add(control, true));
+        }
+
+        private void AddRow(DynamicLayout layout, string label, Action<DynamicLayout> func)
+        {
+            layout.BeginHorizontal();
+            layout.Add(new Label {Text = label, Width = 200});
+            func(layout);
+            layout.EndHorizontal();
         }
 
         private void TitleTextbox_KeyUp(object sender, KeyEventArgs e)
         {
-            var titleTextbox = sender as TextBox;
-
             if (!string.IsNullOrWhiteSpace(titleTextbox.Text) && e.Key == Keys.Enter)
             {
                 SearchMobyGames(titleTextbox.Text.Trim());
@@ -81,7 +163,7 @@ namespace Catalog
 
         private void SearchMobyGames(string term)
         {
-            var scraper = new MobyGamesScraper();
+            var scraper = new Scraper();
 
             var entries = scraper.Search(term);
 
@@ -92,7 +174,58 @@ namespace Catalog
                 return;
             }
 
-            var game = scraper.GetGame(choice.Slug);
+            var gameEntry = scraper.GetGame(choice.Slug);
+
+            game = new GameCopy
+            {
+                Title = gameEntry.Name,
+                Links = new List<string> {gameEntry.Url},
+                Screenshots = new List<string>(),
+                GameBox = new GameBox(),
+            };
+
+            var publisherEntry = publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
+
+            if (publisherEntry == null)
+            {
+                var publisher = new Publisher
+                {
+                    Name = gameEntry.Publisher.Name,
+                    Slug = gameEntry.Publisher.Slug,
+                    Links = new[] {gameEntry.Publisher.Url}
+                };
+
+                game.Publisher = publisher;
+
+                publishers.Add(publisher);
+            }
+
+            var developerCollection = developers.ToList();
+
+            var gameDevelopers = new HashSet<Developer>();
+
+            foreach (var devEntry in gameEntry.Developers)
+            {
+                var developer = developerCollection.Find(d => d.Slug == devEntry.Slug);
+
+                if (developer == null)
+                {
+                    developer = new Developer
+                    {
+                        Name = devEntry.Name,
+                        Slug = devEntry.Slug,
+                        Links = new[] {devEntry.Url},
+                    };
+
+                    developers.Add(developer);
+                }
+
+                gameDevelopers.Add(developer);
+            }
+
+            game.Developers = gameDevelopers;
+
+            DataContext = game;
         }
     }
 }

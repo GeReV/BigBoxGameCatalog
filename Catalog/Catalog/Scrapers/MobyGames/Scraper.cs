@@ -10,19 +10,19 @@ namespace Catalog.Scrapers.MobyGames
 {
 
     [Serializable]
-    public class MobyGamesScaperException : Exception
+    public class ScraperException : Exception
     {
-        public MobyGamesScaperException() { }
-        public MobyGamesScaperException(string message) : base(message) { }
-        public MobyGamesScaperException(string message, Exception inner) : base(message, inner) { }
-        protected MobyGamesScaperException(
+        public ScraperException() { }
+        public ScraperException(string message) : base(message) { }
+        public ScraperException(string message, Exception inner) : base(message, inner) { }
+        protected ScraperException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 
-    public class MobyGamesScraper
+    public class Scraper
     {
-        public MobyGamesScraper()
+        public Scraper()
         {
         }
 
@@ -102,7 +102,7 @@ namespace Catalog.Scrapers.MobyGames
         {
             if (node == null || node.Name != "a")
             {
-                throw new MobyGamesScaperException("Attempt to extract named entry from node failed.");
+                throw new ScraperException("Attempt to extract named entry from node failed.");
             }
 
             var url = node.GetAttributeValue("href", string.Empty);

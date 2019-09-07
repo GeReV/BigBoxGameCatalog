@@ -36,7 +36,7 @@ namespace Catalog
             var layout = new DynamicLayout();
 
             layout.BeginVertical();
-            layout.AddRow(string.Format("Found {0} entries:", Entries.Count));
+            layout.AddRow($"Found {Entries.Count} entries:");
             layout.AddRow(List);
             layout.EndVertical();
 

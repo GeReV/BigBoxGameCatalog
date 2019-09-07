@@ -14,18 +14,27 @@ namespace Catalog
         {
             var mapper = BsonMapper.Global;
 
+            mapper.UseLowerCaseDelimiter();
+
             mapper.Entity<GameCopy>()
                 .DbRef(x => x.Developers, "developers")
                 .DbRef(x => x.Publisher, "publishers")
                 .DbRef(x => x.Media, "media")
-                .DbRef(x => x.Appendices, "appendices")
-                .Field(x => x.GameBox, "game_box");
+                .DbRef(x => x.Appendices, "appendices");
 
             Database = new LiteDatabase(path, mapper);
 
             var gameCollection = GetGamesCollection();
 
             gameCollection.EnsureIndex(x => x.Title);
+
+            var publisherCollection = GetPublishersCollection();
+
+            publisherCollection.EnsureIndex(x => x.Name, true);
+
+            var developerCollection = GetDevelopersCollection();
+
+            developerCollection.EnsureIndex(x => x.Name, true);
         }
 
         public void Dispose()
@@ -36,6 +45,16 @@ namespace Catalog
         public LiteCollection<GameCopy> GetGamesCollection()
         {
             return Database.GetCollection<GameCopy>("games");
+        }
+
+        public LiteCollection<Publisher> GetPublishersCollection()
+        {
+            return Database.GetCollection<Publisher>("publishers");
+        }
+        
+        public LiteCollection<Developer> GetDevelopersCollection()
+        {
+            return Database.GetCollection<Developer>("developers");
         }
     }
 }
