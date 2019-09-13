@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Catalog.Forms;
+using Catalog.Forms.Controls;
 using Eto.Forms;
 using Eto.Drawing;
 using Catalog.Model;
@@ -16,13 +18,13 @@ namespace Catalog
 {
     partial class AddGameDialog : Dialog<GameCopy>
     {
-        private GameCopy game;
+        private GameCopy game = new GameCopy();
 
         protected TextBox titleTextbox;
         protected ComboBox publisherList;
-        protected GridView<Developer> developerList;
+        protected CheckBoxList developerList;
         protected CheckBox hasBoxCheckbox;
-        protected StackLayout screenshots;
+        protected ThumbnailSelect screenshots;
 
         private ObservableCollection<Publisher> publishers = new ObservableCollection<Publisher>(
             CatalogApplication.Instance.Database.GetPublishersCollection().FindAll()
@@ -40,6 +42,8 @@ namespace Catalog
             ClientSize = new Size(800, 600);
             Padding = 10;
 
+            DataContext = game;
+
             PositiveButtons.Add(new Button
             {
                 Text = "OK",
@@ -55,6 +59,8 @@ namespace Catalog
             {
                 DefaultSpacing = new Size(5, 5),
             };
+            
+            Content = layout;
 
             layout.BeginVertical();
 
@@ -87,40 +93,41 @@ namespace Catalog
 
             AddRow(layout, "Publisher", publisherList);
 
-            developerList = new GridView<Developer>
+            developerList = new CheckBoxList()
             {
-                AllowMultipleSelection = true,
-                ShowHeader = false,
+                Orientation = Orientation.Vertical,
+                ItemTextBinding = Binding.Property<Developer, string>(d => d.Name),
+                ItemKeyBinding = Binding.Property<Developer, string>(d => d.Slug),
                 DataStore = developers,
             };
 
-            developerList.Columns.Add(new GridColumn
+            AddRow(layout, "Developers", new Scrollable
             {
-                DataCell = new CheckBoxCell
+                BackgroundColor = Colors.White,
+                ExpandContentHeight = false,
+                Height = 120,
+                Content = developerList,
+            });
+            
+            developerList.SelectedKeysBinding.BindDataContext<GameCopy>(
+                (gc) => gc?.Developers.Select(d => d.Slug) ?? new List<string>(),
+                (gc, slugs) =>
                 {
-                    Binding = Binding.Delegate<Developer, bool?>(
-                        d => game?.Developers.Exists(developer => developer.Slug == d.Slug) ?? false,
-                        (developer, b) =>
-                        {
-                            if (b.GetValueOrDefault(false))
-                            {
-                                game.Developers.Add(developer);
-                            }
-                            else
-                            {
-                                game.Developers.Remove(developer);
-                            }
-                        }
-                    )
-                },
-                Editable = true,
-            });
-            developerList.Columns.Add(new GridColumn
-            {
-                DataCell = new ImageTextCell {TextBinding = Binding.Property<Developer, string>(d => d.Name)}
-            });
+                    foreach (string slug in slugs)
+                    {
+                        var dev = developers.First(d => d.Slug == slug);
 
-            AddRow(layout, "Developers", developerList);
+                        if (gc.Developers.Contains(dev))
+                        {
+                            gc.Developers.Remove(dev);
+                        }
+                        else
+                        {
+                            gc.Developers.Add(dev);
+                        }
+                    }
+                }
+            );
 
             hasBoxCheckbox = new CheckBox();
             hasBoxCheckbox.CheckedBinding.BindDataContext<GameCopy>(
@@ -130,19 +137,9 @@ namespace Catalog
 
             AddRow(layout, "Has Game Box", hasBoxCheckbox);
 
-            screenshots = new StackLayout
-            {
-                BackgroundColor = Colors.White,
-                Padding = new Padding(5),
-                Spacing = 5,
-                Orientation = Orientation.Horizontal,
-                Height = 120 + 10 * 2
-            };
+            screenshots = new ThumbnailSelect();
 
-            AddRow(layout, "Screenshots", new Scrollable
-            {
-                Content = screenshots,
-            });
+            AddRow(layout, "Screenshots", screenshots);
 
             layout.EndVertical();
 
@@ -155,8 +152,6 @@ namespace Catalog
             );
 
             layout.EndVertical();
-
-            Content = layout;
         }
 
         private void AddRow(DynamicLayout layout, string label, Control control)
@@ -245,36 +240,40 @@ namespace Catalog
             }
 
             game.Developers = gameDevelopers;
-
-
+            
             DataContext = game;
+            
+            // Can this be done via DataContext?
+            developerList.UpdateBindings();
         }
 
         private async void ShowScreenshots(GameEntry gameEntry)
         {
             IEnumerable<ScreenshotEntry> screenshotEntries = new Scraper().GetGameScreenshots(gameEntry.Slug);
 
-            var requests = screenshotEntries.Take(5)
-                .Select(async ss => new Bitmap(await new WebClient().DownloadDataTaskAsync(ss.Thumbnail)))
+            var listItems = screenshotEntries.Take(5)
+                .Select(async ss => new ImageListItem
+                {
+                    Key = ss.Thumbnail,
+                    Tag = ss.Url,
+                    Image = new Bitmap(await new WebClient().DownloadDataTaskAsync(ss.Thumbnail))
+                })
                 .ToList();
 
-            while (requests.Count > 0)
-            {
-                var task = await Task.WhenAny(requests);
+            var images = new ObservableCollection<ImageListItem>();
 
-                requests.Remove(task);
-                
-                screenshots.Items.Add(new Panel
-                {
-                    BackgroundColor = Colors.LightBlue,
-                    Padding = new Padding(5),
-                    Content = new ImageView
-                    {
-                        Image = task.Result,
-                        Height = 120,
-                    }
-                });
+            screenshots.DataStore = images;
+
+            while (listItems.Count > 0)
+            {
+                var task = await Task.WhenAny(listItems);
+
+                listItems.Remove(task);
+
+                images.Add(task.Result);
             }
+
+            screenshots.SelectAll();
         }
     }
 }
