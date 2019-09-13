@@ -173,6 +173,11 @@ namespace Catalog.Scrapers.MobyGames
             return details.SelectSingleNode($".//*[.='{title}']").NextSibling;
         }
 
+        private static HtmlNode SelectNodeFollowingTitleStartingWith(HtmlNode details, string title)
+        {
+            return details.SelectSingleNode($".//*[starts-with(text(),'{title}')]").NextSibling;
+        }
+
         private static PublisherEntry ExtractPublisher(HtmlNode details)
         {
             var publisherNode = SelectNodeFollowingTitle(details, "Published by").SelectSingleNode("a");
@@ -190,7 +195,7 @@ namespace Catalog.Scrapers.MobyGames
 
         private static string[] ExtractPlatforms(HtmlNode details)
         {
-            return SelectNodeFollowingTitle(details, "Platforms")
+            return SelectNodeFollowingTitleStartingWith(details, "Platform")
                 .SelectNodes("a")
                 .Select(node => node.PlainInnerText())
                 .ToArray();
