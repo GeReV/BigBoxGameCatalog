@@ -113,18 +113,13 @@ namespace Catalog
                 (gc) => gc?.Developers.Select(d => d.Slug) ?? new List<string>(),
                 (gc, slugs) =>
                 {
-                    foreach (string slug in slugs)
+                    gc.Developers.Clear();
+                    
+                    foreach (var slug in slugs)
                     {
                         var dev = developers.First(d => d.Slug == slug);
 
-                        if (gc.Developers.Contains(dev))
-                        {
-                            gc.Developers.Remove(dev);
-                        }
-                        else
-                        {
-                            gc.Developers.Add(dev);
-                        }
+                        gc.Developers.Add(dev);
                     }
                 }
             );

@@ -170,17 +170,22 @@ namespace Catalog.Scrapers.MobyGames
 
         private static HtmlNode SelectNodeFollowingTitle(HtmlNode details, string title)
         {
-            return details.SelectSingleNode($".//*[.='{title}']").NextSibling;
+            return details.SelectSingleNode($".//*[.='{title}']")?.NextSibling;
         }
 
         private static HtmlNode SelectNodeFollowingTitleStartingWith(HtmlNode details, string title)
         {
-            return details.SelectSingleNode($".//*[starts-with(text(),'{title}')]").NextSibling;
+            return details.SelectSingleNode($".//*[starts-with(text(),'{title}')]")?.NextSibling;
         }
 
         private static PublisherEntry ExtractPublisher(HtmlNode details)
         {
-            var publisherNode = SelectNodeFollowingTitle(details, "Published by").SelectSingleNode("a");
+            var publisherNode = SelectNodeFollowingTitle(details, "Published by")?.SelectSingleNode("a");
+
+            if (publisherNode == null)
+            {
+                return null;
+            }
 
             return ExtractNamedEntryFromNode<PublisherEntry>(publisherNode);
         }
@@ -188,7 +193,12 @@ namespace Catalog.Scrapers.MobyGames
 
         private static DeveloperEntry[] ExtractDevelopers(HtmlNode details)
         {
-            var developerNodes = SelectNodeFollowingTitle(details, "Developed by").SelectNodes("a");
+            var developerNodes = SelectNodeFollowingTitle(details, "Developed by")?.SelectNodes("a");
+
+            if (developerNodes == null)
+            {
+                return new DeveloperEntry[0];
+            }
 
             return developerNodes.Select(ExtractNamedEntryFromNode<DeveloperEntry>).ToArray();
         }

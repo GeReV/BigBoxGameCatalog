@@ -7,12 +7,13 @@ namespace Catalog.Model
     {
         public GameCopy()
         {
+            GameBox = new GameBox();
             Developers = new List<Developer>();
             Links = new List<string>();
             Screenshots = new List<string>();
             Media = new List<Media>();
             Appendices = new List<Appendix>();
-            TwoLetterIsoLanguageName = new List<string>();
+            TwoLetterIsoLanguageName = new List<string> { "en" };
         }
         
         public int GameCopyId { get; set; }
