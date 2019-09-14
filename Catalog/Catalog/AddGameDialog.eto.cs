@@ -21,6 +21,7 @@ namespace Catalog
         private GameCopy game = new GameCopy();
 
         protected TextBox titleTextbox;
+        protected Button searchMobyGamesButton;
         protected ComboBox publisherList;
         protected CheckBoxList developerList;
         protected CheckBox hasBoxCheckbox;
@@ -70,14 +71,16 @@ namespace Catalog
 
             DefaultControl = titleTextbox;
 
+            searchMobyGamesButton = new Button
+            {
+                Text = "Search MobyGames",
+                Command = new Command((sender, e) => SearchMobyGames(titleTextbox.Text.Trim()))
+            };
+
             AddRow(layout, "Title", l =>
             {
                 l.Add(titleTextbox, true);
-                layout.Add(new Button
-                {
-                    Text = "Search MobyGames",
-                    Command = new Command((sender, e) => SearchMobyGames(titleTextbox.Text.Trim()))
-                });
+                layout.Add(searchMobyGamesButton);
             });
 
             publisherList = new ComboBox
@@ -170,11 +173,13 @@ namespace Catalog
             }
         }
 
-        private void SearchMobyGames(string term)
+        private async void SearchMobyGames(string term)
         {
+            searchMobyGamesButton.Enabled = false;
+            
             var scraper = new Scraper();
 
-            var entries = scraper.Search(term);
+            var entries = await Task.Run(() => scraper.Search(term));
 
             var choice = new GameDisambiguationDialog(entries).ShowModal();
 
@@ -237,16 +242,13 @@ namespace Catalog
             game.Developers = gameDevelopers;
             
             DataContext = game;
-            
-            // Can this be done via DataContext?
-            developerList.UpdateBindings();
         }
 
         private async void ShowScreenshots(GameEntry gameEntry)
         {
             IEnumerable<ScreenshotEntry> screenshotEntries = new Scraper().GetGameScreenshots(gameEntry.Slug);
 
-            var listItems = screenshotEntries.Take(5)
+            var listItems = screenshotEntries.Take(20)
                 .Select(async ss => new ImageListItem
                 {
                     Key = ss.Thumbnail,
@@ -269,6 +271,8 @@ namespace Catalog
             }
 
             screenshots.SelectAll();
+            
+            searchMobyGamesButton.Enabled = true;
         }
     }
 }
