@@ -274,6 +274,22 @@ namespace Catalog
                 .GetValues(typeof(Platform))
                 .Cast<Platform>()
                 .Where(platform => specs.Platforms.Contains(platform.GetDescription()));
+
+             var mediaTypesList = specs.MediaTypes.ToList();
+             
+             if (mediaTypesList.Exists(mt => mt.Contains("5.25\" Floppy")))
+             {
+                 addMediaPanel.SetStepperValue(MediaType.Floppy525, 1);
+             } else if (mediaTypesList.Exists(mt => mt.Contains("3.5\" Floppy")))
+             {
+                 addMediaPanel.SetStepperValue(MediaType.Floppy35, 1);
+             } else if (mediaTypesList.Exists(mt => mt.Contains("CD-ROM")))
+             {
+                 addMediaPanel.SetStepperValue(MediaType.CdRom, 1);
+             } else if (mediaTypesList.Exists(mt => mt.Contains("DVD-ROM")))
+             {
+                 addMediaPanel.SetStepperValue(MediaType.DvdRom, 1);
+             }
         }
 
         private async void GetScreenshots(GameEntry gameEntry)
