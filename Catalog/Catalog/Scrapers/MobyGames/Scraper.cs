@@ -31,9 +31,8 @@ namespace Catalog.Scrapers.MobyGames
         }
     }
 
-    public class Scraper
+    public class Scraper : BaseScraper
     {
-
         public Scraper()
         {
         }
@@ -41,7 +40,7 @@ namespace Catalog.Scrapers.MobyGames
         const string SEARCH_RESULT = "searchResult";
         const string SEARCH_TITLE = "searchTitle";
         const string SEARCH_DETAILS = "searchDetails";
-            
+
         const string CORE_GAME_RELEASE_ID = "coreGameRelease";
         const string GAME_NAME_TITLE = "niceHeaderTitle";
 
@@ -82,7 +81,6 @@ namespace Catalog.Scrapers.MobyGames
 
             var details = doc.SelectSingleNodeById(CORE_GAME_RELEASE_ID);
 
-
             return new GameEntry
             {
                 Name = doc.SelectSingleNodeByClass(GAME_NAME_TITLE).SelectSingleNode("a").PlainInnerText(),
@@ -95,6 +93,53 @@ namespace Catalog.Scrapers.MobyGames
             };
         }
 
+        public Specs GetGameSpecs(string slug)
+        {
+            var url = $"{BuildGameUrl(slug)}/techinfo";
+
+            var doc = LoadUrl(url).DocumentNode;
+
+            var platformTechInfos = doc
+                .SelectNodesByClass("techInfo")
+                .ToDictionary(node => node.SelectSingleNode("thead").PlainInnerText().Trim());
+
+            var platforms = new List<string>();
+
+            if (platformTechInfos.ContainsKey("Windows"))
+            {
+                var minimumOs = SelectNodeWithText(
+                        platformTechInfos["Windows"],
+                        "Minimum OS Class Required"
+                    )
+                    ?.SelectFollowingNodeByTagName("td")
+                    ?.PlainInnerText()
+                    .Trim();
+
+                platforms.Add(minimumOs);
+            }
+
+            if (platformTechInfos.ContainsKey("DOS"))
+            {
+                platforms.Add("DOS");
+            }
+
+            var mediaTypes = platformTechInfos
+                .Where(pair => pair.Key == "DOS" || pair.Key == "Windows")
+                .SelectMany(pair =>
+                    SelectNodeWithText(pair.Value, "Media Type")
+                        ?.SelectFollowingNodeByTagName("td")
+                        ?.SelectNodes(".//a[not(img)]")
+                )
+                .Select(node => node.PlainInnerText())
+                .Distinct();
+
+            return new Specs
+            {
+                Platforms = platforms,
+                MediaTypes = mediaTypes,
+            };
+        }
+
         public ScreenshotEntry[] GetGameScreenshots(string slug)
         {
             var url = $"{BuildGameUrl(slug)}/screenshots";
@@ -103,10 +148,10 @@ namespace Catalog.Scrapers.MobyGames
 
             var officialScreenshotsNode = doc
                 .SelectSingleNodeById(OFFICIAL_SCREENSHOTS_ID)
-                ?.SelectSingleNode($"./following-sibling::*[@class='{THUMBNAIL_GALLERY}']");
+                ?.SelectFollowingNodeByClass(THUMBNAIL_GALLERY);
 
             var baseUri = new Uri(url);
-            
+
             var officialScreenshots = ExtractOfficialScreenshots(baseUri, officialScreenshotsNode).ToArray();
 
             var screenshots = ExtractScreenshots(baseUri, doc.SelectNodesByClass("thumbnail-image"));
@@ -120,29 +165,32 @@ namespace Catalog.Scrapers.MobyGames
             {
                 return new List<ScreenshotEntry>();
             }
-            
+
             return gallery
                 .SelectNodes(".//a")
                 .Select(thumbnail => new ScreenshotEntry
                 {
                     Url = thumbnail.GetAttributeValue("href", null),
-                    Thumbnail = new Uri(baseUri,thumbnail.SelectSingleNode("img").GetAttributeValue("src", null)).ToString()
+                    Thumbnail = new Uri(baseUri, thumbnail.SelectSingleNode("img").GetAttributeValue("src", null))
+                        .ToString()
                 });
         }
-        
-        private Regex BACKGROUND_IMAGE_REGEX = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)"); 
+
+        private readonly Regex BACKGROUND_IMAGE_REGEX = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)");
+
         private IEnumerable<ScreenshotEntry> ExtractScreenshots(Uri baseUri, HtmlNodeCollection nodes)
         {
             if (nodes == null)
             {
                 return new List<ScreenshotEntry>();
             }
-            
+
             return nodes
                 .Select(thumbnail =>
                 {
-                    var thumbnailPath = BACKGROUND_IMAGE_REGEX.Match(thumbnail.GetAttributeValue("style", ""))?.Groups[1].Value;
-                    
+                    var thumbnailPath = BACKGROUND_IMAGE_REGEX.Match(thumbnail.GetAttributeValue("style", ""))
+                        ?.Groups[1].Value;
+
                     return new ScreenshotEntry
                     {
                         Url = thumbnail.GetAttributeValue("href", null),
@@ -197,19 +245,11 @@ namespace Catalog.Scrapers.MobyGames
             };
         }
 
-        private static HtmlNode SelectNodeFollowingTitle(HtmlNode details, string title)
-        {
-            return details.SelectSingleNode($".//*[.='{title}']")?.NextSibling;
-        }
-
-        private static HtmlNode SelectNodeFollowingTitleStartingWith(HtmlNode details, string title)
-        {
-            return details.SelectSingleNode($".//*[starts-with(text(),'{title}')]")?.NextSibling;
-        }
-
         private static PublisherEntry ExtractPublisher(HtmlNode details)
         {
-            var publisherNode = SelectNodeFollowingTitle(details, "Published by")?.SelectSingleNode("a");
+            var publisherNode = SelectNodeWithText(details, "Published by")
+                ?.NextSibling
+                .SelectSingleNode("a");
 
             if (publisherNode == null)
             {
@@ -222,7 +262,9 @@ namespace Catalog.Scrapers.MobyGames
 
         private static DeveloperEntry[] ExtractDevelopers(HtmlNode details)
         {
-            var developerNodes = SelectNodeFollowingTitle(details, "Developed by")?.SelectNodes("a");
+            var developerNodes = SelectNodeWithText(details, "Developed by")
+                ?.NextSibling
+                .SelectNodes("a");
 
             if (developerNodes == null)
             {
@@ -234,7 +276,8 @@ namespace Catalog.Scrapers.MobyGames
 
         private static string[] ExtractPlatforms(HtmlNode details)
         {
-            return SelectNodeFollowingTitleStartingWith(details, "Platform")
+            return SelectNodeWithTextStartingWith(details, "Platform")
+                ?.NextSibling
                 .SelectNodes("a")
                 .Select(node => node.PlainInnerText())
                 .ToArray();
@@ -242,7 +285,8 @@ namespace Catalog.Scrapers.MobyGames
 
         private static string ExtractReleaseDate(HtmlNode details)
         {
-            return SelectNodeFollowingTitle(details, "Released")
+            return SelectNodeWithText(details, "Released")
+                ?.NextSibling
                 .SelectSingleNode("a")
                 .PlainInnerText();
         }

@@ -155,20 +155,6 @@ namespace Catalog
                 Content = platformList,
             });
 
-            platformList.SelectedValuesBinding.BindDataContext<GameCopy>(
-                gc =>
-                {
-                    return Enum
-                        .GetValues(typeof(Platform))
-                        .Cast<Platform>()
-                        .Where(p => (gc.Platform & p) == p);
-                },
-                (gc, platforms) =>
-                {
-                    gc.Platform = (Platform)platforms.Cast<int>().Aggregate(0, (result, platform) => result | platform);
-                }
-            );
-
             screenshots = new ThumbnailSelect();
 
             AddRow(layout, "Screenshots", screenshots);
@@ -224,7 +210,9 @@ namespace Catalog
 
             var gameEntry = scraper.GetGame(choice.Slug);
 
-            ShowScreenshots(gameEntry);
+            GetSpecs(gameEntry);
+
+            GetScreenshots(gameEntry);
 
             game = new GameCopy
             {
@@ -278,7 +266,17 @@ namespace Catalog
             DataContext = game;
         }
 
-        private async void ShowScreenshots(GameEntry gameEntry)
+        private async void GetSpecs(GameEntry gameEntry)
+        {
+            var specs = await Task.Run(() => new Scraper().GetGameSpecs(gameEntry.Slug));
+
+             platformList.SelectedValues = Enum
+                .GetValues(typeof(Platform))
+                .Cast<Platform>()
+                .Where(platform => specs.Platforms.Contains(platform.GetDescription()));
+        }
+
+        private async void GetScreenshots(GameEntry gameEntry)
         {
             IEnumerable<ScreenshotEntry> screenshotEntries = new Scraper().GetGameScreenshots(gameEntry.Slug);
 
