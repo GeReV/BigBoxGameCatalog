@@ -29,6 +29,7 @@ namespace Catalog
         protected CheckBox hasBoxCheckbox;
         protected EnumCheckBoxList<Platform> platformList;
         protected ThumbnailSelect screenshots;
+        protected AddMediaPanel addMediaPanel;
 
         private ObservableCollection<Publisher> publishers = new ObservableCollection<Publisher>(
             CatalogApplication.Instance.Database.GetPublishersCollection().FindAll()
@@ -138,8 +139,10 @@ namespace Catalog
             );
 
             AddRow(layout, "Has Game Box", hasBoxCheckbox);
+
+            addMediaPanel = new AddMediaPanel();
             
-            AddRow(layout, "Media", new AddMediaPanel());
+            AddRow(layout, "Media", addMediaPanel);
             
             platformList = new EnumCheckBoxList<Platform>
             {
