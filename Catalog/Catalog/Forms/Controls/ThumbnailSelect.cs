@@ -273,7 +273,7 @@ namespace Catalog.Forms
 				Padding = padding,
 				Spacing = 0,
 				Orientation = Orientation.Horizontal,
-				Height = 120 + padding.Bottom + padding.Top
+				Height = 120 + 10 + padding.Bottom + padding.Top
 			};
 
 			var scrollable = new Scrollable
