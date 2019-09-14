@@ -139,17 +139,12 @@ namespace Catalog
 
             AddRow(layout, "Has Game Box", hasBoxCheckbox);
             
+            AddRow(layout, "Media", new AddMediaPanel());
+            
             platformList = new EnumCheckBoxList<Platform>
             {
                 Orientation = Orientation.Vertical,
-                GetText = platform =>
-                {
-                    var fi = platform.GetType().GetField(platform.ToString());
-                    
-                    var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-                    return attributes.Length > 0 ? attributes[0].Description : platform.ToString();
-                },
+                GetText = platform => platform.GetDescription(),
             };
             
             AddRow(layout, "Platforms", new Panel
