@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Catalog.Forms;
@@ -25,6 +27,7 @@ namespace Catalog
         protected ComboBox publisherList;
         protected CheckBoxList developerList;
         protected CheckBox hasBoxCheckbox;
+        protected EnumCheckBoxList<Platform> platformList;
         protected ThumbnailSelect screenshots;
 
         private ObservableCollection<Publisher> publishers = new ObservableCollection<Publisher>(
@@ -34,6 +37,7 @@ namespace Catalog
         private ObservableCollection<Developer> developers = new ObservableCollection<Developer>(
             CatalogApplication.Instance.Database.GetDevelopersCollection().FindAll()
         );
+
 
         protected Control DefaultControl { get; private set; }
 
@@ -134,6 +138,38 @@ namespace Catalog
             );
 
             AddRow(layout, "Has Game Box", hasBoxCheckbox);
+            
+            platformList = new EnumCheckBoxList<Platform>
+            {
+                Orientation = Orientation.Vertical,
+                GetText = platform =>
+                {
+                    var fi = platform.GetType().GetField(platform.ToString());
+                    
+                    var attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+                    return attributes.Length > 0 ? attributes[0].Description : platform.ToString();
+                },
+            };
+            
+            AddRow(layout, "Platforms", new Panel
+            {
+                Content = platformList,
+            });
+
+            platformList.SelectedValuesBinding.BindDataContext<GameCopy>(
+                gc =>
+                {
+                    return Enum
+                        .GetValues(typeof(Platform))
+                        .Cast<Platform>()
+                        .Where(p => (gc.Platform & p) == p);
+                },
+                (gc, platforms) =>
+                {
+                    gc.Platform = (Platform)platforms.Cast<int>().Aggregate(0, (result, platform) => result | platform);
+                }
+            );
 
             screenshots = new ThumbnailSelect();
 
