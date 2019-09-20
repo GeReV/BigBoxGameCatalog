@@ -10,14 +10,12 @@ using Eto.Forms;
 namespace Catalog.Forms
 {
 	[ContentProperty("Items")]
-	public class ThumbnailSelect : Panel
+	public class ThumbnailSelect : Scrollable
 	{
-		
-		
 		ItemDataStore dataStore;
 		readonly List<Thumbnail> thumbnails = new List<Thumbnail>();
 		bool settingChecked;
-		
+
 		/// <summary>
 		/// Gets or sets the binding to get the text for each check box.
 		/// </summary>
@@ -84,11 +82,11 @@ namespace Catalog.Forms
 			set
 			{
 				var keys = value.ToList();
-				
+
 				settingChecked = true;
-				
+
 				var changed = false;
-				
+
 				foreach (var shot in thumbnails)
 				{
 					var key = ItemKeyBinding.GetValue(shot.Tag);
@@ -116,16 +114,16 @@ namespace Catalog.Forms
 			set
 			{
 				var items = value.ToList();
-				
+
 				settingChecked = true;
-				
+
 				var changed = false;
-				
+
 				foreach (var shot in thumbnails)
 				{
 					var item = shot.Tag;
 					var isChecked = items.Contains(item);
-					
+
 					if (shot.Checked != isChecked)
 					{
 						changed = true;
@@ -150,29 +148,29 @@ namespace Catalog.Forms
 			public override void AddItem(object item)
 			{
 				var thumbnail = Handler.CreateThumbnail(item);
-				
+
 				Handler.thumbnails.Add(thumbnail);
-				
+
 				Handler.LayoutThumbnails();
 			}
 
 			public override void InsertItem(int index, object item)
 			{
 				var thumbnail = Handler.CreateThumbnail(item);
-				
+
 				Handler.thumbnails.Insert(index, thumbnail);
-				
+
 				Handler.LayoutThumbnails();
 			}
 
 			public override void RemoveItem(int index)
 			{
 				var thumbnail = Handler.thumbnails[index];
-				
+
 				Handler.thumbnails.RemoveAt(index);
-				
+
 				Handler.UnregisterThumbnail(thumbnail);
-				
+
 				Handler.LayoutThumbnails();
 
 				if (thumbnail.Checked)
@@ -214,7 +212,7 @@ namespace Catalog.Forms
 		/// Gets or sets the data store of the items shown in the list.
 		/// </summary>
 		/// <remarks>
-		/// When using a custom object collection, you can use the <see cref="ItemImageBinding"/> and <see cref="ItemKeyBinding"/> 
+		/// When using a custom object collection, you can use the <see cref="ItemImageBinding"/> and <see cref="ItemKeyBinding"/>
 		/// to specify how to get the text/key values for each item.
 		/// </remarks>
 		/// <value>The data store.</value>
@@ -234,6 +232,12 @@ namespace Catalog.Forms
 		{
 			ItemImageBinding = new ListItemImageBinding();
 			ItemKeyBinding = new ListItemKeyBinding();
+
+			BackgroundColor = Colors.White;
+
+			Padding = new Padding(5);
+
+			MinimumSize = new Size(0, 120 + 10 + Padding.Bottom + Padding.Top);
 		}
 
 		/// <summary>
@@ -265,20 +269,10 @@ namespace Catalog.Forms
 
 			SuspendLayout();
 
-			var padding = new Padding(5);
-
 			var stackLayout = new StackLayout
 			{
-				BackgroundColor = Colors.White,
-				Padding = padding,
 				Spacing = 0,
 				Orientation = Orientation.Horizontal,
-				Height = 120 + 10 + padding.Bottom + padding.Top
-			};
-
-			var scrollable = new Scrollable
-			{
-				Content = stackLayout,
 			};
 
 			foreach (var thumbnail in thumbnails)
@@ -286,7 +280,7 @@ namespace Catalog.Forms
 				stackLayout.Items.Add(thumbnail);
 			}
 
-			Content = scrollable;
+			Content = stackLayout;
 
 			ResumeLayout();
 		}
@@ -295,9 +289,9 @@ namespace Catalog.Forms
 		{
 			foreach (var thumbnail in thumbnails)
 				UnregisterThumbnail(thumbnail);
-			
+
 			thumbnails.Clear();
-			
+
 			LayoutThumbnails();
 		}
 
@@ -317,7 +311,7 @@ namespace Catalog.Forms
 			};
 
 			thumbnail.CheckedChanged += HandleCheckedChanged;
-			
+
 			return thumbnail;
 		}
 

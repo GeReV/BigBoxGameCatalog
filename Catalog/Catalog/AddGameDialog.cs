@@ -36,7 +36,7 @@ namespace Catalog
 
             DataContext = game;
 
-            DefaultButton.Command = new Command((sender, _) => Close(BuildGame()));
+            OkButton.Command = new Command((sender, _) => Close(BuildGame()));
             AbortButton.Command = new Command((sender, _) => Close());
 
             TitleTextbox.KeyUp += TitleTextbox_KeyUp;
@@ -227,6 +227,12 @@ namespace Catalog
                 var (item, image) = task.Result;
 
                 item.Image = image;
+
+                var index = images.IndexOf(item);
+
+                images[index] = item;
+
+                Screenshots.Select(index);
             }
 
             SearchMobyGamesButton.Enabled = true;

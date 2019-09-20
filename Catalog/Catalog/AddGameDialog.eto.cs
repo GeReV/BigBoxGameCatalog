@@ -39,17 +39,21 @@ namespace Catalog
             Orientation = Orientation.Vertical,
             GetText = platform => platform.GetDescription(),
         };
-        protected ThumbnailSelect Screenshots= new ThumbnailSelect();
+        protected ThumbnailSelect Screenshots = new ThumbnailSelect();
         protected AddMediaPanel AddMediaPanel = new AddMediaPanel();
+        protected Button OkButton = new Button
+        {
+            Text = "OK"
+        };
         protected Control DefaultControl { get; private set; }
 
         void InitializeComponent()
         {
             Title = "Add Game Dialog";
-            ClientSize = new Size(800, 600);
+            ClientSize = new Size(800, 650);
             Padding = 10;
 
-            DefaultButton = new Button
+            OkButton = new Button
             {
                 Text = "OK",
             };
@@ -60,7 +64,7 @@ namespace Catalog
             };
 
             NegativeButtons.Add(AbortButton);
-            PositiveButtons.Add(DefaultButton);
+            PositiveButtons.Add(OkButton);
 
             DefaultControl = TitleTextbox;
 
@@ -98,14 +102,16 @@ namespace Catalog
                 Content = PlatformList,
             });
 
-            AddRow(layout, "Screenshots", Screenshots);
+            AddRow(layout, "Screenshots", Screenshots, false);
+
+            AddRow(layout, null, null, null);
 
             layout.EndVertical();
         }
 
-        private void AddRow(DynamicLayout layout, string label, Control control)
+        private void AddRow(DynamicLayout layout, string label, Control control, bool? yscale = null)
         {
-            AddRow(layout, label, l => l.Add(control, true));
+            AddRow(layout, label, l => l.Add(control, true, yscale));
         }
 
         private void AddRow(DynamicLayout layout, string label, Action<DynamicLayout> func)
