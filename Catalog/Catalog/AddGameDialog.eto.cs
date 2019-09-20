@@ -20,26 +20,27 @@ namespace Catalog
 {
     partial class AddGameDialog : Dialog<GameCopy>
     {
-        private GameCopy game = new GameCopy();
-
-        protected TextBox titleTextbox;
-        protected Button searchMobyGamesButton;
-        protected ComboBox publisherList;
-        protected CheckBoxList developerList;
-        protected CheckBox hasBoxCheckbox;
-        protected EnumCheckBoxList<Platform> platformList;
-        protected ThumbnailSelect screenshots;
-        protected AddMediaPanel addMediaPanel;
-
-        private ObservableCollection<Publisher> publishers = new ObservableCollection<Publisher>(
-            CatalogApplication.Instance.Database.GetPublishersCollection().FindAll()
-        );
-
-        private ObservableCollection<Developer> developers = new ObservableCollection<Developer>(
-            CatalogApplication.Instance.Database.GetDevelopersCollection().FindAll()
-        );
-
-
+        protected TextBox TitleTextbox = new TextBox();
+        protected Button SearchMobyGamesButton = new Button
+        {
+            Text = "Search MobyGames",
+        };
+        protected ComboBox PublisherList = new ComboBox
+        {
+            AutoComplete = true,
+        };
+        protected CheckBoxList DeveloperList =new CheckBoxList()
+        {
+            Orientation = Orientation.Vertical,
+        };
+        protected CheckBox HasBoxCheckbox = new CheckBox();
+        protected EnumCheckBoxList<Platform> PlatformList = new EnumCheckBoxList<Platform>
+        {
+            Orientation = Orientation.Vertical,
+            GetText = platform => platform.GetDescription(),
+        };
+        protected ThumbnailSelect Screenshots= new ThumbnailSelect();
+        protected AddMediaPanel AddMediaPanel = new AddMediaPanel();
         protected Control DefaultControl { get; private set; }
 
         void InitializeComponent()
@@ -48,126 +49,56 @@ namespace Catalog
             ClientSize = new Size(800, 600);
             Padding = 10;
 
-            DataContext = game;
-
-            PositiveButtons.Add(new Button
+            DefaultButton = new Button
             {
                 Text = "OK",
-                Command = new Command((sender, e) => Close(game))
-            });
-            NegativeButtons.Add(new Button
+            };
+
+            AbortButton = new Button
             {
                 Text = "Cancel",
-                Command = new Command((sender, e) => Close())
-            });
+            };
+
+            NegativeButtons.Add(AbortButton);
+            PositiveButtons.Add(DefaultButton);
+
+            DefaultControl = TitleTextbox;
 
             var layout = new DynamicLayout
             {
                 DefaultSpacing = new Size(5, 5),
             };
-            
+
             Content = layout;
 
             layout.BeginVertical();
 
-            titleTextbox = new TextBox();
-            titleTextbox.KeyUp += TitleTextbox_KeyUp;
-            titleTextbox.BindDataContext<TextBox, GameCopy, string>(c => c.Text, g => g.Title);
-
-            DefaultControl = titleTextbox;
-
-            searchMobyGamesButton = new Button
-            {
-                Text = "Search MobyGames",
-                Command = new Command((sender, e) => SearchMobyGames(titleTextbox.Text.Trim()))
-            };
-
             AddRow(layout, "Title", l =>
             {
-                l.Add(titleTextbox, true);
-                layout.Add(searchMobyGamesButton);
+                l.Add(TitleTextbox, true);
+                layout.Add(SearchMobyGamesButton);
             });
 
-            publisherList = new ComboBox
-            {
-                AutoComplete = true,
-                DataStore = publishers,
-            };
-
-            publisherList.BindDataContext<ComboBox, GameCopy, object>(
-                c => c.SelectedValue,
-                g => g.Publisher
-            );
-
-            AddRow(layout, "Publisher", publisherList);
-
-            developerList = new CheckBoxList()
-            {
-                Orientation = Orientation.Vertical,
-                ItemTextBinding = Binding.Property<Developer, string>(d => d.Name),
-                ItemKeyBinding = Binding.Property<Developer, string>(d => d.Slug),
-                DataStore = developers,
-            };
+            AddRow(layout, "Publisher", PublisherList);
 
             AddRow(layout, "Developers", new Scrollable
             {
                 BackgroundColor = Colors.White,
                 ExpandContentHeight = false,
                 Height = 120,
-                Content = developerList,
+                Content = DeveloperList,
             });
-            
-            developerList.SelectedKeysBinding.BindDataContext<GameCopy>(
-                (gc) => gc?.Developers.Select(d => d.Slug) ?? new List<string>(),
-                (gc, slugs) =>
-                {
-                    gc.Developers.Clear();
-                    
-                    foreach (var slug in slugs)
-                    {
-                        var dev = developers.First(d => d.Slug == slug);
 
-                        gc.Developers.Add(dev);
-                    }
-                }
-            );
+            AddRow(layout, "Has Game Box", HasBoxCheckbox);
 
-            hasBoxCheckbox = new CheckBox();
-            hasBoxCheckbox.CheckedBinding.BindDataContext<GameCopy>(
-                g => g?.GameBox != null,
-                (g, b) => g.GameBox = b.GetValueOrDefault(true) ? new GameBox() : null
-            );
+            AddRow(layout, "Media", AddMediaPanel);
 
-            AddRow(layout, "Has Game Box", hasBoxCheckbox);
-
-            addMediaPanel = new AddMediaPanel();
-            
-            AddRow(layout, "Media", addMediaPanel);
-            
-            platformList = new EnumCheckBoxList<Platform>
-            {
-                Orientation = Orientation.Vertical,
-                GetText = platform => platform.GetDescription(),
-            };
-            
             AddRow(layout, "Platforms", new Panel
             {
-                Content = platformList,
+                Content = PlatformList,
             });
 
-            screenshots = new ThumbnailSelect();
-
-            AddRow(layout, "Screenshots", screenshots);
-
-            layout.EndVertical();
-
-            layout.BeginVertical();
-            layout.AddSpace();
-            layout.AddRow(
-                null,
-                AbortButton,
-                DefaultButton
-            );
+            AddRow(layout, "Screenshots", Screenshots);
 
             layout.EndVertical();
         }
@@ -183,144 +114,6 @@ namespace Catalog
             layout.Add(new Label {Text = label, Width = 200});
             func(layout);
             layout.EndHorizontal();
-        }
-
-        private void TitleTextbox_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(titleTextbox.Text) && e.Key == Keys.Enter)
-            {
-                SearchMobyGames(titleTextbox.Text.Trim());
-            }
-        }
-
-        private async void SearchMobyGames(string term)
-        {
-            searchMobyGamesButton.Enabled = false;
-            
-            var scraper = new Scraper();
-
-            var entries = await Task.Run(() => scraper.Search(term));
-
-            var choice = new GameDisambiguationDialog(entries).ShowModal();
-
-            if (choice == null)
-            {
-                return;
-            }
-
-            var gameEntry = scraper.GetGame(choice.Slug);
-
-            GetSpecs(gameEntry);
-
-            GetScreenshots(gameEntry);
-
-            game = new GameCopy
-            {
-                Title = gameEntry.Name,
-                Links = new List<string> {gameEntry.Url},
-                Screenshots = new List<string>(),
-                GameBox = new GameBox(),
-            };
-
-            var publisherEntry = publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
-
-            if (publisherEntry == null)
-            {
-                var publisher = new Publisher
-                {
-                    Name = gameEntry.Publisher.Name,
-                    Slug = gameEntry.Publisher.Slug,
-                    Links = new[] {gameEntry.Publisher.Url}
-                };
-
-                game.Publisher = publisher;
-
-                publishers.Add(publisher);
-            }
-
-            var developerCollection = developers.ToList();
-
-            var gameDevelopers = new List<Developer>();
-
-            foreach (var devEntry in gameEntry.Developers)
-            {
-                var developer = developerCollection.Find(d => d.Slug == devEntry.Slug);
-
-                if (developer == null)
-                {
-                    developer = new Developer
-                    {
-                        Name = devEntry.Name,
-                        Slug = devEntry.Slug,
-                        Links = new[] {devEntry.Url},
-                    };
-
-                    developers.Add(developer);
-                }
-
-                gameDevelopers.Add(developer);
-            }
-
-            game.Developers = gameDevelopers;
-            
-            DataContext = game;
-        }
-
-        private async void GetSpecs(GameEntry gameEntry)
-        {
-            var specs = await Task.Run(() => new Scraper().GetGameSpecs(gameEntry.Slug));
-
-             platformList.SelectedValues = Enum
-                .GetValues(typeof(Platform))
-                .Cast<Platform>()
-                .Where(platform => specs.Platforms.Contains(platform.GetDescription()));
-
-             var mediaTypesList = specs.MediaTypes.ToList();
-             
-             if (mediaTypesList.Exists(mt => mt.Contains("5.25\" Floppy")))
-             {
-                 addMediaPanel.SetStepperValue(MediaType.Floppy525, 1);
-             } else if (mediaTypesList.Exists(mt => mt.Contains("3.5\" Floppy")))
-             {
-                 addMediaPanel.SetStepperValue(MediaType.Floppy35, 1);
-             } else if (mediaTypesList.Exists(mt => mt.Contains("CD-ROM")))
-             {
-                 addMediaPanel.SetStepperValue(MediaType.CdRom, 1);
-             } else if (mediaTypesList.Exists(mt => mt.Contains("DVD-ROM")))
-             {
-                 addMediaPanel.SetStepperValue(MediaType.DvdRom, 1);
-             }
-        }
-
-        private async void GetScreenshots(GameEntry gameEntry)
-        {
-            IEnumerable<ScreenshotEntry> screenshotEntries = new Scraper().GetGameScreenshots(gameEntry.Slug);
-
-            var listItems = screenshotEntries.Take(20)
-                .Select(async ss => new ImageListItem
-                {
-                    Key = ss.Thumbnail,
-                    Tag = ss.Url,
-                    Image = new Bitmap(await new WebClient().DownloadDataTaskAsync(ss.Thumbnail))
-                })
-                .ToList();
-
-            var images = new ObservableCollection<ImageListItem>();
-
-            screenshots.DataStore = images;
-
-            while (listItems.Count > 0)
-            {
-                var task = await Task.WhenAny(listItems);
-
-                listItems.Remove(task);
-
-                images.Add(task.Result);
-            }
-
-            screenshots.SelectAll();
-            
-            searchMobyGamesButton.Enabled = true;
         }
     }
 }
