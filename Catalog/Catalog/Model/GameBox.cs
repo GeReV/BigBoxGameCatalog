@@ -6,7 +6,6 @@ namespace Catalog.Model
 {
     public class GameBox
     {
-        public int GameBoxId { get; set; }
         public List<Image> Scans { get; set; }
     }
 }

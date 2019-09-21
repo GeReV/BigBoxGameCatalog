@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -8,8 +9,12 @@ using System.Threading.Tasks;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Scrapers.MobyGames.Model;
+using Eto;
 using Eto.Drawing;
 using Eto.Forms;
+using File = System.IO.File;
+using Image = Catalog.Model.Image;
+using Platform = Catalog.Model.Platform;
 
 namespace Catalog
 {
@@ -36,7 +41,7 @@ namespace Catalog
 
             DataContext = game;
 
-            OkButton.Command = new Command((sender, _) => Close(BuildGame()));
+            OkButton.Command = new Command(async (sender, _) => Close(await BuildGame()));
             AbortButton.Command = new Command((sender, _) => Close());
 
             TitleTextbox.KeyUp += TitleTextbox_KeyUp;
@@ -65,7 +70,7 @@ namespace Catalog
             );
         }
 
-        private GameCopy BuildGame()
+        private async Task<GameCopy> BuildGame()
         {
             game.Developers.Clear();
 
@@ -76,12 +81,78 @@ namespace Catalog
                 game.Developers.Add(dev);
             }
 
-            if (HasBoxCheckbox.Checked.GetValueOrDefault())
-            {
-                game.GameBox = new GameBox();
-            }
+            game.GameBox = HasBoxCheckbox.Checked.GetValueOrDefault() ? new GameBox() : null;
+
+            game.Media = BuildGameMedia();
+
+            game.Platform = (Platform)PlatformList
+                    .SelectedValues
+                    .Aggregate(0, (aggregate, platform) => aggregate | (int) platform);
+
+            game.Screenshots = (await Task.Run(() => DownloadScreenshots(game.MobyGamesSlug)))
+                .ToList();
 
             return game;
+        }
+
+        private List<Media> BuildGameMedia()
+        {
+            var media = new List<Media>();
+
+            foreach (var pair in AddMediaPanel.MediaValues)
+            {
+                if (pair.Value <= 0)
+                {
+                    continue;
+                }
+
+                var batch = Enumerable
+                    .Range(0, pair.Value)
+                    .Select(_ => new Media
+                    {
+                        Type = pair.Key
+                    });
+
+                media.AddRange(batch);
+            }
+
+            return media;
+        }
+
+        private async Task<Image[]> DownloadScreenshots(string gameSlug)
+        {
+            var scraper = new Scraper();
+
+            var downloadTasks = Screenshots
+                .SelectedValues
+                .Cast<ImageListItem>()
+                .Select(item => (string) item.Tag)
+                .Select(url => scraper.DownloadScreenshot(url))
+                .ToList();
+
+            var screenshotDirectory = Path.Combine(CatalogApplication.Instance.HomeDirectory, "screenshots", gameSlug);
+
+            if (!Directory.Exists(screenshotDirectory))
+            {
+                Directory.CreateDirectory(screenshotDirectory);
+            }
+
+            var saveImageTasks = downloadTasks
+                .Select(task => task.ContinueWith(t =>
+                {
+                    var filename = t.Result.Url.Segments.Last();
+
+                    var destination = Path.Combine(screenshotDirectory, filename);
+
+                    File.WriteAllBytes(destination, t.Result.Data);
+
+                    return new Image
+                    {
+                        RelativePath = destination.Substring(CatalogApplication.Instance.HomeDirectory.Length)
+                    };
+                }));
+
+            return await Task.WhenAll(saveImageTasks);
         }
 
         private void TitleTextbox_KeyUp(object sender, KeyEventArgs e)
@@ -116,26 +187,25 @@ namespace Catalog
             game = new GameCopy
             {
                 Title = gameEntry.Name,
+                MobyGamesSlug = gameEntry.Slug,
                 Links = new List<string> {gameEntry.Url},
-                Screenshots = new List<string>(),
-                GameBox = new GameBox(),
             };
 
-            var publisherEntry = publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
+            var publisher = publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
 
-            if (publisherEntry == null)
+            if (publisher == null)
             {
-                var publisher = new Publisher
+                publisher = new Publisher
                 {
                     Name = gameEntry.Publisher.Name,
                     Slug = gameEntry.Publisher.Slug,
                     Links = new[] {gameEntry.Publisher.Url}
                 };
 
-                game.Publisher = publisher;
-
                 publishers.Add(publisher);
             }
+
+            game.Publisher = publisher;
 
             var developerCollection = developers.ToList();
 

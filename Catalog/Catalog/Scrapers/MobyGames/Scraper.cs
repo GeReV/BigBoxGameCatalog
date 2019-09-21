@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Web;
 using Catalog.Scrapers.MobyGames.Model;
+using Eto.Drawing;
 using HtmlAgilityPack;
 
 namespace Catalog.Scrapers.MobyGames
@@ -159,6 +163,33 @@ namespace Catalog.Scrapers.MobyGames
             return officialScreenshots.Concat(screenshots).ToArray();
         }
 
+        public async Task<ImageEntry> DownloadScreenshot(string url)
+        {
+            var doc = LoadUrl(url).DocumentNode;
+
+            var container = doc.SelectSingleNodeByClass("screenshot") ?? doc.SelectSingleNodeByClass("promoImage");
+
+            var src = container
+                ?.SelectSingleNode(".//img")
+                .GetAttributeValue("src", null);
+
+            if (src == null)
+            {
+                throw new ScraperException($"Could not find screenshot in page: {url}");
+            }
+
+            var baseUrl = new Uri(url);
+            var imageUrl = new Uri(baseUrl, src);
+
+            var data = await new WebClient().DownloadDataTaskAsync(imageUrl);
+
+            return new ImageEntry
+            {
+                Data = data,
+                Url = imageUrl
+            };
+        }
+
         private IEnumerable<ScreenshotEntry> ExtractOfficialScreenshots(Uri baseUri, HtmlNode gallery)
         {
             if (gallery == null)
@@ -209,7 +240,7 @@ namespace Catalog.Scrapers.MobyGames
         {
             var url = new UriBuilder("https://www.mobygames.com/search/quick");
 
-            NameValueCollection queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            NameValueCollection queryString = HttpUtility.ParseQueryString(string.Empty);
             queryString.Add("q", term);
 
             url.Query = queryString.ToString();
@@ -258,7 +289,6 @@ namespace Catalog.Scrapers.MobyGames
 
             return ExtractNamedEntryFromNode<PublisherEntry>(publisherNode);
         }
-
 
         private static DeveloperEntry[] ExtractDevelopers(HtmlNode details)
         {

@@ -15,6 +15,8 @@ namespace Catalog
     {
         public CatalogDatabase Database { get; private set; }
 
+        public string HomeDirectory { get; private set; }
+
         public static new CatalogApplication Instance
         {
             get { return Application.Instance as CatalogApplication; }
@@ -39,14 +41,14 @@ namespace Catalog
 
             string settingsDirectory = EtoEnvironment.GetFolderPath(EtoSpecialFolder.ApplicationSettings);
 
-            string homeDirectory = Path.Combine(settingsDirectory, Name);
+            HomeDirectory = Path.Combine(settingsDirectory, Name);
 
-            if (!Directory.Exists(homeDirectory))
+            if (!Directory.Exists(HomeDirectory))
             {
-                Directory.CreateDirectory(homeDirectory);
+                Directory.CreateDirectory(HomeDirectory);
             }
 
-            Database = new CatalogDatabase(Path.Combine(homeDirectory, "database.litedb"));
+            Database = new CatalogDatabase(Path.Combine(HomeDirectory, "database.litedb"));
         }
 
         protected override void OnTerminating(CancelEventArgs e)

@@ -18,9 +18,7 @@ namespace Catalog
 
             mapper.Entity<GameCopy>()
                 .DbRef(x => x.Developers, "developers")
-                .DbRef(x => x.Publisher, "publishers")
-                .DbRef(x => x.Media, "media")
-                .DbRef(x => x.Appendices, "appendices");
+                .DbRef(x => x.Publisher, "publishers");
 
             Database = new LiteDatabase(path, mapper);
 
@@ -51,7 +49,7 @@ namespace Catalog
         {
             return Database.GetCollection<Publisher>("publishers");
         }
-        
+
         public LiteCollection<Developer> GetDevelopersCollection()
         {
             return Database.GetCollection<Developer>("developers");

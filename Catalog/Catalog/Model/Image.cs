@@ -6,5 +6,6 @@ namespace Catalog.Model
 {
     public class Image
     {
+        public string RelativePath { get; set; }
     }
 }
