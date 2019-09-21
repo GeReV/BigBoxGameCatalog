@@ -41,6 +41,8 @@ namespace Catalog.Scrapers.MobyGames
         {
         }
 
+        private readonly Regex backgroundImageRegex = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)");
+
         const string SEARCH_RESULT = "searchResult";
         const string SEARCH_TITLE = "searchTitle";
         const string SEARCH_DETAILS = "searchDetails";
@@ -163,7 +165,7 @@ namespace Catalog.Scrapers.MobyGames
             return officialScreenshots.Concat(screenshots).ToArray();
         }
 
-        public async Task<ImageEntry> DownloadScreenshot(string url)
+        public async Task<ImageEntry> DownloadScreenshot(string url, IProgress<int> progress = null)
         {
             var doc = LoadUrl(url).DocumentNode;
 
@@ -181,13 +183,21 @@ namespace Catalog.Scrapers.MobyGames
             var baseUrl = new Uri(url);
             var imageUrl = new Uri(baseUrl, src);
 
-            var data = await new WebClient().DownloadDataTaskAsync(imageUrl);
-
-            return new ImageEntry
+            using (var client = new WebClient())
             {
-                Data = data,
-                Url = imageUrl
-            };
+                if (progress != null)
+                {
+                    client.DownloadProgressChanged += (_, args) => { progress.Report(args.ProgressPercentage); };
+                }
+
+                var data = await client.DownloadDataTaskAsync(imageUrl);
+
+                return new ImageEntry
+                {
+                    Data = data,
+                    Url = imageUrl
+                };
+            }
         }
 
         private IEnumerable<ScreenshotEntry> ExtractOfficialScreenshots(Uri baseUri, HtmlNode gallery)
@@ -207,8 +217,6 @@ namespace Catalog.Scrapers.MobyGames
                 });
         }
 
-        private readonly Regex BACKGROUND_IMAGE_REGEX = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)");
-
         private IEnumerable<ScreenshotEntry> ExtractScreenshots(Uri baseUri, HtmlNodeCollection nodes)
         {
             if (nodes == null)
@@ -219,7 +227,7 @@ namespace Catalog.Scrapers.MobyGames
             return nodes
                 .Select(thumbnail =>
                 {
-                    var thumbnailPath = BACKGROUND_IMAGE_REGEX.Match(thumbnail.GetAttributeValue("style", ""))
+                    var thumbnailPath = backgroundImageRegex.Match(thumbnail.GetAttributeValue("style", ""))
                         ?.Groups[1].Value;
 
                     return new ScreenshotEntry

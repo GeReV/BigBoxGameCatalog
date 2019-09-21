@@ -4,12 +4,10 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Scrapers.MobyGames.Model;
-using Eto;
 using Eto.Drawing;
 using Eto.Forms;
 using File = System.IO.File;
@@ -41,30 +39,30 @@ namespace Catalog
 
             DataContext = game;
 
-            OkButton.Command = new Command(async (sender, _) => Close(await BuildGame()));
+            okButton.Command = new Command(async (sender, _) => Close(await BuildGame()));
             AbortButton.Command = new Command((sender, _) => Close());
 
-            TitleTextbox.KeyUp += TitleTextbox_KeyUp;
-            TitleTextbox.BindDataContext<TextBox, GameCopy, string>(c => c.Text, g => g.Title);
+            titleTextbox.KeyUp += TitleTextbox_KeyUp;
+            titleTextbox.BindDataContext<TextBox, GameCopy, string>(c => c.Text, g => g.Title);
 
-            SearchMobyGamesButton.Command = new Command((sender, _) => SearchMobyGames(TitleTextbox.Text.Trim()));
+            searchMobyGamesButton.Command = new Command((sender, _) => SearchMobyGames(titleTextbox.Text.Trim()));
 
-            PublisherList.BindDataContext<ComboBox, GameCopy, object>(
+            publisherList.BindDataContext<ComboBox, GameCopy, object>(
                 c => c.SelectedValue,
                 g => g.Publisher
             );
 
-            PublisherList.DataStore = publishers;
+            publisherList.DataStore = publishers;
 
-            DeveloperList.ItemTextBinding = Binding.Property<Developer, string>(d => d.Name);
-            DeveloperList.ItemKeyBinding = Binding.Property<Developer, string>(d => d.Slug);
-            DeveloperList.DataStore = developers;
-            DeveloperList.SelectedKeysBinding.BindDataContext<GameCopy>(
+            developerList.ItemTextBinding = Binding.Property<Developer, string>(d => d.Name);
+            developerList.ItemKeyBinding = Binding.Property<Developer, string>(d => d.Slug);
+            developerList.DataStore = developers;
+            developerList.SelectedKeysBinding.BindDataContext<GameCopy>(
                 (gc) => gc?.Developers.Select(d => d.Slug) ?? new List<string>(),
                 null
             );
 
-            HasBoxCheckbox.CheckedBinding.BindDataContext<GameCopy>(
+            hasBoxCheckbox.CheckedBinding.BindDataContext<GameCopy>(
                 g => g?.GameBox != null,
                 null
             );
@@ -72,25 +70,29 @@ namespace Catalog
 
         private async Task<GameCopy> BuildGame()
         {
+            statusLabel.Text = "Saving...";
+            progressBar.Visible = true;
+
             game.Developers.Clear();
 
-            foreach (var slug in DeveloperList.SelectedKeys)
+            foreach (var slug in developerList.SelectedKeys)
             {
                 var dev = developers.First(d => d.Slug == slug);
 
                 game.Developers.Add(dev);
             }
 
-            game.GameBox = HasBoxCheckbox.Checked.GetValueOrDefault() ? new GameBox() : null;
+            game.GameBox = hasBoxCheckbox.Checked.GetValueOrDefault() ? new GameBox() : null;
 
             game.Media = BuildGameMedia();
 
-            game.Platform = (Platform)PlatformList
+            game.Platform = (Platform)platformList
                     .SelectedValues
                     .Aggregate(0, (aggregate, platform) => aggregate | (int) platform);
 
-            game.Screenshots = (await Task.Run(() => DownloadScreenshots(game.MobyGamesSlug)))
-                .ToList();
+            statusLabel.Text = "Downloading screenshots...";
+
+            game.Screenshots = (await DownloadScreenshots(game.MobyGamesSlug)).ToList();
 
             return game;
         }
@@ -99,7 +101,7 @@ namespace Catalog
         {
             var media = new List<Media>();
 
-            foreach (var pair in AddMediaPanel.MediaValues)
+            foreach (var pair in addMediaPanel.MediaValues)
             {
                 if (pair.Value <= 0)
                 {
@@ -121,14 +123,28 @@ namespace Catalog
 
         private async Task<Image[]> DownloadScreenshots(string gameSlug)
         {
-            var scraper = new Scraper();
-
-            var downloadTasks = Screenshots
+            var downloadUrls = screenshots
                 .SelectedValues
                 .Cast<ImageListItem>()
-                .Select(item => (string) item.Tag)
-                .Select(url => scraper.DownloadScreenshot(url))
-                .ToList();
+                .Select(item => (string) item.Tag);
+
+
+            var totalProgress = new AggregateProgress<int>(progressValues =>
+                {
+                    progressBar.Value = (int) progressValues.Average();
+                });
+
+            var scraper = new Scraper();
+
+            var downloadTasks = new List<Task<ImageEntry>>();
+
+            foreach (var downloadUrl in downloadUrls)
+            {
+                var progress = new Progress<int>();
+
+                totalProgress.Add(progress);
+                downloadTasks.Add(Task.Run(() => scraper.DownloadScreenshot(downloadUrl, progress)));
+            }
 
             var screenshotDirectory = Path.Combine(CatalogApplication.Instance.HomeDirectory, "screenshots", gameSlug);
 
@@ -157,15 +173,15 @@ namespace Catalog
 
         private void TitleTextbox_KeyUp(object sender, KeyEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(TitleTextbox.Text) && e.Key == Keys.Enter)
+            if (!string.IsNullOrWhiteSpace(titleTextbox.Text) && e.Key == Keys.Enter)
             {
-                SearchMobyGames(TitleTextbox.Text.Trim());
+                SearchMobyGames(titleTextbox.Text.Trim());
             }
         }
 
         private async void SearchMobyGames(string term)
         {
-            SearchMobyGamesButton.Enabled = false;
+            searchMobyGamesButton.Enabled = false;
 
             var scraper = new Scraper();
 
@@ -239,7 +255,7 @@ namespace Catalog
         {
             var specs = await Task.Run(() => new Scraper().GetGameSpecs(gameEntry.Slug));
 
-            PlatformList.SelectedValues = Enum
+            platformList.SelectedValues = Enum
                 .GetValues(typeof(Platform))
                 .Cast<Platform>()
                 .Where(platform => specs.Platforms.Contains(platform.GetDescription()));
@@ -248,25 +264,27 @@ namespace Catalog
 
             if (mediaTypesList.Exists(mt => mt.Contains("5.25\" Floppy")))
             {
-                AddMediaPanel.SetStepperValue(MediaType.Floppy525, 1);
+                addMediaPanel.SetStepperValue(MediaType.Floppy525, 1);
             }
             else if (mediaTypesList.Exists(mt => mt.Contains("3.5\" Floppy")))
             {
-                AddMediaPanel.SetStepperValue(MediaType.Floppy35, 1);
+                addMediaPanel.SetStepperValue(MediaType.Floppy35, 1);
             }
             else if (mediaTypesList.Exists(mt => mt.Contains("CD-ROM")))
             {
-                AddMediaPanel.SetStepperValue(MediaType.CdRom, 1);
+                addMediaPanel.SetStepperValue(MediaType.CdRom, 1);
             }
             else if (mediaTypesList.Exists(mt => mt.Contains("DVD-ROM")))
             {
-                AddMediaPanel.SetStepperValue(MediaType.DvdRom, 1);
+                addMediaPanel.SetStepperValue(MediaType.DvdRom, 1);
             }
         }
 
         private async void GetScreenshots(GameEntry gameEntry)
         {
-            IEnumerable<ScreenshotEntry> screenshotEntries = new Scraper().GetGameScreenshots(gameEntry.Slug);
+            IEnumerable<ScreenshotEntry> screenshotEntries = await Task.Run(() =>
+                new Scraper().GetGameScreenshots(gameEntry.Slug)
+            );
 
             var listItems = screenshotEntries.Take(20)
                 .Select(ss => new ImageListItem
@@ -278,14 +296,14 @@ namespace Catalog
 
             var images = new ObservableCollection<ImageListItem>(listItems);
 
-            Screenshots.DataStore = images;
-            Screenshots.SelectAll();
+            screenshots.DataStore = images;
+            screenshots.SelectAll();
 
             var imageLoadTasks = listItems
-                .Select(async item => new Tuple<ImageListItem, Bitmap>(
+                .Select(item => Task.Run(async () => new Tuple<ImageListItem, Bitmap>(
                     item,
                     new Bitmap(await new WebClient().DownloadDataTaskAsync(item.Key))
-                ))
+                )))
                 .ToList();
 
             while (imageLoadTasks.Count > 0)
@@ -302,10 +320,10 @@ namespace Catalog
 
                 images[index] = item;
 
-                Screenshots.Select(index);
+                screenshots.Select(index);
             }
 
-            SearchMobyGamesButton.Enabled = true;
+            searchMobyGamesButton.Enabled = true;
         }
     }
 }

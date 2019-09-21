@@ -20,53 +20,61 @@ namespace Catalog
 {
     partial class AddGameDialog : Dialog<GameCopy>
     {
-        protected TextBox TitleTextbox = new TextBox();
-        protected Button SearchMobyGamesButton = new Button
+        private readonly TextBox titleTextbox = new TextBox();
+
+        private readonly Button searchMobyGamesButton = new Button
         {
             Text = "Search MobyGames",
         };
-        protected ComboBox PublisherList = new ComboBox
+
+        private readonly ComboBox publisherList = new ComboBox
         {
             AutoComplete = true,
         };
-        protected CheckBoxList DeveloperList =new CheckBoxList()
+
+        private readonly CheckBoxList developerList =new CheckBoxList()
         {
             Orientation = Orientation.Vertical,
         };
-        protected CheckBox HasBoxCheckbox = new CheckBox();
-        protected EnumCheckBoxList<Platform> PlatformList = new EnumCheckBoxList<Platform>
+
+        private readonly CheckBox hasBoxCheckbox = new CheckBox();
+
+        private readonly EnumCheckBoxList<Platform> platformList = new EnumCheckBoxList<Platform>
         {
             Orientation = Orientation.Vertical,
             GetText = platform => platform.GetDescription(),
         };
-        protected ThumbnailSelect Screenshots = new ThumbnailSelect();
-        protected AddMediaPanel AddMediaPanel = new AddMediaPanel();
-        protected Button OkButton = new Button
+
+        private readonly ThumbnailSelect screenshots = new ThumbnailSelect();
+        private readonly AddMediaPanel addMediaPanel = new AddMediaPanel();
+
+        private readonly Button okButton = new Button
         {
             Text = "OK"
         };
-        protected Control DefaultControl { get; private set; }
+
+        private Control DefaultControl { get; set; }
+
+        private readonly Label statusLabel = new Label
+        {
+            Width = 200
+        };
+
+        private readonly ProgressBar progressBar = new ProgressBar
+        {
+            Visible = false
+        };
 
         void InitializeComponent()
         {
             Title = "Add Game Dialog";
-            ClientSize = new Size(800, 650);
+            ClientSize = new Size(800, 700);
             Padding = 10;
 
-            OkButton = new Button
-            {
-                Text = "OK",
-            };
-
-            AbortButton = new Button
-            {
-                Text = "Cancel",
-            };
-
             NegativeButtons.Add(AbortButton);
-            PositiveButtons.Add(OkButton);
+            PositiveButtons.Add(okButton);
 
-            DefaultControl = TitleTextbox;
+            DefaultControl = titleTextbox;
 
             var layout = new DynamicLayout
             {
@@ -79,32 +87,37 @@ namespace Catalog
 
             AddRow(layout, "Title", l =>
             {
-                l.Add(TitleTextbox, true);
-                layout.Add(SearchMobyGamesButton);
+                l.Add(titleTextbox, true);
+                layout.Add(searchMobyGamesButton);
             });
 
-            AddRow(layout, "Publisher", PublisherList);
+            AddRow(layout, "Publisher", publisherList);
 
             AddRow(layout, "Developers", new Scrollable
             {
                 BackgroundColor = Colors.White,
                 ExpandContentHeight = false,
                 Height = 120,
-                Content = DeveloperList,
+                Content = developerList,
             });
 
-            AddRow(layout, "Has Game Box", HasBoxCheckbox);
+            AddRow(layout, "Has Game Box", hasBoxCheckbox);
 
-            AddRow(layout, "Media", AddMediaPanel);
+            AddRow(layout, "Media", addMediaPanel);
 
             AddRow(layout, "Platforms", new Panel
             {
-                Content = PlatformList,
+                Content = platformList,
             });
 
-            AddRow(layout, "Screenshots", Screenshots, false);
+            AddRow(layout, "Screenshots", screenshots, false);
 
-            AddRow(layout, null, null, null);
+            layout.AddSpace();
+
+            layout.BeginHorizontal();
+            layout.Add(statusLabel);
+            layout.Add(progressBar, true, false);
+            layout.EndHorizontal();
 
             layout.EndVertical();
         }

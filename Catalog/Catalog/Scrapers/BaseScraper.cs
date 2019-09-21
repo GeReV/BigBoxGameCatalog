@@ -12,14 +12,14 @@ namespace Catalog.Scrapers
         {
             return details
                 .SelectNodes($".//*")
-                .First(node => node.PlainInnerText() == title);
+                .FirstOrDefault(node => node.PlainInnerText() == title);
         }
 
         protected static HtmlNode SelectNodeWithTextStartingWith(HtmlNode details, string title)
         {
             return details
                 .SelectNodes(".//*")
-                .First(node => node.PlainInnerText().StartsWith(title));
+                .FirstOrDefault(node => node.PlainInnerText().StartsWith(title));
         }
     }
 }
