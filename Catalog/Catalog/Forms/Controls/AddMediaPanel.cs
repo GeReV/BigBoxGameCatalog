@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using Catalog.Model;
 using Eto.Drawing;
 using Eto.Forms;
@@ -9,13 +11,16 @@ namespace Catalog.Forms.Controls
 {
     public class AddMediaPanel : Panel
     {
-        private Dictionary<MediaType, NumericStepper> steppers = new Dictionary<MediaType, NumericStepper>();
-        
+        private Dictionary<ItemType, NumericStepper> steppers = new Dictionary<ItemType, NumericStepper>();
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            var mediaTypes = Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToList();
+            var mediaTypes = typeof(ItemTypes).GetMembers()
+                .Where(memberInfo => memberInfo.GetCustomAttribute<CategoryAttribute>()?.Category == "Media")
+                .Select(memberInfo => ((FieldInfo) memberInfo).GetValue(null))
+                .Cast<ItemType>();
 
             var rows = new List<TableRow>();
 
@@ -26,18 +31,18 @@ namespace Catalog.Forms.Controls
                     MinValue = 0,
                     Width = 100,
                 };
-                
+
                 stepper.ValueChanged += StepperOnValueChanged;
-                
+
                 steppers.Add(type, stepper);
-                
+
                 rows.Add(new TableRow(
-                    type.GetDescription(),
+                    type.Description,
                     stepper,
                     null
                 ));
             }
-            
+
             Content = new TableLayout(rows)
             {
                 Spacing = new Size(5,5),
@@ -46,14 +51,14 @@ namespace Catalog.Forms.Controls
 
         private void StepperOnValueChanged(object sender, EventArgs e)
         {
-            
+
         }
 
-        public Dictionary<MediaType, int> MediaValues
+        public Dictionary<ItemType, int> MediaValues
         {
             get
             {
-                var dict = new Dictionary<MediaType, int>();
+                var dict = new Dictionary<ItemType, int>();
 
                 foreach (var pair in steppers)
                 {
@@ -71,7 +76,7 @@ namespace Catalog.Forms.Controls
             }
         }
 
-        public void SetStepperValue(MediaType mediaType, int value)
+        public void SetStepperValue(ItemType mediaType, int value)
         {
             if (steppers.ContainsKey(mediaType))
             {

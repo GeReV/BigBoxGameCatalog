@@ -32,7 +32,7 @@ namespace Catalog
             AutoComplete = true,
         };
 
-        private readonly CheckBoxList developerList =new CheckBoxList()
+        private readonly CheckBoxList developerList = new CheckBoxList()
         {
             Orientation = Orientation.Vertical,
         };

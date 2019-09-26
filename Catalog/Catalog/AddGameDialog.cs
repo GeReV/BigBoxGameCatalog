@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Catalog.Forms;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Scrapers.MobyGames.Model;
@@ -61,11 +62,6 @@ namespace Catalog
                 (gc) => gc?.Developers.Select(d => d.Slug) ?? new List<string>(),
                 null
             );
-
-            hasBoxCheckbox.CheckedBinding.BindDataContext<GameCopy>(
-                g => g?.GameBox != null,
-                null
-            );
         }
 
         private async Task<GameCopy> BuildGame()
@@ -82,9 +78,12 @@ namespace Catalog
                 game.Developers.Add(dev);
             }
 
-            game.GameBox = hasBoxCheckbox.Checked.GetValueOrDefault() ? new GameBox() : null;
+            if (hasBoxCheckbox.Checked.GetValueOrDefault())
+            {
+                game.Items.Add(ItemTypes.BigBox.CreateItem());
+            }
 
-            game.Media = BuildGameMedia();
+            game.Items.AddRange(BuildGameMedia());
 
             game.Platform = (Platform)platformList
                     .SelectedValues
@@ -94,12 +93,14 @@ namespace Catalog
 
             game.Screenshots = (await DownloadScreenshots(game.MobyGamesSlug)).ToList();
 
+            game.Notes = notes.Text;
+
             return game;
         }
 
-        private List<Media> BuildGameMedia()
+        private List<Item> BuildGameMedia()
         {
-            var media = new List<Media>();
+            var media = new List<Item>();
 
             foreach (var pair in addMediaPanel.MediaValues)
             {
@@ -110,10 +111,7 @@ namespace Catalog
 
                 var batch = Enumerable
                     .Range(0, pair.Value)
-                    .Select(_ => new Media
-                    {
-                        Type = pair.Key
-                    });
+                    .Select(_ => pair.Key.CreateItem());
 
                 media.AddRange(batch);
             }
@@ -264,19 +262,19 @@ namespace Catalog
 
             if (mediaTypesList.Exists(mt => mt.Contains("5.25\" Floppy")))
             {
-                addMediaPanel.SetStepperValue(MediaType.Floppy525, 1);
+                addMediaPanel.SetStepperValue(ItemTypes.Floppy525, 1);
             }
             else if (mediaTypesList.Exists(mt => mt.Contains("3.5\" Floppy")))
             {
-                addMediaPanel.SetStepperValue(MediaType.Floppy35, 1);
+                addMediaPanel.SetStepperValue(ItemTypes.Floppy35, 1);
             }
             else if (mediaTypesList.Exists(mt => mt.Contains("CD-ROM")))
             {
-                addMediaPanel.SetStepperValue(MediaType.CdRom, 1);
+                addMediaPanel.SetStepperValue(ItemTypes.CdRom, 1);
             }
             else if (mediaTypesList.Exists(mt => mt.Contains("DVD-ROM")))
             {
-                addMediaPanel.SetStepperValue(MediaType.DvdRom, 1);
+                addMediaPanel.SetStepperValue(ItemTypes.DvdRom, 1);
             }
         }
 
