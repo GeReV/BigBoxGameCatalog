@@ -50,7 +50,7 @@ namespace Catalog
 
         private readonly Button okButton = new Button
         {
-            Text = "OK"
+            Text = "Finish"
         };
 
         private Control DefaultControl { get; set; }
@@ -65,14 +65,32 @@ namespace Catalog
             Visible = false
         };
 
+        private TextArea notes = new TextArea
+        {
+            AcceptsTab = false
+        };
+
         void InitializeComponent()
         {
             Title = "Add Game Dialog";
             ClientSize = new Size(800, 700);
             Padding = 10;
 
+            AbortButton = new Button
+            {
+                Text = "Cancel"
+            };
+
             NegativeButtons.Add(AbortButton);
             PositiveButtons.Add(okButton);
+//            PositiveButtons.Add(new Button
+//            {
+//                Text = "Edit Items",
+//                Command = new Command((sender, args) =>
+//                {
+//                    Content = new ItemManagementForm();
+//                })
+//            });
 
             DefaultControl = titleTextbox;
 
@@ -85,15 +103,15 @@ namespace Catalog
 
             layout.BeginVertical();
 
-            AddRow(layout, "Title", l =>
+            layout.AddLabeledRow("Title", l =>
             {
                 l.Add(titleTextbox, true);
                 layout.Add(searchMobyGamesButton);
             });
 
-            AddRow(layout, "Publisher", publisherList);
+            layout.AddLabeledRow("Publisher", publisherList);
 
-            AddRow(layout, "Developers", new Scrollable
+            layout.AddLabeledRow("Developers", new Scrollable
             {
                 BackgroundColor = Colors.White,
                 ExpandContentHeight = false,
@@ -101,16 +119,18 @@ namespace Catalog
                 Content = developerList,
             });
 
-            AddRow(layout, "Has Game Box", hasBoxCheckbox);
+            layout.AddLabeledRow("Has Game Box", hasBoxCheckbox);
 
-            AddRow(layout, "Media", addMediaPanel);
+            layout.AddLabeledRow("Media", addMediaPanel);
 
-            AddRow(layout, "Platforms", new Panel
+            layout.AddLabeledRow("Platforms", new Panel
             {
                 Content = platformList,
             });
 
-            AddRow(layout, "Screenshots", screenshots, false);
+            layout.AddLabeledRow("Screenshots", screenshots, false);
+
+            layout.AddLabeledRow("Notes", notes);
 
             layout.AddSpace();
 
@@ -120,19 +140,6 @@ namespace Catalog
             layout.EndHorizontal();
 
             layout.EndVertical();
-        }
-
-        private void AddRow(DynamicLayout layout, string label, Control control, bool? yscale = null)
-        {
-            AddRow(layout, label, l => l.Add(control, true, yscale));
-        }
-
-        private void AddRow(DynamicLayout layout, string label, Action<DynamicLayout> func)
-        {
-            layout.BeginHorizontal();
-            layout.Add(new Label {Text = label, Width = 200});
-            func(layout);
-            layout.EndHorizontal();
         }
     }
 }
