@@ -15,4 +15,10 @@
     <PackageReference Include="LiteDB" Version="4.1.4" />
   </ItemGroup>
   
+  <ItemGroup>
+    <Compile Update="Forms\GameItemsForm.eto.cs">
+      <DependentUpon>GameItemsForm.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  
 </Project>
