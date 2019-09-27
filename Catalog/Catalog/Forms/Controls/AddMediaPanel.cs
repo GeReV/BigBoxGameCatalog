@@ -13,10 +13,8 @@ namespace Catalog.Forms.Controls
     {
         private Dictionary<ItemType, NumericStepper> steppers = new Dictionary<ItemType, NumericStepper>();
 
-        protected override void OnLoad(EventArgs e)
+        public AddMediaPanel()
         {
-            base.OnLoad(e);
-
             var mediaTypes = typeof(ItemTypes).GetMembers()
                 .Where(memberInfo => memberInfo.GetCustomAttribute<CategoryAttribute>()?.Category == "Media")
                 .Select(memberInfo => ((FieldInfo) memberInfo).GetValue(null))

@@ -25,8 +25,11 @@ namespace Catalog
             Text = "Finish"
         };
 
-        private GameInfoForm gameInfoForm = new GameInfoForm();
-        private GameItemsForm gameItemsForm = new GameItemsForm();
+        private readonly GameInfoForm gameInfoForm = new GameInfoForm();
+        private readonly GameItemsForm gameItemsForm = new GameItemsForm();
+
+        private Button showGameItemsFormButton;
+        private Button showGameInfoFormButton;
 
         void InitializeComponent()
         {
@@ -39,22 +42,42 @@ namespace Catalog
                 Text = "Cancel"
             };
 
-            NegativeButtons.Add(AbortButton);
-            PositiveButtons.Add(okButton);
-            PositiveButtons.Add(new Button
+            showGameInfoFormButton = new Button
+            {
+                Text = "Edit Info",
+                Command = new Command((sender, args) =>
+                {
+                    ShowForm(gameInfoForm);
+                })
+            };
+
+            showGameItemsFormButton = new Button
             {
                 Text = "Edit Items",
                 Command = new Command((sender, args) =>
                 {
                     BuildItems();
 
-                    Content = gameItemsForm;
-
-                    UpdateBindings(BindingUpdateMode.Destination);
+                    ShowForm(gameItemsForm);
                 })
-            });
+            };
 
-            Content = gameInfoForm;
+            NegativeButtons.Add(AbortButton);
+            PositiveButtons.Add(okButton);
+            PositiveButtons.Add(showGameInfoFormButton);
+            PositiveButtons.Add(showGameItemsFormButton);
+
+            ShowForm(gameInfoForm);
+        }
+
+        private void ShowForm(Control form)
+        {
+            Content = form;
+
+            showGameInfoFormButton.Visible = form != gameInfoForm;
+            showGameItemsFormButton.Visible = form != gameItemsForm;
+
+            UpdateBindings(BindingUpdateMode.Destination);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Catalog.Model
             ItemType = itemType;
         }
 
-        public ItemType ItemType { get; }
+        public ItemType ItemType { get; set; }
         public bool Missing { get; set; }
         public Condition? Condition { get; set; }
         public string ConditionDetails { get; set; }
