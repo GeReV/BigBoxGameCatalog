@@ -1,12 +1,16 @@
 using System;
+using Catalog.Forms.Controls;
 using Catalog.Model;
 using Eto.Forms;
 using Eto.Drawing;
+using Image = Eto.Drawing.Image;
 
 namespace Catalog.Forms
 {
 	partial class GameItemsForm : Panel
 	{
+		private static readonly Bitmap missingIcon = new Bitmap(Icons.prohibition);
+
 		public readonly GridView<Item> ItemsGrid = new GridView<Item>
 		{
 			AllowMultipleSelection = false,
@@ -18,19 +22,24 @@ namespace Catalog.Forms
 					DataCell = new ImageTextCell
 					{
 						TextBinding = Binding.Property<Item, string>(item => item.ItemType.Description),
+						ImageBinding = Binding.Property<Item, Image>(item => item.ItemType.Icon),
+					},
+					Width = 120
+				},
+				new GridColumn
+				{
+					AutoSize = true,
+					DataCell = new ImageViewCell
+					{
+						Binding = Binding.Property<Item, Image>(item => item.Missing ? missingIcon : null)
 					},
 				}
 			}
 		};
 
-		public readonly Button AddItem = new Button
+		public readonly AddRemoveButtons ItemsAddRemoveButtons = new AddRemoveButtons
 		{
-			Text = "Add"
-		};
-
-		public readonly Button RemoveItem = new Button
-		{
-			Text = "Remove"
+			Orientation = Orientation.Horizontal
 		};
 
 		public readonly DynamicLayout EditForm = new DynamicLayout
@@ -64,12 +73,7 @@ namespace Catalog.Forms
 				Items =
 				{
 					new StackLayoutItem(ItemsGrid, HorizontalAlignment.Stretch, true),
-					new StackLayout
-					{
-						Spacing = 5,
-						Orientation = Orientation.Horizontal,
-						Items = { AddItem, RemoveItem }
-					}
+					ItemsAddRemoveButtons
 				}
 			};
 
@@ -96,42 +100,18 @@ namespace Catalog.Forms
 			EditForm.AddLabeledRow("Scans", l =>
 			{
 				l.Add(ScansThumbnailSelect);
-				l.Add(new StackLayout
+				l.Add(new AddRemoveButtons
 				{
-					Orientation = Orientation.Vertical,
-					Spacing = 5,
-					Items =
-					{
-						new Button
-						{
-							Text = "Add"
-						},
-						new Button
-						{
-							Text = "Remove"
-						}
-					}
+					Orientation = Orientation.Vertical
 				});
 			}, labelWidth: 120);
 
 			EditForm.AddLabeledRow("Files", l =>
 			{
 				l.Add(new ListBox());
-				l.Add(new StackLayout
+				l.Add(new AddRemoveButtons
 				{
-					Orientation = Orientation.Vertical,
-					Spacing = 5,
-					Items =
-					{
-						new Button
-						{
-							Text = "Add"
-						},
-						new Button
-						{
-							Text = "Remove"
-						}
-					}
+					Orientation = Orientation.Vertical
 				});
 			}, labelWidth: 120);
 

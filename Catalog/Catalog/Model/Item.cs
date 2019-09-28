@@ -4,11 +4,6 @@ namespace Catalog.Model
 {
     public class Item
     {
-        public Item(ItemType itemType)
-        {
-            ItemType = itemType;
-        }
-
         public ItemType ItemType { get; set; }
         public bool Missing { get; set; }
         public Condition? Condition { get; set; }
