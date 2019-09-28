@@ -1,0 +1,32 @@
+﻿<Window x:Class="Catalog.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:Catalog.Wpf"
+        xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="960" Width="1280" Padding="5">
+    <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Button Content="Add Game" />
+            </ToolBar>
+        </ToolBarTray>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="300" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" MinWidth="300" />
+            </Grid.ColumnDefinitions>
+            <ListBox Name="Games" ItemsSource="{Binding}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="model:GameCopy">
+                        <TextBlock Text="{Binding Title}"></TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"></GridSplitter>
+        </Grid>
+    </DockPanel>
+</Window>

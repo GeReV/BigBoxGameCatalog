@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Eto.Forms" Version="2.4.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.12" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
   </ItemGroup>
   
@@ -19,6 +20,18 @@
     <Compile Update="Forms\GameItemsForm.eto.cs">
       <DependentUpon>GameItemsForm.cs</DependentUpon>
     </Compile>
+    <Compile Update="Icons.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Icons.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Update="Icons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Icons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   
 </Project>
