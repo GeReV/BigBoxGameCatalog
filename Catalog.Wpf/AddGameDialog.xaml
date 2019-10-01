@@ -4,48 +4,98 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:Catalog.Wpf"
-        xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+        xmlns:c="clr-namespace:Catalog.Wpf.Forms.Controls"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         mc:Ignorable="d"
-        Title="AddGameDialog" Height="450" Width="800" d:DataContext="{model:GameCopy}">
-    <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True" Margin="5">
-        <Grid Margin="0,0,0,5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Button"/>
-            </Grid.ColumnDefinitions>
-            <Label Grid.Column="0">Title</Label>
-            <TextBox Grid.Column="1" Text="{Binding Title}"></TextBox>
-            <Button Grid.Column="2" Padding="5,0" Margin="5,0,0,0">Search MobyGames</Button>
-        </Grid>
-
-
-        <Grid Margin="0,0,0,5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Button"/>
-            </Grid.ColumnDefinitions>
-
-            <Label Grid.Column="0">Publisher</Label>
-            <ComboBox Name="PublishersList" Grid.Column="1" DisplayMemberPath="Name" IsEditable="True" />
-        </Grid>
-
-        <Grid Margin="0,0,0,5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Label"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto" SharedSizeGroup="Button"/>
-            </Grid.ColumnDefinitions>
-
-            <Label Grid.Column="0">Developers</Label>
-            <ListBox Name="DevelopersCheckList" Grid.Column="1">
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="model:Developer">
-                        <CheckBox Content="{Binding Name}"></CheckBox>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Grid>
-    </StackPanel>
+        Title="Add Game"
+        Height="600"
+        Width="800"
+        d:DataContext="{viewModel:AddGameViewModel}"
+        Style="{DynamicResource GlobalWindow}"
+        ContentRendered="AddGameDialog_OnContentRendered">
+    <DockPanel Margin="5">
+        <StackPanel Orientation="Horizontal"
+                    DockPanel.Dock="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="0,5,0,0">
+            <Button Padding="5"
+                    Width="80">
+                OK
+            </Button>
+        </StackPanel>
+        <TabControl>
+            <TabControl.Items>
+                <TabItem Header="Game Info">
+                    <StackPanel Orientation="Vertical"
+                                Margin="5">
+                        <c:FormField LabelContent="Title">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right"
+                                        Margin="5,0,0,0"
+                                        Padding="4"
+                                        HorizontalAlignment="Right"
+                                        Name="SearchMobyGamesButton">
+                                    Search MobyGames
+                                </Button>
+                                <TextBox Name="TitleTextbox"
+                                         Text="{Binding Title}"
+                                         KeyUp="TitleTextbox_OnKeyUp"
+                                         VerticalContentAlignment="Center" />
+                            </DockPanel>
+                        </c:FormField>
+                        <c:FormField LabelContent="Publishers">
+                            <ComboBox Name="PublishersList"
+                                      ItemsSource="{Binding Publishers}"
+                                      SelectedItem="{Binding GameCopy.Publisher}"
+                                      DisplayMemberPath="Name"
+                                      IsEditable="True" />
+                        </c:FormField>
+                        <c:FormField LabelContent="Developers">
+                            <xctk:CheckListBox Name="DevelopersCheckList"
+                                               Height="100"
+                                               ItemsSource="{Binding Developers}"
+                                               SelectedItemsOverride="{Binding GameCopy.Developers}"
+                                               DisplayMemberPath="Name" />
+                        </c:FormField>
+                        <c:FormField LabelContent="Platform">
+                            <xctk:CheckListBox Name="PlatformCheckList"
+                                               ItemsSource="{Binding Platforms}"
+                                               SelectedItemsOverride="{Binding GameCopy.Platforms}">
+                                <xctk:CheckListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <DataTemplate.Resources>
+                                            <local:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
+                                        </DataTemplate.Resources>
+                                        <TextBlock
+                                            Text="{Binding Converter={StaticResource EnumDescriptionValueConverter}}" />
+                                    </DataTemplate>
+                                </xctk:CheckListBox.ItemTemplate>
+                            </xctk:CheckListBox>
+                        </c:FormField>
+                        <c:FormField LabelContent="Screenshots">
+                            <ListBox Name="Screenshots"
+                                     SelectionMode="Multiple"
+                                     ItemsSource="{Binding Screenshots}"
+                                     MinHeight="120">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel IsItemsHost="True"
+                                                                Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="viewModel:ScreenshotViewModel">
+                                        <Image Source="{Binding ThumbnailSource}"
+                                               Height="120" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </c:FormField>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="Game Items" />
+            </TabControl.Items>
+        </TabControl>
+    </DockPanel>
 </Window>

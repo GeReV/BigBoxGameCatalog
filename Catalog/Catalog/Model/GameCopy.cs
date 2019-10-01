@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -8,14 +9,14 @@ namespace Catalog.Model
 {
     public class GameCopy : INotifyPropertyChanged
     {
-        private List<Item> items;
-        private List<Image> screenshots;
-        private List<string> links;
+        private ObservableCollection<Item> items;
+        private ObservableCollection<Image> screenshots;
+        private ObservableCollection<string> links;
         private Platform platform;
-        private List<string> twoLetterIsoLanguageName;
+        private ObservableCollection<string> twoLetterIsoLanguageName;
         private DateTime releaseDate;
         private Publisher publisher;
-        private List<Developer> developers;
+        private ObservableCollection<Developer> developers;
         private string mobyGamesSlug;
         private string notes;
         private string title;
@@ -23,11 +24,11 @@ namespace Catalog.Model
 
         public GameCopy()
         {
-            Developers = new List<Developer>();
-            Links = new List<string>();
-            Screenshots = new List<Image>();
-            Items = new List<Item>();
-            TwoLetterIsoLanguageName = new List<string> {"en"};
+            Developers = new ObservableCollection<Developer>();
+            Links = new ObservableCollection<string>();
+            Screenshots = new ObservableCollection<Image>();
+            Items = new ObservableCollection<Item>();
+            TwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
         }
 
         public int GameCopyId
@@ -74,7 +75,7 @@ namespace Catalog.Model
             }
         }
 
-        public List<Developer> Developers
+        public ObservableCollection<Developer> Developers
         {
             get => developers;
             set
@@ -107,7 +108,7 @@ namespace Catalog.Model
             }
         }
 
-        public List<string> TwoLetterIsoLanguageName
+        public ObservableCollection<string> TwoLetterIsoLanguageName
         {
             get => twoLetterIsoLanguageName;
             set
@@ -129,7 +130,7 @@ namespace Catalog.Model
             }
         }
 
-        public List<string> Links
+        public ObservableCollection<string> Links
         {
             get => links;
             set
@@ -140,7 +141,7 @@ namespace Catalog.Model
             }
         }
 
-        public List<Image> Screenshots
+        public ObservableCollection<Image> Screenshots
         {
             get => screenshots;
             set
@@ -151,7 +152,7 @@ namespace Catalog.Model
             }
         }
 
-        public List<Item> Items
+        public ObservableCollection<Item> Items
         {
             get => items;
             set

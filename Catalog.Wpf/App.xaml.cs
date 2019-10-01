@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Windows;
 
 namespace Catalog.Wpf
 {
@@ -9,10 +10,8 @@ namespace Catalog.Wpf
     /// </summary>
     public partial class App
     {
-        protected override void OnActivated(EventArgs e)
+        public App()
         {
-            base.OnActivated(e);
-
             var settingsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
             var homeDirectory = Path.Combine(settingsDirectory, Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>().Title);
