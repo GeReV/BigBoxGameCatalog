@@ -61,7 +61,7 @@ namespace Catalog
 
             gameInfoForm.StatusLabel.Text = "Downloading screenshots...";
 
-            game.Screenshots = (await DownloadScreenshots(game.MobyGamesSlug)).ToList();
+            game.Screenshots = new ObservableCollection<Image>(await DownloadScreenshots(game.MobyGamesSlug));
 
             game.Notes = gameInfoForm.NotesTextArea.Text;
 
@@ -75,7 +75,10 @@ namespace Catalog
                 game.Items.Add(ItemTypes.BigBox.CreateItem());
             }
 
-            game.Items.AddRange(BuildGameMedia());
+            foreach (var medium in BuildGameMedia())
+            {
+                game.Items.Add(medium);
+            }
         }
 
         private List<Item> BuildGameMedia()

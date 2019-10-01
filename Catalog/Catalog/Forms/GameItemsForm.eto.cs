@@ -9,7 +9,7 @@ namespace Catalog.Forms
 {
 	partial class GameItemsForm : Panel
 	{
-		private static readonly Bitmap missingIcon = new Bitmap(Icons.prohibition);
+		private static readonly Bitmap MissingIcon = new Bitmap(Icons.prohibition);
 
 		public readonly GridView<Item> ItemsGrid = new GridView<Item>
 		{
@@ -31,7 +31,7 @@ namespace Catalog.Forms
 					AutoSize = true,
 					DataCell = new ImageViewCell
 					{
-						Binding = Binding.Property<Item, Image>(item => item.Missing ? missingIcon : null)
+						Binding = Binding.Property<Item, Image>(item => item.Missing ? MissingIcon : null)
 					},
 				}
 			}

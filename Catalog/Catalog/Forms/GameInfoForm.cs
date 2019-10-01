@@ -94,7 +94,7 @@ namespace Catalog.Forms
 
             game.Title = gameEntry.Name;
             game.MobyGamesSlug = gameEntry.Slug;
-            game.Links = new List<string> {gameEntry.Url};
+            game.Links.Add(gameEntry.Url);
 
             var publisher = publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
 
@@ -114,8 +114,6 @@ namespace Catalog.Forms
 
             var developerCollection = developers.ToList();
 
-            var gameDevelopers = new List<Developer>();
-
             foreach (var devEntry in gameEntry.Developers)
             {
                 var developer = developerCollection.Find(d => d.Slug == devEntry.Slug);
@@ -132,10 +130,8 @@ namespace Catalog.Forms
                     developers.Add(developer);
                 }
 
-                gameDevelopers.Add(developer);
+                game.Developers.Add(developer);
             }
-
-            game.Developers = gameDevelopers;
 
             UpdateBindings(BindingUpdateMode.Destination);
         }

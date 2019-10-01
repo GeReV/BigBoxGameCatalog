@@ -1,6 +1,5 @@
 ﻿using System;
 using Catalog.Forms.Controls;
-using Catalog.Wpf.Forms.Controls;
 using Eto.Drawing;
 using Eto.Forms;
 
@@ -13,7 +12,7 @@ namespace Catalog.Desktop
         {
             var platform = new Eto.Wpf.Platform();
 
-            platform.Add<RichListBox.IHandler>(() => new RichListBoxHandler());
+//            platform.Add<RichListBox.IHandler>(() => new RichListBoxHandler());
 
             new CatalogApplication(platform).Run(new MainForm());
         }
