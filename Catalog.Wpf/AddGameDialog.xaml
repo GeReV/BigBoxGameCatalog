@@ -7,6 +7,7 @@
         xmlns:c="clr-namespace:Catalog.Wpf.Forms.Controls"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+        xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
         mc:Ignorable="d"
         Title="Add Game"
         Height="600"
@@ -64,9 +65,6 @@
                                                SelectedItemsOverride="{Binding GameCopy.Platforms}">
                                 <xctk:CheckListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <DataTemplate.Resources>
-                                            <local:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
-                                        </DataTemplate.Resources>
                                         <TextBlock
                                             Text="{Binding Converter={StaticResource EnumDescriptionValueConverter}}" />
                                     </DataTemplate>
@@ -94,7 +92,105 @@
                         </c:FormField>
                     </StackPanel>
                 </TabItem>
-                <TabItem Header="Game Items" />
+                <TabItem Header="Game Items">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ListView Name="ItemList"
+                                  ItemsSource="{Binding GameCopy.Items}"
+                                  IsSynchronizedWithCurrentItem="True">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn DisplayMemberBinding="{Binding ItemType.Description}" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Missing}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <GridSplitter Grid.Column="1"
+                                      Width="5"
+                                      HorizontalAlignment="Stretch" />
+                        <Border Grid.Column="2"
+                                BorderThickness="1"
+                                Padding="5">
+                            <StackPanel>
+                                <StackPanel.Resources>
+                                    <Style TargetType="c:FormField">
+                                        <Setter Property="LabelWidth"
+                                                Value="100" />
+                                    </Style>
+                                </StackPanel.Resources>
+                                <c:FormField LabelContent="Item Type">
+                                    <ComboBox ItemsSource="{Binding ItemTypes}"
+                                              SelectedValue="{Binding GameCopy.Items/ItemType}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate DataType="model:ItemType">
+                                                <TextBlock Text="{Binding Description}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </c:FormField>
+                                <c:FormField LabelContent="Missing">
+                                    <CheckBox IsChecked="{Binding GameCopy.Items/Missing}" />
+                                </c:FormField>
+                                <c:FormField LabelContent="Condition">
+                                    <ComboBox ItemsSource="{Binding Conditions}"
+                                              SelectedValue="{Binding GameCopy.Items/Condition}" />
+                                </c:FormField>
+                                <c:FormField LabelContent="Condition Details">
+                                    <TextBox MinLines="3"
+                                             Text="{Binding GameCopy.Items/ConditionDetails}" />
+                                </c:FormField>
+                                <c:FormField LabelContent="Scans">
+                                    <StackPanel Orientation="Vertical">
+                                        <ListBox SelectionMode="Extended"
+                                                 ItemsSource="{Binding GameCopy.Items/Scans}"
+                                                 MinHeight="80">
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <VirtualizingStackPanel IsItemsHost="True"
+                                                                            Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate DataType="viewModel:ScreenshotViewModel">
+                                                    <Image Source="{Binding ThumbnailSource}"
+                                                           Height="80" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <c:AddRemoveButtons />
+                                    </StackPanel>
+                                </c:FormField>
+                                <c:FormField LabelContent="Files">
+                                    <StackPanel Orientation="Vertical">
+                                        <ListBox SelectionMode="Extended"
+                                                 ItemsSource="{Binding GameCopy.Items/Files}"
+                                                 Height="60">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image Width="16"
+                                                               Height="16" />
+                                                        <TextBlock Text="{Binding}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <c:AddRemoveButtons />
+                                    </StackPanel>
+                                </c:FormField>
+                                <c:FormField LabelContent="Notes">
+                                    <TextBox MinLines="5"
+                                             Text="{Binding GameCopy.Items/Notes}" />
+                                </c:FormField>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </TabItem>
             </TabControl.Items>
         </TabControl>
     </DockPanel>

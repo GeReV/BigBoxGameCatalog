@@ -9,7 +9,7 @@ namespace Catalog.Forms
 {
 	partial class GameItemsForm : Panel
 	{
-		private static readonly Bitmap MissingIcon = new Bitmap(Icons.prohibition);
+//		private static readonly Bitmap MissingIcon = new Bitmap(Icons.prohibition);
 
 		public readonly GridView<Item> ItemsGrid = new GridView<Item>
 		{
@@ -22,7 +22,7 @@ namespace Catalog.Forms
 					DataCell = new ImageTextCell
 					{
 						TextBinding = Binding.Property<Item, string>(item => item.ItemType.Description),
-						ImageBinding = Binding.Property<Item, Image>(item => item.ItemType.Icon),
+//						ImageBinding = Binding.Property<Item, Image>(item => item.ItemType.Icon),
 					},
 					Width = 120
 				},
@@ -31,7 +31,7 @@ namespace Catalog.Forms
 					AutoSize = true,
 					DataCell = new ImageViewCell
 					{
-						Binding = Binding.Property<Item, Image>(item => item.Missing ? MissingIcon : null)
+//						Binding = Binding.Property<Item, Image>(item => item.Missing ? MissingIcon : null)
 					},
 				}
 			}

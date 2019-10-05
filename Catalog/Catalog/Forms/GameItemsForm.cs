@@ -35,7 +35,7 @@ namespace Catalog.Forms
             ItemsGrid.DataStore = GameCopy.Items;
 
             ItemTypeDropDown.ItemTextBinding = Binding.Property<ItemType, string>(type => type.Description);
-            ItemTypeDropDown.ItemImageBinding = Binding.Property<ItemType, Image>(type => type.Icon);
+//            ItemTypeDropDown.ItemImageBinding = Binding.Property<ItemType, Image>(type => type.Icon);
             ItemTypeDropDown.DataStore = ItemTypes.All;
             ItemTypeDropDown.SelectedValueBinding.BindDataContext<Item>(item => item.ItemType);
             ItemTypeDropDown.SelectedIndexChanged += (sender, args) => ItemsGrid.ReloadData(ItemsGrid.SelectedRow);

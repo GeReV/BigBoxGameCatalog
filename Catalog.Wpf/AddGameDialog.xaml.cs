@@ -28,8 +28,8 @@ namespace Catalog.Wpf
 
             var database = Application.Current.Database();
 
-            IEnumerable<Publisher> publishers = database.GetPublishersCollection().FindAll();
-            IEnumerable<Developer> developers = database.GetDevelopersCollection().FindAll();
+            var publishers = database.GetPublishersCollection().FindAll();
+            var developers = database.GetDevelopersCollection().FindAll();
 
             ViewModel = new AddGameViewModel(publishers, developers);
         }

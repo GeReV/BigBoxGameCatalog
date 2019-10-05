@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Catalog.Model
 {
-    public class GameCopy : INotifyPropertyChanged
+    public class GameCopy : NotifyPropertyChangedBase
     {
         private ObservableCollection<Item> items;
         private ObservableCollection<Image> screenshots;
@@ -27,7 +27,10 @@ namespace Catalog.Model
             Developers = new ObservableCollection<Developer>();
             Links = new ObservableCollection<string>();
             Screenshots = new ObservableCollection<Image>();
-            Items = new ObservableCollection<Item>();
+            Items = new ObservableCollection<Item>(new []
+            {
+                ItemTypes.BigBox.CreateItem(),
+            });
             TwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
         }
 
@@ -161,14 +164,6 @@ namespace Catalog.Model
                 items = value;
                 OnPropertyChanged();
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

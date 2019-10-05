@@ -13,13 +13,13 @@ namespace Catalog.Forms.Controls
 
         private Button addButton = new Button
         {
-            Image = new Bitmap(Icons.plus),
+//            Image = new Bitmap(Icons.plus),
             MinimumSize = new Size(16, 16)
         };
 
         private Button removeButton = new Button
         {
-            Image = new Bitmap(Icons.minus),
+//            Image = new Bitmap(Icons.minus),
             MinimumSize = new Size(16, 16)
         };
 

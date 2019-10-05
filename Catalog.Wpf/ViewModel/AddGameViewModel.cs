@@ -4,12 +4,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using Catalog.Model;
 using Catalog.Wpf.Annotations;
+using Condition = Catalog.Model.Condition;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public sealed class AddGameViewModel : INotifyPropertyChanged
+    public sealed class AddGameViewModel : NotifyPropertyChangedBase
     {
         private GameCopy gameCopy;
 
@@ -45,12 +47,11 @@ namespace Catalog.Wpf.ViewModel
             .Cast<Platform>()
             .ToList();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public IReadOnlyList<Condition> Conditions => Enum
+            .GetValues(typeof(Condition))
+            .Cast<Condition>()
+            .ToList();
 
-        [NotifyPropertyChangedInvocator]
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public IReadOnlyList<ItemType> ItemTypes => Model.ItemTypes.All.ToList();
     }
 }

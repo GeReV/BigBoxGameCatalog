@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="Catalog.Wpf.Forms.Controls.AddRemoveButtons"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Catalog.Wpf.Forms.Controls"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             mc:Ignorable="d"
+             d:DesignHeight="20"
+             d:DesignWidth="45">
+    <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Margin="0,5,0,0">
+        <StackPanel.Resources>
+            <Style TargetType="xctk:IconButton">
+                <Setter Property="Width"
+                        Value="20" />
+                <Setter Property="Height"
+                        Value="20" />
+            </Style>
+        </StackPanel.Resources>
+        <xctk:IconButton ToolTip="Add"
+                         Margin="0,0,5,0">
+            <xctk:IconButton.Icon>
+                <Image Source="{StaticResource IconPlus}" />
+            </xctk:IconButton.Icon>
+        </xctk:IconButton>
+        <xctk:IconButton ToolTip="Remove">
+            <xctk:IconButton.Icon>
+                <Image Source="{StaticResource IconMinus}" />
+            </xctk:IconButton.Icon>
+        </xctk:IconButton>
+    </StackPanel>
+</UserControl>

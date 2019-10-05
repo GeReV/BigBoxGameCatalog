@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using Catalog.Model;
 using Catalog.Wpf.Annotations;
 using Eto.Drawing;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public sealed class ScreenshotViewModel : INotifyPropertyChanged
+    public sealed class ScreenshotViewModel : NotifyPropertyChangedBase
     {
         private ImageSource thumbnailSource;
         private string thumbnailUrl;
@@ -43,14 +44,6 @@ namespace Catalog.Wpf.ViewModel
                 url = value;
                 OnPropertyChanged();
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
