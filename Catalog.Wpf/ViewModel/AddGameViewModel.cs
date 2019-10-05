@@ -21,10 +21,7 @@ namespace Catalog.Wpf.ViewModel
             Publishers = new ObservableCollection<Publisher>(publishers);
             Developers = new ObservableCollection<Developer>(developers);
             Screenshots = new ObservableCollection<ScreenshotViewModel>();
-        }
-
-        public AddGameViewModel() : this(new List<Publisher>(), new List<Developer>())
-        {
+            FileHashingProgresses = new Dictionary<File, FileViewModel>();
         }
 
         public GameCopy GameCopy
@@ -41,6 +38,8 @@ namespace Catalog.Wpf.ViewModel
         public ObservableCollection<Publisher> Publishers { get; }
         public ObservableCollection<Developer> Developers { get; }
         public ObservableCollection<ScreenshotViewModel> Screenshots { get; }
+
+        public IDictionary<File, FileViewModel> FileHashingProgresses { get; }
 
         public IReadOnlyList<Platform> Platforms => Enum
             .GetValues(typeof(Platform))

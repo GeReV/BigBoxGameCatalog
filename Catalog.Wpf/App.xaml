@@ -6,6 +6,11 @@
     <Application.Resources>
         <ResourceDictionary>
             <wpf:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
+            <wpf:ByteArrayHexValueConverter x:Key="ByteArrayHexValueConverter" />
+            <wpf:FileIconValueConverter x:Key="FileIconValueConverter" />
+            <wpf:DictionaryAccessConverter x:Key="DictionaryAccessConverter" />
+            <wpf:NullableToBooleanConverter x:Key="NullableToBooleanConverter" />
+
             <Style x:Key="GlobalWindow"
                    TargetType="{x:Type Window}">
                 <Setter Property="Background"

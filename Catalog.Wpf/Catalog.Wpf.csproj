@@ -72,6 +72,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.Serialization.Primitives, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.Serialization.Primitives.4.3.0\lib\net46\System.Runtime.Serialization.Primitives.dll</HintPath>
@@ -120,7 +121,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ApplicationHelpers.cs" />
+    <Compile Include="ByteArrayHexValueConverter.cs" />
+    <Compile Include="DictionaryAccessConverter.cs" />
     <Compile Include="EnumDescriptionValueConverter.cs" />
+    <Compile Include="FileIconValueConverter.cs" />
     <Compile Include="Forms\Controls\AddRemoveButtons.xaml.cs">
       <DependentUpon>AddRemoveButtons.xaml</DependentUpon>
     </Compile>
@@ -133,6 +137,7 @@
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="NullableToBooleanConverter.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -148,6 +153,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ViewModel\AddGameViewModel.cs" />
+    <Compile Include="ViewModel\FileViewModel.cs" />
     <Compile Include="ViewModel\GameDisambiguationItemViewModel.cs" />
     <Compile Include="ViewModel\ScreenshotViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

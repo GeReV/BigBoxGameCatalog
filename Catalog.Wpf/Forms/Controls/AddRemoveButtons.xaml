@@ -19,13 +19,14 @@
                         Value="20" />
             </Style>
         </StackPanel.Resources>
-        <xctk:IconButton ToolTip="Add"
-                         Margin="0,0,5,0">
+        <xctk:IconButton Name="AddButton"
+                         ToolTip="Add"
+                         Margin="0,0,5,0" Click="AddButton_OnClick">
             <xctk:IconButton.Icon>
                 <Image Source="{StaticResource IconPlus}" />
             </xctk:IconButton.Icon>
         </xctk:IconButton>
-        <xctk:IconButton ToolTip="Remove">
+        <xctk:IconButton Name="RemoveButton" ToolTip="Remove" Click="RemoveButton_OnClick">
             <xctk:IconButton.Icon>
                 <Image Source="{StaticResource IconMinus}" />
             </xctk:IconButton.Icon>

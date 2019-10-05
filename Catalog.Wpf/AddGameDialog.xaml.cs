@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -16,6 +17,7 @@ using Eto.Drawing;
 using Eto.Forms;
 using Application = System.Windows.Application;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using Window = System.Windows.Window;
 
 namespace Catalog.Wpf
@@ -179,6 +181,58 @@ namespace Catalog.Wpf
         private void AddGameDialog_OnContentRendered(object sender, EventArgs e)
         {
             TitleTextbox.Focus();
+        }
+
+        private void AddRemoveFile_OnAddClick(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Multiselect = true,
+                DereferenceLinks = true,
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            foreach (var fileName in openFileDialog.FileNames)
+            {
+                var file = new File
+                {
+                    Path = fileName
+                };
+
+                var inputStream = System.IO.File.OpenRead(fileName);
+
+                var progress = new Progress<int>();
+
+                ViewModel.FileHashingProgresses.Add(file, new FileViewModel(file, progress));
+                ViewModel.GameCopy.Items[ItemList.SelectedIndex].Files.Add(file);
+
+                Checksum
+                    .GenerateSha256Async(inputStream, progress)
+                    .ContinueWith(
+                        (hashTask) =>
+                        {
+                            inputStream.Dispose();
+
+                            file.Sha256Checksum = hashTask.Result;
+                        },
+                        TaskScheduler.FromCurrentSynchronizationContext()
+                    );
+
+            }
+        }
+
+        private void AddRemoveFile_OnRemoveClick(object sender, RoutedEventArgs e)
+        {
+            var selectedItems = FileList.SelectedItems.Cast<File>().ToList();
+
+            foreach (var selectedItem in selectedItems)
+            {
+                ViewModel.GameCopy.Items[ItemList.SelectedIndex].Files.Remove(selectedItem);
+            }
         }
     }
 }

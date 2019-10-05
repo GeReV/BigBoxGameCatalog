@@ -14,6 +14,7 @@
         Width="800"
         d:DataContext="{viewModel:AddGameViewModel}"
         Style="{DynamicResource GlobalWindow}"
+        Name="Window"
         ContentRendered="AddGameDialog_OnContentRendered">
     <DockPanel Margin="5">
         <StackPanel Orientation="Horizontal"
@@ -142,6 +143,7 @@
                                 </c:FormField>
                                 <c:FormField LabelContent="Condition Details">
                                     <TextBox MinLines="3"
+                                             AcceptsReturn="True"
                                              Text="{Binding GameCopy.Items/ConditionDetails}" />
                                 </c:FormField>
                                 <c:FormField LabelContent="Scans">
@@ -167,24 +169,80 @@
                                 </c:FormField>
                                 <c:FormField LabelContent="Files">
                                     <StackPanel Orientation="Vertical">
-                                        <ListBox SelectionMode="Extended"
+                                        <ListBox Name="FileList"
+                                                 SelectionMode="Extended"
                                                  ItemsSource="{Binding GameCopy.Items/Files}"
+                                                 HorizontalContentAlignment="Stretch"
                                                  Height="60">
                                             <ListBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal">
+                                                <DataTemplate DataType="model:File">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
                                                         <Image Width="16"
-                                                               Height="16" />
-                                                        <TextBlock Text="{Binding}" />
-                                                    </StackPanel>
+                                                               Source="{Binding Path, Converter={StaticResource FileIconValueConverter}}"
+                                                               Margin="0,0,5,0" />
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding Path}"
+                                                                   Margin="0,0,5,0" />
+
+                                                        <ContentControl Grid.Column="2">
+                                                            <ContentControl.Resources>
+                                                                <ControlTemplate x:Key="Progress">
+                                                                    <ProgressBar Width="60">
+                                                                        <ProgressBar.DataContext>
+                                                                            <MultiBinding
+                                                                                Converter="{StaticResource DictionaryAccessConverter}">
+                                                                                <Binding
+                                                                                    Path="DataContext.FileHashingProgresses"
+                                                                                    ElementName="Window" />
+                                                                                <Binding />
+                                                                            </MultiBinding>
+                                                                        </ProgressBar.DataContext>
+                                                                        <ProgressBar.Value>
+                                                                            <Binding Path="Progress"
+                                                                                     Mode="OneWay" />
+                                                                        </ProgressBar.Value>
+                                                                    </ProgressBar>
+                                                                </ControlTemplate>
+                                                                <ControlTemplate x:Key="Checksum">
+                                                                    <TextBlock
+                                                                        Text="{Binding Sha256Checksum, Converter={StaticResource ByteArrayHexValueConverter}}"
+                                                                        ToolTip="{Binding Sha256Checksum, Converter={StaticResource ByteArrayHexValueConverter}}"
+                                                                        HorizontalAlignment="Right"
+                                                                        TextTrimming="CharacterEllipsis"
+                                                                        MaxWidth="60" />
+                                                                </ControlTemplate>
+                                                            </ContentControl.Resources>
+                                                            <ContentControl.Style>
+                                                                <Style TargetType="ContentControl">
+                                                                    <Setter Property="Template"
+                                                                            Value="{StaticResource Progress}" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Sha256Checksum, Converter={StaticResource NullableToBooleanConverter}}"
+                                                                                     Value="True">
+                                                                            <Setter Property="Template"
+                                                                                    Value="{StaticResource Checksum}" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </ContentControl.Style>
+                                                        </ContentControl>
+                                                    </Grid>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
                                         </ListBox>
-                                        <c:AddRemoveButtons />
+                                        <c:AddRemoveButtons x:Name="AddRemoveFile"
+                                                            AddClick="AddRemoveFile_OnAddClick"
+                                                            RemoveClick="AddRemoveFile_OnRemoveClick" />
                                     </StackPanel>
                                 </c:FormField>
                                 <c:FormField LabelContent="Notes">
                                     <TextBox MinLines="5"
+                                             AcceptsReturn="True"
                                              Text="{Binding GameCopy.Items/Notes}" />
                                 </c:FormField>
                             </StackPanel>
