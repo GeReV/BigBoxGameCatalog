@@ -106,7 +106,19 @@
                                   IsSynchronizedWithCurrentItem="True">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn DisplayMemberBinding="{Binding ItemType.Description}" />
+                                    <GridViewColumn>
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate DataType="viewModel:ItemViewModel">
+                                                <StackPanel Orientation="Horizontal"
+                                                            HorizontalAlignment="Stretch">
+                                                    <Image VerticalAlignment="Center"
+                                                           Source="{Binding ItemType, Converter={StaticResource ItemTypeIconConverter}}"
+                                                           Margin="0,0,5,0" />
+                                                    <TextBlock Text="{Binding ItemType.Description}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
                                     <GridViewColumn DisplayMemberBinding="{Binding Missing}" />
                                 </GridView>
                             </ListView.View>
@@ -129,7 +141,12 @@
                                               SelectedValue="{Binding GameItems/ItemType}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate DataType="model:ItemType">
-                                                <TextBlock Text="{Binding Description}" />
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image VerticalAlignment="Center"
+                                                           Source="{Binding Converter={StaticResource ItemTypeIconConverter}}"
+                                                           Margin="0,0,5,0" />
+                                                    <TextBlock Text="{Binding Description}" />
+                                                </StackPanel>
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
@@ -166,7 +183,7 @@
                                             </ListBox.ItemsPanel>
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate DataType="viewModel:ScreenshotViewModel">
-                                                    <Image Source="{Binding ThumbnailSource}"/>
+                                                    <Image Source="{Binding ThumbnailSource}" />
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
                                         </ListBox>

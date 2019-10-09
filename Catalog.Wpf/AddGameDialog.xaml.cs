@@ -131,25 +131,6 @@ namespace Catalog.Wpf
                 .Cast<Platform>()
                 .Where(platform => specs.Platforms.Contains(platform.GetDescription()))
                 .ToList();
-
-//            var mediaTypesList = specs.MediaTypes.ToList();
-//
-//            if (mediaTypesList.Exists(mt => mt.Contains("5.25\" Floppy")))
-//            {
-//                AddMediaPanel.SetStepperValue(ItemTypes.Floppy525, 1);
-//            }
-//            else if (mediaTypesList.Exists(mt => mt.Contains("3.5\" Floppy")))
-//            {
-//                AddMediaPanel.SetStepperValue(ItemTypes.Floppy35, 1);
-//            }
-//            else if (mediaTypesList.Exists(mt => mt.Contains("CD-ROM")))
-//            {
-//                AddMediaPanel.SetStepperValue(ItemTypes.CdRom, 1);
-//            }
-//            else if (mediaTypesList.Exists(mt => mt.Contains("DVD-ROM")))
-//            {
-//                AddMediaPanel.SetStepperValue(ItemTypes.DvdRom, 1);
-//            }
         }
 
         private async void GetScreenshots(GameEntry gameEntry)
@@ -238,6 +219,8 @@ namespace Catalog.Wpf
                 DereferenceLinks = true,
                 Filter = "Image files (*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf)|*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf"
             };
+
+            // TODO: Handle PDF thumbnails.
 
             if (openFileDialog.ShowDialog() != true)
             {

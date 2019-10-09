@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:wpf="clr-namespace:Catalog.Wpf"
+             xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
              StartupUri="AddGameDialog.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -41,6 +42,29 @@
                          UriSource="/Catalog.Wpf;component/Resources/plus.png" />
             <BitmapImage x:Key="IconProhibition"
                          UriSource="/Catalog.Wpf;component/Resources/prohibition.png" />
+
+            <wpf:DictionaryValueConverter x:Key="ItemTypeIconConverter" KeyType="model:ItemType">
+                <wpf:DictionaryValueConverter.Values>
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.Manual}"
+                                 UriSource="/Catalog.Wpf;component/Resources/book.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.BigBox}"
+                                 UriSource="/Catalog.Wpf;component/Resources/box.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.Cassette}"
+                                 UriSource="/Catalog.Wpf;component/Resources/cassette.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.DvdRom}"
+                                 UriSource="/Catalog.Wpf;component/Resources/disc-blue.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.JewelCase}"
+                                 UriSource="/Catalog.Wpf;component/Resources/disc-case.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.CdRom}"
+                                 UriSource="/Catalog.Wpf;component/Resources/disc.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.Floppy525}"
+                                 UriSource="/Catalog.Wpf;component/Resources/disk-black.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.Floppy35}"
+                                 UriSource="/Catalog.Wpf;component/Resources/disk.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.Appendix}"
+                                 UriSource="/Catalog.Wpf;component/Resources/document.png" />
+                </wpf:DictionaryValueConverter.Values>
+            </wpf:DictionaryValueConverter>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
