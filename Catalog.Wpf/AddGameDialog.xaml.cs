@@ -76,14 +76,11 @@ namespace Catalog.Wpf
 
             GetScreenshots(gameEntry);
 
-            ViewModel.GameCopy = new GameCopy();
-            ViewModel.Screenshots.Clear();
+            ViewModel.GameScreenshots.Clear();
 
-            var game = ViewModel.GameCopy;
-
-            game.Title = gameEntry.Name;
-            game.MobyGamesSlug = gameEntry.Slug;
-            game.Links.Add(gameEntry.Url);
+            ViewModel.GameTitle = gameEntry.Name;
+            ViewModel.GameMobyGamesSlug = gameEntry.Slug;
+            ViewModel.GameLinks.Add(gameEntry.Url);
 
             var publisher = ViewModel.Publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
 
@@ -99,7 +96,7 @@ namespace Catalog.Wpf
                 ViewModel.Publishers.Add(publisher);
             }
 
-            game.Publisher = publisher;
+            ViewModel.GamePublisher = publisher;
 
             var developerCollection = ViewModel.Developers.ToList();
 
@@ -119,7 +116,7 @@ namespace Catalog.Wpf
                     ViewModel.Developers.Add(developer);
                 }
 
-                game.Developers.Add(developer);
+                ViewModel.GameDevelopers.Add(developer);
             }
 
             SearchMobyGamesButton.IsEnabled = true;
@@ -172,7 +169,7 @@ namespace Catalog.Wpf
 
             foreach (var image in images)
             {
-                ViewModel.Screenshots.Add(image);
+                ViewModel.GameScreenshots.Add(image);
             }
 
             Screenshots.SelectAll();
@@ -198,17 +195,16 @@ namespace Catalog.Wpf
 
             foreach (var fileName in openFileDialog.FileNames)
             {
-                var file = new File
-                {
-                    Path = fileName
-                };
-
                 var inputStream = System.IO.File.OpenRead(fileName);
 
                 var progress = new Progress<int>();
 
-                ViewModel.FileHashingProgresses.Add(file, new FileViewModel(file, progress));
-                ViewModel.GameCopy.Items[ItemList.SelectedIndex].Files.Add(file);
+                var file = new FileViewModel(progress)
+                {
+                    Path = fileName
+                };
+
+                ViewModel.GameItems[ItemList.SelectedIndex].Files.Add(file);
 
                 Checksum
                     .GenerateSha256Async(inputStream, progress)
@@ -221,17 +217,52 @@ namespace Catalog.Wpf
                         },
                         TaskScheduler.FromCurrentSynchronizationContext()
                     );
-
             }
         }
 
         private void AddRemoveFile_OnRemoveClick(object sender, RoutedEventArgs e)
         {
-            var selectedItems = FileList.SelectedItems.Cast<File>().ToList();
+            var selectedItems = FileList.SelectedItems.Cast<FileViewModel>().ToList();
 
             foreach (var selectedItem in selectedItems)
             {
-                ViewModel.GameCopy.Items[ItemList.SelectedIndex].Files.Remove(selectedItem);
+                ViewModel.GameItems[ItemList.SelectedIndex].Files.Remove(selectedItem);
+            }
+        }
+
+        private void AddRemoveImage_OnAddClick(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Multiselect = true,
+                DereferenceLinks = true,
+                Filter = "Image files (*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf)|*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf"
+            };
+
+            if (openFileDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            foreach (var fileName in openFileDialog.FileNames)
+            {
+                var imageSource = new ImageViewModel
+                {
+                    Path = fileName,
+                    ThumbnailSource = new BitmapImage(new Uri(fileName))
+                };
+
+                ViewModel.GameItems[ItemList.SelectedIndex].Scans.Add(imageSource);
+            }
+        }
+
+        private void AddRemoveImage_OnRemoveClick(object sender, RoutedEventArgs e)
+        {
+            var selectedItems = ScanList.SelectedItems.Cast<ImageViewModel>().ToList();
+
+            foreach (var selectedItem in selectedItems)
+            {
+                ViewModel.GameItems[ItemList.SelectedIndex].Scans.Remove(selectedItem);
             }
         }
     }

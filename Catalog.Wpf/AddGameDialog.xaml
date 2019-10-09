@@ -41,7 +41,7 @@
                                     Search MobyGames
                                 </Button>
                                 <TextBox Name="TitleTextbox"
-                                         Text="{Binding Title}"
+                                         Text="{Binding GameTitle}"
                                          KeyUp="TitleTextbox_OnKeyUp"
                                          VerticalContentAlignment="Center" />
                             </DockPanel>
@@ -49,7 +49,7 @@
                         <c:FormField LabelContent="Publishers">
                             <ComboBox Name="PublishersList"
                                       ItemsSource="{Binding Publishers}"
-                                      SelectedItem="{Binding GameCopy.Publisher}"
+                                      SelectedItem="{Binding GamePublisher}"
                                       DisplayMemberPath="Name"
                                       IsEditable="True" />
                         </c:FormField>
@@ -57,13 +57,13 @@
                             <xctk:CheckListBox Name="DevelopersCheckList"
                                                Height="100"
                                                ItemsSource="{Binding Developers}"
-                                               SelectedItemsOverride="{Binding GameCopy.Developers}"
+                                               SelectedItemsOverride="{Binding GameDevelopers}"
                                                DisplayMemberPath="Name" />
                         </c:FormField>
                         <c:FormField LabelContent="Platform">
                             <xctk:CheckListBox Name="PlatformCheckList"
                                                ItemsSource="{Binding Platforms}"
-                                               SelectedItemsOverride="{Binding GameCopy.Platforms}">
+                                               SelectedItemsOverride="{Binding GamePlatform}">
                                 <xctk:CheckListBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock
@@ -75,7 +75,7 @@
                         <c:FormField LabelContent="Screenshots">
                             <ListBox Name="Screenshots"
                                      SelectionMode="Multiple"
-                                     ItemsSource="{Binding Screenshots}"
+                                     ItemsSource="{Binding GameScreenshots}"
                                      MinHeight="120">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -102,7 +102,7 @@
                         </Grid.ColumnDefinitions>
 
                         <ListView Name="ItemList"
-                                  ItemsSource="{Binding GameCopy.Items}"
+                                  ItemsSource="{Binding GameItems}"
                                   IsSynchronizedWithCurrentItem="True">
                             <ListView.View>
                                 <GridView>
@@ -126,7 +126,7 @@
                                 </StackPanel.Resources>
                                 <c:FormField LabelContent="Item Type">
                                     <ComboBox ItemsSource="{Binding ItemTypes}"
-                                              SelectedValue="{Binding GameCopy.Items/ItemType}">
+                                              SelectedValue="{Binding GameItems/ItemType}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate DataType="model:ItemType">
                                                 <TextBlock Text="{Binding Description}" />
@@ -135,22 +135,29 @@
                                     </ComboBox>
                                 </c:FormField>
                                 <c:FormField LabelContent="Missing">
-                                    <CheckBox IsChecked="{Binding GameCopy.Items/Missing}" />
+                                    <CheckBox IsChecked="{Binding GameItems/Missing}" />
                                 </c:FormField>
                                 <c:FormField LabelContent="Condition">
                                     <ComboBox ItemsSource="{Binding Conditions}"
-                                              SelectedValue="{Binding GameCopy.Items/Condition}" />
+                                              SelectedValue="{Binding GameItems/Condition}" />
                                 </c:FormField>
                                 <c:FormField LabelContent="Condition Details">
                                     <TextBox MinLines="3"
                                              AcceptsReturn="True"
-                                             Text="{Binding GameCopy.Items/ConditionDetails}" />
+                                             Text="{Binding GameItems/ConditionDetails}" />
+                                </c:FormField>
+                                <c:FormField LabelContent="Notes">
+                                    <TextBox MinLines="5"
+                                             AcceptsReturn="True"
+                                             Text="{Binding GameItems/Notes}" />
                                 </c:FormField>
                                 <c:FormField LabelContent="Scans">
                                     <StackPanel Orientation="Vertical">
-                                        <ListBox SelectionMode="Extended"
-                                                 ItemsSource="{Binding GameCopy.Items/Scans}"
-                                                 MinHeight="80">
+                                        <ListBox Name="ScanList"
+                                                 SelectionMode="Extended"
+                                                 ItemsSource="{Binding GameItems/Scans}"
+                                                 Height="80"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                             <ListBox.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <VirtualizingStackPanel IsItemsHost="True"
@@ -159,23 +166,25 @@
                                             </ListBox.ItemsPanel>
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate DataType="viewModel:ScreenshotViewModel">
-                                                    <Image Source="{Binding ThumbnailSource}"
-                                                           Height="80" />
+                                                    <Image Source="{Binding ThumbnailSource}"/>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
                                         </ListBox>
-                                        <c:AddRemoveButtons />
+                                        <c:AddRemoveButtons x:Name="AddRemoveImage"
+                                                            AddClick="AddRemoveImage_OnAddClick"
+                                                            RemoveClick="AddRemoveImage_OnRemoveClick" />
                                     </StackPanel>
                                 </c:FormField>
                                 <c:FormField LabelContent="Files">
                                     <StackPanel Orientation="Vertical">
                                         <ListBox Name="FileList"
                                                  SelectionMode="Extended"
-                                                 ItemsSource="{Binding GameCopy.Items/Files}"
+                                                 ItemsSource="{Binding GameItems/Files}"
                                                  HorizontalContentAlignment="Stretch"
-                                                 Height="60">
+                                                 Height="60"
+                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                                             <ListBox.ItemTemplate>
-                                                <DataTemplate DataType="model:File">
+                                                <DataTemplate DataType="viewModel:FileViewModel">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
@@ -187,26 +196,15 @@
                                                                Margin="0,0,5,0" />
                                                         <TextBlock Grid.Column="1"
                                                                    Text="{Binding Path}"
-                                                                   Margin="0,0,5,0" />
+                                                                   ToolTip="{Binding Path}"
+                                                                   Margin="0,0,5,0"
+                                                                   TextTrimming="WordEllipsis" />
 
                                                         <ContentControl Grid.Column="2">
                                                             <ContentControl.Resources>
                                                                 <ControlTemplate x:Key="Progress">
-                                                                    <ProgressBar Width="60">
-                                                                        <ProgressBar.DataContext>
-                                                                            <MultiBinding
-                                                                                Converter="{StaticResource DictionaryAccessConverter}">
-                                                                                <Binding
-                                                                                    Path="DataContext.FileHashingProgresses"
-                                                                                    ElementName="Window" />
-                                                                                <Binding />
-                                                                            </MultiBinding>
-                                                                        </ProgressBar.DataContext>
-                                                                        <ProgressBar.Value>
-                                                                            <Binding Path="Progress"
-                                                                                     Mode="OneWay" />
-                                                                        </ProgressBar.Value>
-                                                                    </ProgressBar>
+                                                                    <ProgressBar Width="60"
+                                                                                 Value="{Binding Progress, Mode=OneWay}" />
                                                                 </ControlTemplate>
                                                                 <ControlTemplate x:Key="Checksum">
                                                                     <TextBlock
@@ -222,8 +220,9 @@
                                                                     <Setter Property="Template"
                                                                             Value="{StaticResource Progress}" />
                                                                     <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Sha256Checksum, Converter={StaticResource NullableToBooleanConverter}}"
-                                                                                     Value="True">
+                                                                        <DataTrigger
+                                                                            Binding="{Binding Sha256Checksum, Converter={StaticResource NullableToBooleanConverter}}"
+                                                                            Value="True">
                                                                             <Setter Property="Template"
                                                                                     Value="{StaticResource Checksum}" />
                                                                         </DataTrigger>
@@ -239,11 +238,6 @@
                                                             AddClick="AddRemoveFile_OnAddClick"
                                                             RemoveClick="AddRemoveFile_OnRemoveClick" />
                                     </StackPanel>
-                                </c:FormField>
-                                <c:FormField LabelContent="Notes">
-                                    <TextBox MinLines="5"
-                                             AcceptsReturn="True"
-                                             Text="{Binding GameCopy.Items/Notes}" />
                                 </c:FormField>
                             </StackPanel>
                         </Border>

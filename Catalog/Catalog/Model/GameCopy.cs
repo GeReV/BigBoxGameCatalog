@@ -7,163 +7,30 @@ using JetBrains.Annotations;
 
 namespace Catalog.Model
 {
-    public class GameCopy : NotifyPropertyChangedBase
+    public class GameCopy
     {
-        private ObservableCollection<Item> items;
-        private ObservableCollection<Image> screenshots;
-        private ObservableCollection<string> links;
-        private Platform platform;
-        private ObservableCollection<string> twoLetterIsoLanguageName;
-        private DateTime releaseDate;
-        private Publisher publisher;
-        private ObservableCollection<Developer> developers;
-        private string mobyGamesSlug;
-        private string notes;
-        private string title;
-        private int gameCopyId;
+        public int GameCopyId { get; set; }
 
-        public GameCopy()
-        {
-            Developers = new ObservableCollection<Developer>();
-            Links = new ObservableCollection<string>();
-            Screenshots = new ObservableCollection<Image>();
-            Items = new ObservableCollection<Item>(new []
-            {
-                ItemTypes.BigBox.CreateItem(),
-            });
-            TwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
-        }
+        public string Title { get; set; }
 
-        public int GameCopyId
-        {
-            get => gameCopyId;
-            set
-            {
-                if (value == gameCopyId) return;
-                gameCopyId = value;
-                OnPropertyChanged();
-            }
-        }
+        public string Notes { get; set; }
 
-        public string Title
-        {
-            get => title;
-            set
-            {
-                if (value == title) return;
-                title = value;
-                OnPropertyChanged();
-            }
-        }
+        public string MobyGamesSlug { get; set; }
 
-        public string Notes
-        {
-            get => notes;
-            set
-            {
-                if (value == notes) return;
-                notes = value;
-                OnPropertyChanged();
-            }
-        }
+        public IEnumerable<Developer> Developers { get; set; }
 
-        public string MobyGamesSlug
-        {
-            get => mobyGamesSlug;
-            set
-            {
-                if (value == mobyGamesSlug) return;
-                mobyGamesSlug = value;
-                OnPropertyChanged();
-            }
-        }
+        public Publisher Publisher { get; set; }
 
-        public ObservableCollection<Developer> Developers
-        {
-            get => developers;
-            set
-            {
-                if (Equals(value, developers)) return;
-                developers = value;
-                OnPropertyChanged();
-            }
-        }
+        public DateTime ReleaseDate { get; set; }
 
-        public Publisher Publisher
-        {
-            get => publisher;
-            set
-            {
-                if (Equals(value, publisher)) return;
-                publisher = value;
-                OnPropertyChanged();
-            }
-        }
+        public IEnumerable<string> TwoLetterIsoLanguageName { get; set; }
 
-        public DateTime ReleaseDate
-        {
-            get => releaseDate;
-            set
-            {
-                if (value.Equals(releaseDate)) return;
-                releaseDate = value;
-                OnPropertyChanged();
-            }
-        }
+        public Platform Platform { get; set; }
 
-        public ObservableCollection<string> TwoLetterIsoLanguageName
-        {
-            get => twoLetterIsoLanguageName;
-            set
-            {
-                if (Equals(value, twoLetterIsoLanguageName)) return;
-                twoLetterIsoLanguageName = value;
-                OnPropertyChanged();
-            }
-        }
+        public IEnumerable<string> Links { get; set; }
 
-        public Platform Platform
-        {
-            get => platform;
-            set
-            {
-                if (value == platform) return;
-                platform = value;
-                OnPropertyChanged();
-            }
-        }
+        public IEnumerable<Image> Screenshots { get; set; }
 
-        public ObservableCollection<string> Links
-        {
-            get => links;
-            set
-            {
-                if (Equals(value, links)) return;
-                links = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<Image> Screenshots
-        {
-            get => screenshots;
-            set
-            {
-                if (Equals(value, screenshots)) return;
-                screenshots = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<Item> Items
-        {
-            get => items;
-            set
-            {
-                if (Equals(value, items)) return;
-                items = value;
-                OnPropertyChanged();
-            }
-        }
+        public ObservableCollection<Item> Items { get; set; }
     }
 }

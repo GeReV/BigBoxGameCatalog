@@ -56,7 +56,7 @@ namespace Catalog
                 Text = "Edit Items",
                 Command = new Command((sender, args) =>
                 {
-                    BuildItems();
+//                    BuildItems();
 
                     ShowForm(gameItemsForm);
                 })

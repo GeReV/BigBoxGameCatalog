@@ -13,33 +13,113 @@ namespace Catalog.Wpf.ViewModel
 {
     public sealed class AddGameViewModel : NotifyPropertyChangedBase
     {
-        private GameCopy gameCopy;
+        private string gameTitle;
+        private string gameMobyGamesSlug;
+        private string gameNotes;
+        private Platform gamePlatform;
+        private DateTime gameReleaseDate;
+        private Publisher gamePublisher;
 
         public AddGameViewModel(IEnumerable<Publisher> publishers, IEnumerable<Developer> developers)
         {
-            GameCopy = new GameCopy();
             Publishers = new ObservableCollection<Publisher>(publishers);
             Developers = new ObservableCollection<Developer>(developers);
-            Screenshots = new ObservableCollection<ScreenshotViewModel>();
-            FileHashingProgresses = new Dictionary<File, FileViewModel>();
+
+            GameItems = new ObservableCollection<ItemViewModel>
+            {
+                new ItemViewModel
+                {
+                    ItemType = Model.ItemTypes.BigBox
+                }
+            };
+            GameLinks = new ObservableCollection<string>();
+            GameDevelopers = new ObservableCollection<Developer>();
+            GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
+            GameTwoLetterIsoLanguageName = new ObservableCollection<string> { "en" };
         }
 
-        public GameCopy GameCopy
+        public AddGameViewModel() : this(new List<Publisher>(), new List<Developer>())
         {
-            get => gameCopy;
+        }
+
+        public string GameTitle
+        {
+            get => gameTitle;
             set
             {
-                if (Equals(value, gameCopy)) return;
-                gameCopy = value;
+                if (value == gameTitle) return;
+                gameTitle = value;
                 OnPropertyChanged();
             }
         }
 
+        public string GameMobyGamesSlug
+        {
+            get => gameMobyGamesSlug;
+            set
+            {
+                if (value == gameMobyGamesSlug) return;
+                gameMobyGamesSlug = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string GameNotes
+        {
+            get => gameNotes;
+            set
+            {
+                if (value == gameNotes) return;
+                gameNotes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<ItemViewModel> GameItems { get; }
+
+        public ObservableCollection<string> GameLinks { get; }
+
+        public ObservableCollection<string> GameTwoLetterIsoLanguageName { get; }
+
+        public Platform GamePlatform
+        {
+            get => gamePlatform;
+            set
+            {
+                if (value == gamePlatform) return;
+                gamePlatform = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public DateTime GameReleaseDate
+        {
+            get => gameReleaseDate;
+            set
+            {
+                if (value.Equals(gameReleaseDate)) return;
+                gameReleaseDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Publisher GamePublisher
+        {
+            get => gamePublisher;
+            set
+            {
+                if (Equals(value, gamePublisher)) return;
+                gamePublisher = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<Developer> GameDevelopers { get; }
+        public ObservableCollection<ScreenshotViewModel> GameScreenshots { get; }
+
         public ObservableCollection<Publisher> Publishers { get; }
         public ObservableCollection<Developer> Developers { get; }
-        public ObservableCollection<ScreenshotViewModel> Screenshots { get; }
-
-        public IDictionary<File, FileViewModel> FileHashingProgresses { get; }
 
         public IReadOnlyList<Platform> Platforms => Enum
             .GetValues(typeof(Platform))

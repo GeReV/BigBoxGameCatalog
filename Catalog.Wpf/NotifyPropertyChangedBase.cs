@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Catalog.Wpf.Annotations;
 
-namespace Catalog.Model
+namespace Catalog.Wpf
 {
     public class NotifyPropertyChangedBase : INotifyPropertyChanged
     {

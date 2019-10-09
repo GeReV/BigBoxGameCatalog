@@ -10,11 +10,6 @@ namespace Catalog.Model
             Description = description;
         }
 
-        public Item CreateItem() => new Item
-        {
-            ItemType = this
-        };
-
         public string Type { get; }
         public string Description { get; }
     }

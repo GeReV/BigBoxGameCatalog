@@ -1,25 +1,46 @@
 ﻿using System;
-using Catalog.Model;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Catalog.Wpf.ViewModel
 {
     public class FileViewModel : NotifyPropertyChangedBase
     {
-        private readonly File file;
+        private string path;
+        private byte[] sha256Checksum;
         private int progress;
 
-        public FileViewModel(File file, Progress<int> progress)
+        public FileViewModel(Progress<int> progress = null)
         {
-            this.file = file;
-            this.file.PropertyChanged += (sender, args) => OnPropertyChanged(nameof(File));
-
-            progress.ProgressChanged += (sender, args) =>
+            if (progress == null)
             {
-                Progress = args;
-            };
+                return;
+            }
+
+            progress.ProgressChanged += (_, percentage) => { Progress = percentage; };
         }
 
-        public File File => file;
+        public string Path
+        {
+            get => path;
+            set
+            {
+                if (value == path) return;
+                path = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public byte[] Sha256Checksum
+        {
+            get => sha256Checksum;
+            set
+            {
+                if (Equals(value, sha256Checksum)) return;
+                sha256Checksum = value;
+                OnPropertyChanged();
+            }
+        }
 
         public int Progress
         {
