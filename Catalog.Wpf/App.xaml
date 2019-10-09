@@ -3,14 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:wpf="clr-namespace:Catalog.Wpf"
              xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+             xmlns:converters="clr-namespace:Catalog.Wpf.Converters"
              StartupUri="AddGameDialog.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <wpf:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
-            <wpf:ByteArrayHexValueConverter x:Key="ByteArrayHexValueConverter" />
-            <wpf:FileIconValueConverter x:Key="FileIconValueConverter" />
-            <wpf:DictionaryAccessConverter x:Key="DictionaryAccessConverter" />
-            <wpf:NullableToBooleanConverter x:Key="NullableToBooleanConverter" />
+            <converters:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />
+            <converters:ByteArrayHexValueConverter x:Key="ByteArrayHexValueConverter" />
+            <converters:FileIconValueConverter x:Key="FileIconValueConverter" />
+            <converters:DictionaryAccessConverter x:Key="DictionaryAccessConverter" />
+            <converters:NullableToBooleanConverter x:Key="NullableToBooleanConverter" />
 
             <Style x:Key="GlobalWindow"
                    TargetType="{x:Type Window}">
@@ -43,8 +44,8 @@
             <BitmapImage x:Key="IconProhibition"
                          UriSource="/Catalog.Wpf;component/Resources/prohibition.png" />
 
-            <wpf:DictionaryValueConverter x:Key="ItemTypeIconConverter" KeyType="model:ItemType">
-                <wpf:DictionaryValueConverter.Values>
+            <converters:DictionaryValueConverter x:Key="ItemTypeIconConverter" KeyType="model:ItemType">
+                <converters:DictionaryValueConverter.Values>
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Manual}"
                                  UriSource="/Catalog.Wpf;component/Resources/book.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.BigBox}"
@@ -63,8 +64,8 @@
                                  UriSource="/Catalog.Wpf;component/Resources/disk.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Appendix}"
                                  UriSource="/Catalog.Wpf;component/Resources/document.png" />
-                </wpf:DictionaryValueConverter.Values>
-            </wpf:DictionaryValueConverter>
+                </converters:DictionaryValueConverter.Values>
+            </converters:DictionaryValueConverter>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

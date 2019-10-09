@@ -2,18 +2,20 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Converters
 {
-    public class NullableToBooleanConverter : IValueConverter
+    public class EnumDescriptionValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value != null;
+            Enum e = (Enum) value;
+
+            return e.GetDescription();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return string.Empty;
         }
     }
 }

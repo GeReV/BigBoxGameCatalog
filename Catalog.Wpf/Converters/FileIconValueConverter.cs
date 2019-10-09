@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Drawing;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Converters
 {
     public class FileIconValueConverter : IValueConverter
     {

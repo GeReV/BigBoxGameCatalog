@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Converters
 {
     public class ByteArrayHexValueConverter : IValueConverter
     {

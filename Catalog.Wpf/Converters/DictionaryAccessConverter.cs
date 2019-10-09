@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Converters
 {
     public class DictionaryAccessConverter : IMultiValueConverter
     {

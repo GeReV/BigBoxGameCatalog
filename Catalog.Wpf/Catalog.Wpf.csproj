@@ -121,11 +121,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ApplicationHelpers.cs" />
-    <Compile Include="ByteArrayHexValueConverter.cs" />
-    <Compile Include="DictionaryAccessConverter.cs" />
-    <Compile Include="DictionaryValueConverter.cs" />
-    <Compile Include="EnumDescriptionValueConverter.cs" />
-    <Compile Include="FileIconValueConverter.cs" />
+    <Compile Include="Converters\ByteArrayHexValueConverter.cs" />
+    <Compile Include="Converters\DictionaryAccessConverter.cs" />
+    <Compile Include="Converters\DictionaryValueConverter.cs" />
+    <Compile Include="Converters\EnumDescriptionValueConverter.cs" />
+    <Compile Include="Converters\FileIconValueConverter.cs" />
+    <Compile Include="Converters\NullableToBooleanConverter.cs" />
     <Compile Include="Forms\Controls\AddRemoveButtons.xaml.cs">
       <DependentUpon>AddRemoveButtons.xaml</DependentUpon>
     </Compile>
@@ -139,7 +140,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="NotifyPropertyChangedBase.cs" />
-    <Compile Include="NullableToBooleanConverter.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

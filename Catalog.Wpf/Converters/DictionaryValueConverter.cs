@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Converters
 {
     public class DictionaryValueConverter : IValueConverter
     {
