@@ -12,6 +12,7 @@
             <converters:FileIconValueConverter x:Key="FileIconValueConverter" />
             <converters:DictionaryAccessConverter x:Key="DictionaryAccessConverter" />
             <converters:NullableToBooleanConverter x:Key="NullableToBooleanConverter" />
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
             <Style x:Key="GlobalWindow"
                    TargetType="{x:Type Window}">

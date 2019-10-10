@@ -121,6 +121,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ApplicationHelpers.cs" />
+    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ByteArrayHexValueConverter.cs" />
     <Compile Include="Converters\DictionaryAccessConverter.cs" />
     <Compile Include="Converters\DictionaryValueConverter.cs" />

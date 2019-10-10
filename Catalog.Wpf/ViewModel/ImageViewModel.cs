@@ -1,4 +1,5 @@
 ﻿using System.Windows.Media;
+using Catalog.Model;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -27,6 +28,14 @@ namespace Catalog.Wpf.ViewModel
                 thumbnailSource = value;
                 OnPropertyChanged();
             }
+        }
+
+        public Image BuildImage()
+        {
+            return new Image
+            {
+                Path = Path
+            };
         }
     }
 }

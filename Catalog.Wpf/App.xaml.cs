@@ -21,6 +21,7 @@ namespace Catalog.Wpf
                 Directory.CreateDirectory(homeDirectory);
             }
 
+            Current.Properties.Add("HomeDirectory", homeDirectory);
             Current.Properties.Add("Database", new CatalogDatabase(Path.Combine(homeDirectory, "database.litedb")));
         }
     }

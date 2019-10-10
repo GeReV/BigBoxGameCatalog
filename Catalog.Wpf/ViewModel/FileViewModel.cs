@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Catalog.Model;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -51,6 +52,15 @@ namespace Catalog.Wpf.ViewModel
                 progress = value;
                 OnPropertyChanged();
             }
+        }
+
+        public File BuildFile()
+        {
+            return new File
+            {
+                Path = Path,
+                Sha256Checksum = Sha256Checksum
+            };
         }
     }
 }

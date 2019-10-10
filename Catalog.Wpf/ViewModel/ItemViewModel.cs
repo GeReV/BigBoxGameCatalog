@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Catalog.Model;
 
 namespace Catalog.Wpf.ViewModel
@@ -76,5 +77,19 @@ namespace Catalog.Wpf.ViewModel
         public ObservableCollection<ImageViewModel> Scans { get; }
 
         public ObservableCollection<FileViewModel> Files { get; }
+
+        public Item BuildItem()
+        {
+            return new Item
+            {
+                ItemType = ItemType,
+                Missing = Missing,
+                Condition = Condition,
+                ConditionDetails = ConditionDetails,
+                Notes = Notes,
+                Files = Files.Select(vm => vm.BuildFile()),
+                Scans = Scans.Select(vm => vm.BuildImage())
+            };
+        }
     }
 }

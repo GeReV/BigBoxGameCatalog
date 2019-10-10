@@ -4,8 +4,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using Catalog.Model;
+using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.Annotations;
 using Condition = Catalog.Model.Condition;
 
@@ -19,6 +21,16 @@ namespace Catalog.Wpf.ViewModel
         private Platform gamePlatform;
         private DateTime gameReleaseDate;
         private Publisher gamePublisher;
+        private int saveProgress;
+        private ViewStatus viewStatus = ViewStatus.Idle;
+
+        public enum ViewStatus
+        {
+            [Description("Idle")]
+            Idle,
+            [Description("Downloading screenshots...")]
+            DownloadingScreenshots,
+        }
 
         public AddGameViewModel(IEnumerable<Publisher> publishers, IEnumerable<Developer> developers)
         {
@@ -35,7 +47,7 @@ namespace Catalog.Wpf.ViewModel
             GameLinks = new ObservableCollection<string>();
             GameDevelopers = new ObservableCollection<Developer>();
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
-            GameTwoLetterIsoLanguageName = new ObservableCollection<string> { "en" };
+            GameTwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
         }
 
         public AddGameViewModel() : this(new List<Publisher>(), new List<Developer>())
@@ -92,7 +104,6 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-
         public DateTime GameReleaseDate
         {
             get => gameReleaseDate;
@@ -132,5 +143,30 @@ namespace Catalog.Wpf.ViewModel
             .ToList();
 
         public IReadOnlyList<ItemType> ItemTypes => Model.ItemTypes.All.ToList();
+
+        public ViewStatus Status
+        {
+            get => viewStatus;
+            set
+            {
+                if (value == viewStatus) return;
+                viewStatus = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsSaving));
+            }
+        }
+
+        public bool IsSaving => Status != ViewStatus.Idle;
+
+        public int SaveProgress
+        {
+            get => saveProgress;
+            set
+            {
+                if (value == saveProgress) return;
+                saveProgress = value;
+                OnPropertyChanged();
+            }
+        }
     }
 }

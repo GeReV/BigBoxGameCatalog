@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -217,7 +218,8 @@ namespace Catalog.Wpf
             {
                 Multiselect = true,
                 DereferenceLinks = true,
-                Filter = "Image files (*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf)|*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf"
+                Filter =
+                    "Image files (*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf)|*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tif;*.tiff;*.tga;*.pdf"
             };
 
             // TODO: Handle PDF thumbnails.
@@ -247,6 +249,54 @@ namespace Catalog.Wpf
             {
                 ViewModel.GameItems[ItemList.SelectedIndex].Scans.Remove(selectedItem);
             }
+        }
+
+        private async void OkButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.Status = AddGameViewModel.ViewStatus.DownloadingScreenshots;
+
+            var game = await BuildGame();
+
+            ViewModel.Status = AddGameViewModel.ViewStatus.Idle;
+
+//            DialogResult = true;
+
+            Close();
+        }
+
+        private void CancelButton_OnClick(object sender, RoutedEventArgs e)
+        {
+//            DialogResult = false;
+
+            Close();
+        }
+
+        private async Task<GameCopy> BuildGame()
+        {
+            var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots", ViewModel.GameMobyGamesSlug);
+
+            var screenshots = await ScreenshotDownloader.DownloadScreenshots(
+                screenshotDirectory,
+                Screenshots.SelectedItems
+                    .Cast<ScreenshotViewModel>()
+                    .Select(ss => ss.Url),
+                new Progress<int>(percentage => ViewModel.SaveProgress = percentage)
+            );
+
+            return new GameCopy
+            {
+                Title = ViewModel.GameTitle,
+                MobyGamesSlug = ViewModel.GameMobyGamesSlug,
+                Platform = ViewModel.GamePlatform,
+                Publisher = ViewModel.GamePublisher,
+                Developers = ViewModel.GameDevelopers.ToList(),
+                Items = ViewModel.GameItems.Select(item => item.BuildItem()),
+                Links = ViewModel.GameLinks.ToList(),
+                Notes = ViewModel.GameNotes,
+                TwoLetterIsoLanguageName = ViewModel.GameTwoLetterIsoLanguageName,
+                ReleaseDate = ViewModel.GameReleaseDate,
+                Screenshots = screenshots
+            };
         }
     }
 }

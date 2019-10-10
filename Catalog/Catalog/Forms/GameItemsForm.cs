@@ -54,10 +54,10 @@ namespace Catalog.Forms
         {
             var item = new Item();
 
-            GameCopy.Items.Add(item);
+//            GameCopy.Items.Add(item);
 
-            ItemsGrid.DataStore = GameCopy.Items;
-            ItemsGrid.SelectRow(GameCopy.Items.Count - 1);
+//            ItemsGrid.DataStore = GameCopy.Items;
+//            ItemsGrid.SelectRow(GameCopy.Items.Count - 1);
         }
 
         private void RemoveItem(object sender, EventArgs e)

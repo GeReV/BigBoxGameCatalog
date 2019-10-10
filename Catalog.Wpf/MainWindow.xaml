@@ -5,28 +5,43 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:Catalog.Wpf"
         xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="MainWindow" Height="960" Width="1280" Padding="5">
+        Title="MainWindow"
+        Height="960"
+        Width="1280"
+        Padding="5">
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
-                <Button Content="Add Game" />
+                <xctk:IconButton Name="AddGameButton"
+                                 Content="Add Game"
+                                 Click="AddGameButton_OnClick">
+                    <xctk:IconButton.Icon>
+                        <Image Source="{StaticResource IconPlus}" />
+                    </xctk:IconButton.Icon>
+                </xctk:IconButton>
             </ToolBar>
         </ToolBarTray>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MinWidth="300" />
+                <ColumnDefinition Width="*"
+                                  MinWidth="300" />
                 <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="*" MinWidth="300" />
+                <ColumnDefinition Width="*"
+                                  MinWidth="300" />
             </Grid.ColumnDefinitions>
-            <ListBox Name="Games" ItemsSource="{Binding}">
+            <ListBox Name="Games"
+                     ItemsSource="{Binding}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="model:GameCopy">
-                        <TextBlock Text="{Binding Title}"></TextBlock>
+                        <TextBlock Text="{Binding Title}" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"></GridSplitter>
+            <GridSplitter Grid.Column="1"
+                          Width="5"
+                          HorizontalAlignment="Stretch" />
         </Grid>
     </DockPanel>
 </Window>

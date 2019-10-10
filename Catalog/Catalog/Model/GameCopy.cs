@@ -31,6 +31,6 @@ namespace Catalog.Model
 
         public IEnumerable<Image> Screenshots { get; set; }
 
-        public ObservableCollection<Item> Items { get; set; }
+        public IEnumerable<Item> Items { get; set; }
     }
 }

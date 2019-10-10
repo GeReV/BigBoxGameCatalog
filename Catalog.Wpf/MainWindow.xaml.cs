@@ -21,5 +21,10 @@ namespace Catalog.Wpf
 
             DataContext = Application.Current.Database().GetGamesCollection().FindAll();
         }
+
+        private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            new AddGameDialog().ShowDialog();
+        }
     }
 }
