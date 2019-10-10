@@ -8,6 +8,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+        xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
         mc:Ignorable="d"
         Title="Add Game"
         Height="600"
@@ -223,128 +224,11 @@
                         <GridSplitter Grid.Column="1"
                                       Width="5"
                                       HorizontalAlignment="Stretch" />
-                        <Border Grid.Column="2"
-                                BorderThickness="1"
-                                Padding="5">
-                            <StackPanel>
-                                <StackPanel.Resources>
-                                    <Style TargetType="c:FormField">
-                                        <Setter Property="LabelWidth"
-                                                Value="100" />
-                                    </Style>
-                                </StackPanel.Resources>
-                                <c:FormField LabelContent="Item Type">
-                                    <ComboBox ItemsSource="{Binding ItemTypes}"
-                                              SelectedValue="{Binding GameItems/ItemType}"
-                                              ItemTemplate="{StaticResource ItemTypeTemplate}" />
-                                </c:FormField>
-                                <c:FormField LabelContent="Missing">
-                                    <CheckBox IsChecked="{Binding GameItems/Missing}" />
-                                </c:FormField>
-                                <c:FormField LabelContent="Condition">
-                                    <ComboBox ItemsSource="{Binding Conditions}"
-                                              SelectedValue="{Binding GameItems/Condition}" />
-                                </c:FormField>
-                                <c:FormField LabelContent="Condition Details">
-                                    <TextBox MinLines="3"
-                                             AcceptsReturn="True"
-                                             Text="{Binding GameItems/ConditionDetails}" />
-                                </c:FormField>
-                                <c:FormField LabelContent="Notes">
-                                    <TextBox MinLines="5"
-                                             AcceptsReturn="True"
-                                             Text="{Binding GameItems/Notes}" />
-                                </c:FormField>
-                                <c:FormField LabelContent="Scans">
-                                    <StackPanel Orientation="Vertical">
-                                        <ListBox Name="ScanList"
-                                                 SelectionMode="Extended"
-                                                 ItemsSource="{Binding GameItems/Scans}"
-                                                 Height="80"
-                                                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                                            <ListBox.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <VirtualizingStackPanel IsItemsHost="True"
-                                                                            Orientation="Horizontal" />
-                                                </ItemsPanelTemplate>
-                                            </ListBox.ItemsPanel>
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate DataType="viewModel:ScreenshotViewModel">
-                                                    <Image Source="{Binding ThumbnailSource}" />
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
-                                        <c:AddRemoveButtons x:Name="AddRemoveImage"
-                                                            AddClick="AddRemoveImage_OnAddClick"
-                                                            RemoveClick="AddRemoveImage_OnRemoveClick" />
-                                    </StackPanel>
-                                </c:FormField>
-                                <c:FormField LabelContent="Files">
-                                    <StackPanel Orientation="Vertical">
-                                        <ListBox Name="FileList"
-                                                 SelectionMode="Extended"
-                                                 ItemsSource="{Binding GameItems/Files}"
-                                                 HorizontalContentAlignment="Stretch"
-                                                 Height="60"
-                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate DataType="viewModel:FileViewModel">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto" />
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="Auto" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <Image Width="16"
-                                                               Source="{Binding Path, Converter={StaticResource FileIconValueConverter}}"
-                                                               Margin="0,0,5,0" />
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{Binding Path}"
-                                                                   ToolTip="{Binding Path}"
-                                                                   Margin="0,0,5,0"
-                                                                   TextTrimming="WordEllipsis" />
 
-                                                        <ContentControl Grid.Column="2">
-                                                            <ContentControl.Resources>
-                                                                <ControlTemplate x:Key="Progress">
-                                                                    <ProgressBar Width="60"
-                                                                                 Value="{Binding Progress, Mode=OneWay}" />
-                                                                </ControlTemplate>
-                                                                <ControlTemplate x:Key="Checksum">
-                                                                    <TextBlock
-                                                                        Text="{Binding Sha256Checksum, Converter={StaticResource ByteArrayHexValueConverter}}"
-                                                                        ToolTip="{Binding Sha256Checksum, Converter={StaticResource ByteArrayHexValueConverter}}"
-                                                                        HorizontalAlignment="Right"
-                                                                        TextTrimming="CharacterEllipsis"
-                                                                        MaxWidth="60" />
-                                                                </ControlTemplate>
-                                                            </ContentControl.Resources>
-                                                            <ContentControl.Style>
-                                                                <Style TargetType="ContentControl">
-                                                                    <Setter Property="Template"
-                                                                            Value="{StaticResource Progress}" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger
-                                                                            Binding="{Binding Sha256Checksum, Converter={StaticResource NullableToBooleanConverter}}"
-                                                                            Value="True">
-                                                                            <Setter Property="Template"
-                                                                                    Value="{StaticResource Checksum}" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </ContentControl.Style>
-                                                        </ContentControl>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
-                                        <c:AddRemoveButtons x:Name="AddRemoveFile"
-                                                            AddClick="AddRemoveFile_OnAddClick"
-                                                            RemoveClick="AddRemoveFile_OnRemoveClick" />
-                                    </StackPanel>
-                                </c:FormField>
-                            </StackPanel>
-                        </Border>
+                        <forms:ItemForm Grid.Column="2"
+                                        DataContext="{Binding GameItems/}"
+                                        ItemTypesSource="{Binding ItemTypes}"
+                                        />
                     </Grid>
                 </TabItem>
             </TabControl.Items>

@@ -121,6 +121,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ApplicationHelpers.cs" />
+    <Compile Include="Commands\CommandBase.cs" />
+    <Compile Include="Commands\DelegateCommand.cs" />
+    <Compile Include="Commands\GameItemAddFileCommand.cs" />
+    <Compile Include="Commands\GameItemAddScanCommand.cs" />
+    <Compile Include="Commands\GameItemRemoveFileCommand.cs" />
+    <Compile Include="Commands\GameItemRemoveScanCommand.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ByteArrayHexValueConverter.cs" />
     <Compile Include="Converters\DictionaryAccessConverter.cs" />
@@ -134,6 +140,9 @@
     <Compile Include="Forms\Controls\FormField.cs" />
     <Compile Include="Forms\Controls\RichListBoxHandler.cs" />
     <Compile Include="Forms\Controls\WpfImageTextBindingBlock.cs" />
+    <Compile Include="Forms\ItemForm.xaml.cs">
+      <DependentUpon>ItemForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GameDisambiguationDialog.xaml.cs">
       <DependentUpon>GameDisambiguationDialog.xaml</DependentUpon>
     </Compile>
@@ -188,6 +197,7 @@
     <Page Include="AddGameDialog.xaml" />
     <Page Include="Forms\Controls\AddRemoveButtons.xaml" />
     <Page Include="Forms\Controls\FormField.xaml" />
+    <Page Include="Forms\ItemForm.xaml" />
     <Page Include="GameDisambiguationDialog.xaml" />
     <Page Include="MainWindow.xaml" />
     <Page Include="Themes\Generic.xaml" />

@@ -1,0 +1,150 @@
+﻿<UserControl x:Class="Catalog.Wpf.Forms.ItemForm"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
+             xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+             xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+             Name="ItemFormControl"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance viewModel:ItemViewModel}">
+    <Border BorderThickness="1">
+        <StackPanel>
+            <StackPanel.Resources>
+                <Style TargetType="controls:FormField">
+                    <Setter Property="LabelWidth"
+                            Value="100" />
+                </Style>
+            </StackPanel.Resources>
+            <controls:FormField LabelContent="Item Type">
+                <ComboBox ItemsSource="{Binding ElementName=ItemFormControl, Path=ItemTypesSource}"
+                          SelectedValue="{Binding ItemType}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="model:ItemType">
+                            <StackPanel Orientation="Horizontal">
+                                <Image VerticalAlignment="Center"
+                                       Source="{Binding Converter={StaticResource ItemTypeIconConverter}}"
+                                       Margin="0,0,5,0" />
+                                <TextBlock Text="{Binding Description}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </controls:FormField>
+            <controls:FormField LabelContent="Missing">
+                <CheckBox IsChecked="{Binding Missing}" />
+            </controls:FormField>
+            <controls:FormField LabelContent="Condition">
+                <ComboBox ItemsSource="{Binding Conditions}"
+                          SelectedValue="{Binding Condition}" />
+            </controls:FormField>
+            <controls:FormField LabelContent="Condition Details">
+                <TextBox MinLines="3"
+                         AcceptsReturn="True"
+                         Text="{Binding ConditionDetails}" />
+            </controls:FormField>
+            <controls:FormField LabelContent="Notes">
+                <TextBox MinLines="5"
+                         AcceptsReturn="True"
+                         Text="{Binding Notes}" />
+            </controls:FormField>
+            <controls:FormField LabelContent="Scans">
+                <StackPanel Orientation="Vertical">
+                    <ListBox Name="ScanList"
+                             SelectionMode="Extended"
+                             ItemsSource="{Binding Scans}"
+                             Height="80"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel IsItemsHost="True"
+                                                        Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="viewModel:ScreenshotViewModel">
+                                <Image Source="{Binding ThumbnailSource}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <controls:AddRemoveButtons x:Name="AddRemoveImage"
+                                               AddClick="AddRemoveImage_OnAddClick"
+                                               RemoveClick="AddRemoveImage_OnRemoveClick"
+                                               AddCommand="{Binding AddScanCommand}"
+                                               RemoveCommand="{Binding RemoveScanCommand}"
+                                               RemoveCommandParameter="{Binding ElementName=ScanList, Path=SelectedItems}" />
+                </StackPanel>
+            </controls:FormField>
+            <controls:FormField LabelContent="Files">
+                <StackPanel Orientation="Vertical">
+                    <ListBox Name="FileList"
+                             SelectionMode="Extended"
+                             ItemsSource="{Binding Files}"
+                             HorizontalContentAlignment="Stretch"
+                             Height="60"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="viewModel:FileViewModel">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Width="16"
+                                           Source="{Binding Path, Converter={StaticResource FileIconValueConverter}}"
+                                           Margin="0,0,5,0" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Path}"
+                                               ToolTip="{Binding Path}"
+                                               Margin="0,0,5,0"
+                                               TextTrimming="WordEllipsis" />
+
+                                    <ContentControl Grid.Column="2">
+                                        <ContentControl.Resources>
+                                            <ControlTemplate x:Key="Progress">
+                                                <ProgressBar Width="60"
+                                                             Value="{Binding Progress, Mode=OneWay}" />
+                                            </ControlTemplate>
+                                            <ControlTemplate x:Key="Checksum">
+                                                <TextBlock
+                                                    Text="{Binding Sha256Checksum, Converter={StaticResource ByteArrayHexValueConverter}}"
+                                                    ToolTip="{Binding Sha256Checksum, Converter={StaticResource ByteArrayHexValueConverter}}"
+                                                    HorizontalAlignment="Right"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    MaxWidth="60" />
+                                            </ControlTemplate>
+                                        </ContentControl.Resources>
+                                        <ContentControl.Style>
+                                            <Style TargetType="ContentControl">
+                                                <Setter Property="Template"
+                                                        Value="{StaticResource Progress}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding Sha256Checksum, Converter={StaticResource NullableToBooleanConverter}}"
+                                                        Value="True">
+                                                        <Setter Property="Template"
+                                                                Value="{StaticResource Checksum}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
+                                    </ContentControl>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <controls:AddRemoveButtons x:Name="AddRemoveFile"
+                                               AddClick="AddRemoveFile_OnAddClick"
+                                               RemoveClick="AddRemoveFile_OnRemoveClick"
+                                               AddCommand="{Binding AddFileCommand}"
+                                               RemoveCommand="{Binding RemoveFileCommand}"
+                                               RemoveCommandParameter="{Binding ElementName=FileList, Path=SelectedItems}" />
+                </StackPanel>
+            </controls:FormField>
+        </StackPanel>
+    </Border>
+</UserControl>
