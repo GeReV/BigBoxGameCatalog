@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using Catalog.Model;
 
 namespace Catalog.Wpf.Forms
 {
@@ -14,16 +10,6 @@ namespace Catalog.Wpf.Forms
 
         public event RoutedEventHandler AddFileClick;
         public event RoutedEventHandler RemoveFileClick;
-
-        public static readonly DependencyProperty ItemTypesSourceProperty = DependencyProperty.Register(
-            nameof(ItemTypesSource), typeof(IEnumerable<ItemType>), typeof(ItemForm),
-            new PropertyMetadata(default(IEnumerable<ItemType>)));
-
-        public IEnumerable<ItemType> ItemTypesSource
-        {
-            get => (IEnumerable<ItemType>) GetValue(ItemTypesSourceProperty);
-            set => SetValue(ItemTypesSourceProperty, value);
-        }
 
         public ItemForm()
         {
