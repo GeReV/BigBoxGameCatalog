@@ -137,10 +137,13 @@
     <Compile Include="Converters\EnumDescriptionValueConverter.cs" />
     <Compile Include="Converters\FileIconValueConverter.cs" />
     <Compile Include="Converters\NullableToBooleanConverter.cs" />
+    <Compile Include="SelectedDevelopersComparer.cs" />
     <Compile Include="Forms\Controls\AddRemoveButtons.xaml.cs">
       <DependentUpon>AddRemoveButtons.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Controls\FormField.cs" />
+    <Compile Include="Forms\Controls\FormField.cs">
+      <DependentUpon>FormField.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Controls\RichListBoxHandler.cs" />
     <Compile Include="Forms\Controls\WpfImageTextBindingBlock.cs" />
     <Compile Include="Forms\ItemForm.xaml.cs">

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
@@ -28,11 +30,12 @@ namespace Catalog.Wpf.ViewModel
         private ICommand addItemCommand;
         private ICommand removeItemCommand;
         private ItemViewModel currentGameItem;
+        private string developerSearchTerm;
 
         public enum ViewStatus
         {
-            [Description("Idle")]
-            Idle,
+            [Description("Idle")] Idle,
+
             [Description("Downloading screenshots...")]
             DownloadingScreenshots,
         }
@@ -53,6 +56,32 @@ namespace Catalog.Wpf.ViewModel
             GameDevelopers = new ObservableCollection<Developer>();
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
             GameTwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
+
+            FilteredDevelopers = new ListCollectionView(Developers)
+            {
+                CustomSort = new SelectedDevelopersComparer(GameDevelopers),
+                Filter = obj =>
+                {
+                    if (obj is Developer developer)
+                    {
+                        return developer.Name.IndexOf(DeveloperSearchTerm ?? string.Empty,
+                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
+                    }
+
+                    return false;
+                }
+            };
+
+            PropertyChanged += RefreshFilteredDevelopers;
+        }
+
+        private void RefreshFilteredDevelopers(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(DeveloperSearchTerm) || e.PropertyName == nameof(Developers) ||
+                e.PropertyName == nameof(GameDevelopers))
+            {
+                FilteredDevelopers.Refresh();
+            }
         }
 
         public AddGameViewModel() : this(new List<Publisher>(), new List<Developer>())
@@ -142,11 +171,24 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
+        public string DeveloperSearchTerm
+        {
+            get => developerSearchTerm;
+            set
+            {
+                if (value == developerSearchTerm) return;
+                developerSearchTerm = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<Developer> GameDevelopers { get; }
         public ObservableCollection<ScreenshotViewModel> GameScreenshots { get; }
 
         public ObservableCollection<Publisher> Publishers { get; }
         public ObservableCollection<Developer> Developers { get; }
+
+        public ListCollectionView FilteredDevelopers { get; }
 
         public IReadOnlyList<Platform> Platforms => Enum
             .GetValues(typeof(Platform))
@@ -185,7 +227,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ICommand AddItemCommand  => addItemCommand ?? (addItemCommand = new AddGameItemCommand(this));
-        public ICommand RemoveItemCommand  => removeItemCommand ?? (removeItemCommand = new RemoveGameItemCommand(this));
+        public ICommand AddItemCommand => addItemCommand ?? (addItemCommand = new AddGameItemCommand(this));
+        public ICommand RemoveItemCommand => removeItemCommand ?? (removeItemCommand = new RemoveGameItemCommand(this));
     }
 }

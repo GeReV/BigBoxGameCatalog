@@ -88,11 +88,18 @@
                                       IsEditable="True" />
                         </c:FormField>
                         <c:FormField LabelContent="Developers">
-                            <xctk:CheckListBox Name="DevelopersCheckList"
-                                               Height="100"
-                                               ItemsSource="{Binding Developers}"
-                                               SelectedItemsOverride="{Binding GameDevelopers}"
-                                               DisplayMemberPath="Name" />
+                            <StackPanel Orientation="Vertical">
+                                <xctk:WatermarkTextBox Name="DevelopersSearch"
+                                                       Text="{Binding DeveloperSearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                                       Watermark="Search developers..."
+                                                       KeepWatermarkOnGotFocus="True"
+                                                       Margin="0,0,0,5" />
+                                <xctk:CheckListBox Name="DevelopersCheckList"
+                                                   Height="100"
+                                                   ItemsSource="{Binding FilteredDevelopers}"
+                                                   SelectedItemsOverride="{Binding GameDevelopers}"
+                                                   DisplayMemberPath="Name" />
+                            </StackPanel>
                         </c:FormField>
                         <c:FormField LabelContent="Platform">
                             <xctk:CheckListBox Name="PlatformCheckList"
