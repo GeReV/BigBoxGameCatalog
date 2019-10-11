@@ -9,6 +9,10 @@ namespace Catalog.Wpf.Commands
 
         public abstract void Execute(object parameter);
 
-        public virtual event EventHandler CanExecuteChanged;
+        public virtual event EventHandler CanExecuteChanged
+        {
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
     }
 }

@@ -36,11 +36,5 @@ namespace Catalog.Wpf.Commands
                 itemViewModel.Files.Remove(selectedItem);
             }
         }
-
-        public override event EventHandler CanExecuteChanged
-        {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
-        }
     }
 }
