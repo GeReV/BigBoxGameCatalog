@@ -9,25 +9,15 @@
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
         xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
+        xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
         mc:Ignorable="d"
         Title="Add Game"
         Height="600"
         Width="800"
-        d:DataContext="{viewModel:AddGameViewModel}"
+        d:DataContext="{d:DesignInstance viewModel:AddGameViewModel}"
         Style="{DynamicResource GlobalWindow}"
         Name="Window"
         ContentRendered="AddGameDialog_OnContentRendered">
-    <Window.Resources>
-        <DataTemplate x:Key="ItemTypeTemplate"
-                      DataType="model:ItemType">
-            <StackPanel Orientation="Horizontal">
-                <Image VerticalAlignment="Center"
-                       Source="{Binding Converter={StaticResource ItemTypeIconConverter}}"
-                       Margin="0,0,5,0" />
-                <TextBlock Text="{Binding Description}" />
-            </StackPanel>
-        </DataTemplate>
-    </Window.Resources>
     <DockPanel Margin="5">
         <StatusBar DockPanel.Dock="Bottom"
                    Margin="0,5,0,0">
@@ -156,23 +146,45 @@
                                     </Style>
                                 </StackPanel.Resources>
                                 <xctk:SplitButton Name="AddItemButton"
-                                                  Height="20">
+                                                  Height="20"
+                                                  Command="{Binding AddItemCommand}">
                                     <xctk:SplitButton.Content>
                                         <Image Source="{StaticResource IconPlus}" />
                                     </xctk:SplitButton.Content>
                                     <xctk:SplitButton.DropDownContent>
-                                        <Menu ItemsSource="{Binding ItemTypes}"
-                                              ItemTemplate="{StaticResource ItemTypeTemplate}">
+                                        <Menu ItemsSource="{Binding ItemTypes}">
+                                            <Menu.Resources>
+                                                <Style TargetType="MenuItem">
+                                                    <EventSetter Event="Click"
+                                                                 Handler="AddItemMenu_OnClick" />
+                                                    <Setter Property="Command"
+                                                            Value="{Binding ElementName=Window, Path=ViewModel.AddItemCommand}" />
+                                                    <Setter Property="CommandParameter"
+                                                            Value="{Binding}" />
+                                                </Style>
+                                            </Menu.Resources>
                                             <Menu.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <StackPanel Orientation="Vertical"
                                                                 IsItemsHost="True" />
                                                 </ItemsPanelTemplate>
                                             </Menu.ItemsPanel>
+                                            <Menu.ItemTemplate>
+                                                <DataTemplate DataType="model:ItemType">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image VerticalAlignment="Center"
+                                                               Source="{Binding Converter={StaticResource ItemTypeIconConverter}}"
+                                                               Margin="0,0,5,0" />
+                                                        <TextBlock Text="{Binding Description}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </Menu.ItemTemplate>
                                         </Menu>
                                     </xctk:SplitButton.DropDownContent>
                                 </xctk:SplitButton>
-                                <xctk:IconButton Name="RemoveItemButton">
+                                <xctk:IconButton Name="RemoveItemButton"
+                                                 Command="{Binding RemoveItemCommand}"
+                                                 CommandParameter="{Binding GameItems/}">
                                     <xctk:IconButton.Icon>
                                         <Image Source="{StaticResource IconMinus}" />
                                     </xctk:IconButton.Icon>
@@ -180,10 +192,19 @@
                             </StackPanel>
                             <ListView Name="ItemList"
                                       ItemsSource="{Binding GameItems}"
-                                      IsSynchronizedWithCurrentItem="True">
+                                      SelectedItem="{Binding CurrentGameItem}"
+                                      IsSynchronizedWithCurrentItem="True"
+                                      behaviors:GridViewColumnResize.Enabled="True">
                                 <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn>
+                                    <GridView AllowsColumnReorder="False">
+                                        <GridView.ColumnHeaderContainerStyle>
+                                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}"
+                                                   TargetType="{x:Type GridViewColumnHeader}">
+                                                <Setter Property="IsHitTestVisible"
+                                                        Value="False" />
+                                            </Style>
+                                        </GridView.ColumnHeaderContainerStyle>
+                                        <GridViewColumn behaviors:GridViewColumnResize.Width="*">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="viewModel:ItemViewModel">
                                                     <StackPanel Orientation="Horizontal"
@@ -207,7 +228,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn>
+                                        <GridViewColumn behaviors:GridViewColumnResize.Width="Auto">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="viewModel:ItemViewModel">
                                                     <Image Source="{StaticResource IconProhibition}"
@@ -226,9 +247,7 @@
                                       HorizontalAlignment="Stretch" />
 
                         <forms:ItemForm Grid.Column="2"
-                                        DataContext="{Binding GameItems/}"
-                                        ItemTypesSource="{Binding ItemTypes}"
-                                        />
+                                        DataContext="{Binding GameItems/}" />
                     </Grid>
                 </TabItem>
             </TabControl.Items>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,7 +16,7 @@ namespace Catalog.Wpf.Forms
         public event RoutedEventHandler RemoveFileClick;
 
         public static readonly DependencyProperty ItemTypesSourceProperty = DependencyProperty.Register(
-            "ItemTypesSource", typeof(IEnumerable<ItemType>), typeof(ItemForm),
+            nameof(ItemTypesSource), typeof(IEnumerable<ItemType>), typeof(ItemForm),
             new PropertyMetadata(default(IEnumerable<ItemType>)));
 
         public IEnumerable<ItemType> ItemTypesSource

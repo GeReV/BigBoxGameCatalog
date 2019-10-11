@@ -20,7 +20,7 @@
                 </Style>
             </StackPanel.Resources>
             <controls:FormField LabelContent="Item Type">
-                <ComboBox ItemsSource="{Binding ElementName=ItemFormControl, Path=ItemTypesSource}"
+                <ComboBox ItemsSource="{Binding ItemTypes}"
                           SelectedValue="{Binding ItemType}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="model:ItemType">

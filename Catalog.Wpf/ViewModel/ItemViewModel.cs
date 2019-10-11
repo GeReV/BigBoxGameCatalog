@@ -93,6 +93,8 @@ namespace Catalog.Wpf.ViewModel
             .Cast<Condition>()
             .ToList();
 
+        public IEnumerable<ItemType> ItemTypes => Model.ItemTypes.All;
+
         public ICommand AddFileCommand => addFileCommand ?? (addFileCommand = new GameItemAddFileCommand(this));
         public ICommand RemoveFileCommand => removeFileCommand ?? (removeFileCommand = new GameItemRemoveFileCommand(this));
         public ICommand AddScanCommand => addScanCommand ?? (addScanCommand = new GameItemAddScanCommand(this));

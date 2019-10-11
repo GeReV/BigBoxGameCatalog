@@ -121,12 +121,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ApplicationHelpers.cs" />
+    <Compile Include="Behaviors\GridViewColumnResize.cs" />
+    <Compile Include="Commands\AddGameItemCommand.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Commands\GameItemAddFileCommand.cs" />
     <Compile Include="Commands\GameItemAddScanCommand.cs" />
     <Compile Include="Commands\GameItemRemoveFileCommand.cs" />
     <Compile Include="Commands\GameItemRemoveScanCommand.cs" />
+    <Compile Include="Commands\RemoveGameItemCommand.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ByteArrayHexValueConverter.cs" />
     <Compile Include="Converters\DictionaryAccessConverter.cs" />

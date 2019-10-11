@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -16,6 +17,7 @@ using Catalog.Scrapers.MobyGames.Model;
 using Catalog.Wpf.ViewModel;
 using Eto.Drawing;
 using Eto.Forms;
+using Xceed.Wpf.Toolkit;
 using Application = System.Windows.Application;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
@@ -37,7 +39,7 @@ namespace Catalog.Wpf
             ViewModel = new AddGameViewModel(publishers, developers);
         }
 
-        private AddGameViewModel ViewModel
+        public AddGameViewModel ViewModel
         {
             get => (AddGameViewModel) DataContext;
             set => DataContext = value;
@@ -184,7 +186,8 @@ namespace Catalog.Wpf
 
         private async Task<GameCopy> BuildGame()
         {
-            var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots", ViewModel.GameMobyGamesSlug);
+            var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots",
+                ViewModel.GameMobyGamesSlug);
 
             var screenshots = await ScreenshotDownloader.DownloadScreenshots(
                 screenshotDirectory,
@@ -208,6 +211,11 @@ namespace Catalog.Wpf
                 ReleaseDate = ViewModel.GameReleaseDate,
                 Screenshots = screenshots
             };
+        }
+
+        private void AddItemMenu_OnClick(object sender, RoutedEventArgs e)
+        {
+            AddItemButton.IsOpen = false;
         }
     }
 }

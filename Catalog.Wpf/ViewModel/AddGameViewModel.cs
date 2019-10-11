@@ -6,9 +6,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.Annotations;
+using Catalog.Wpf.Commands;
 using Condition = Catalog.Model.Condition;
 
 namespace Catalog.Wpf.ViewModel
@@ -23,6 +25,9 @@ namespace Catalog.Wpf.ViewModel
         private Publisher gamePublisher;
         private int saveProgress;
         private ViewStatus viewStatus = ViewStatus.Idle;
+        private ICommand addItemCommand;
+        private ICommand removeItemCommand;
+        private ItemViewModel currentGameItem;
 
         public enum ViewStatus
         {
@@ -88,6 +93,17 @@ namespace Catalog.Wpf.ViewModel
         }
 
         public ObservableCollection<ItemViewModel> GameItems { get; }
+
+        public ItemViewModel CurrentGameItem
+        {
+            get => currentGameItem;
+            set
+            {
+                if (Equals(value, currentGameItem)) return;
+                currentGameItem = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<string> GameLinks { get; }
 
@@ -168,5 +184,8 @@ namespace Catalog.Wpf.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public ICommand AddItemCommand  => addItemCommand ?? (addItemCommand = new AddGameItemCommand(this));
+        public ICommand RemoveItemCommand  => removeItemCommand ?? (removeItemCommand = new RemoveGameItemCommand(this));
     }
 }
