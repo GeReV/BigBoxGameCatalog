@@ -137,6 +137,8 @@
     <Compile Include="Converters\EnumDescriptionValueConverter.cs" />
     <Compile Include="Converters\FileIconValueConverter.cs" />
     <Compile Include="Converters\NullableToBooleanConverter.cs" />
+    <Compile Include="Forms\Controls\Highlight.cs" />
+    <Compile Include="Forms\Controls\HighlightedTextBlock.cs" />
     <Compile Include="SelectedDevelopersComparer.cs" />
     <Compile Include="Forms\Controls\AddRemoveButtons.xaml.cs">
       <DependentUpon>AddRemoveButtons.xaml</DependentUpon>

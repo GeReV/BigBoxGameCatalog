@@ -97,8 +97,22 @@
                                 <xctk:CheckListBox Name="DevelopersCheckList"
                                                    Height="100"
                                                    ItemsSource="{Binding FilteredDevelopers}"
-                                                   SelectedItemsOverride="{Binding GameDevelopers}"
-                                                   DisplayMemberPath="Name" />
+                                                   SelectedItemsOverride="{Binding GameDevelopers}">
+
+                                    <xctk:CheckListBox.ItemTemplate>
+                                        <DataTemplate DataType="model:Developer">
+                                            <c:HighlightedTextBlock Text="{Binding Name}"
+                                                                    HighlightedText="{Binding ElementName=Window, Path=ViewModel.DeveloperSearchTerm}">
+                                                <c:HighlightedTextBlock.Resources>
+                                                    <Style TargetType="c:Highlight">
+                                                        <Setter Property="Background" Value="LightGoldenrodYellow" />
+                                                    </Style>
+                                                </c:HighlightedTextBlock.Resources>
+                                            </c:HighlightedTextBlock>
+
+                                        </DataTemplate>
+                                    </xctk:CheckListBox.ItemTemplate>
+                                </xctk:CheckListBox>
                             </StackPanel>
                         </c:FormField>
                         <c:FormField LabelContent="Platform">
