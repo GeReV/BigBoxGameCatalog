@@ -11,6 +11,12 @@
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:ItemViewModel}">
+    <UserControl.Resources>
+        <CompositeCollection x:Key="ConditionsCollection">
+            <ComboBoxItem Content=" " />
+            <CollectionContainer Collection="{Binding DataContext.Conditions, Source={x:Reference ItemFormControl}}" />
+        </CompositeCollection>
+    </UserControl.Resources>
     <Border BorderThickness="1">
         <StackPanel>
             <StackPanel.Resources>
@@ -38,8 +44,8 @@
                 <CheckBox IsChecked="{Binding Missing}" />
             </controls:FormField>
             <controls:FormField LabelContent="Condition">
-                <ComboBox ItemsSource="{Binding Conditions}"
-                          SelectedValue="{Binding Condition}" />
+                <ComboBox ItemsSource="{Binding Source={StaticResource ConditionsCollection}}"
+                          SelectedValue="{Binding Condition, Converter={StaticResource NullConverter}}" />
             </controls:FormField>
             <controls:FormField LabelContent="Condition Details">
                 <TextBox MinLines="3"

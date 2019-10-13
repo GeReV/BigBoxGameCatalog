@@ -13,6 +13,7 @@
             <converters:DictionaryAccessConverter x:Key="DictionaryAccessConverter" />
             <converters:NullableToBooleanConverter x:Key="NullableToBooleanConverter" />
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:NullConverter x:Key="NullConverter" />
 
             <Style x:Key="GlobalWindow"
                    TargetType="{x:Type Window}">
@@ -45,7 +46,8 @@
             <BitmapImage x:Key="IconProhibition"
                          UriSource="/Catalog.Wpf;component/Resources/prohibition.png" />
 
-            <converters:DictionaryValueConverter x:Key="ItemTypeIconConverter" KeyType="model:ItemType">
+            <converters:DictionaryValueConverter x:Key="ItemTypeIconConverter"
+                                                 KeyType="model:ItemType">
                 <converters:DictionaryValueConverter.Values>
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Manual}"
                                  UriSource="/Catalog.Wpf;component/Resources/book.png" />

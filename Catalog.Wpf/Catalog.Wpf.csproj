@@ -143,6 +143,7 @@
     <Compile Include="Converters\EnumDescriptionValueConverter.cs" />
     <Compile Include="Converters\FileIconValueConverter.cs" />
     <Compile Include="Converters\NullableToBooleanConverter.cs" />
+    <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Forms\Controls\Highlight.cs" />
     <Compile Include="Forms\Controls\HighlightedTextBlock.cs" />
     <Compile Include="SelectedDevelopersComparer.cs" />
