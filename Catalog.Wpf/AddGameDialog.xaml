@@ -99,7 +99,8 @@
                                                    Height="100"
                                                    ItemsSource="{Binding FilteredDevelopers}">
                                     <Interactions:Interaction.Behaviors>
-                                        <behaviors:CheckListBoxSelectionBehavior SelectedItems="{Binding GameDevelopers}" />
+                                        <behaviors:CheckListBoxSelectionBehavior
+                                            SelectedItems="{Binding GameDevelopers}" />
                                     </Interactions:Interaction.Behaviors>
                                     <xctk:CheckListBox.ItemTemplate>
                                         <DataTemplate DataType="model:Developer">
@@ -107,7 +108,8 @@
                                                                     HighlightedText="{Binding ElementName=Window, Path=ViewModel.DeveloperSearchTerm}">
                                                 <c:HighlightedTextBlock.Resources>
                                                     <Style TargetType="c:Highlight">
-                                                        <Setter Property="Background" Value="LightGoldenrodYellow" />
+                                                        <Setter Property="Background"
+                                                                Value="LightGoldenrodYellow" />
                                                     </Style>
                                                 </c:HighlightedTextBlock.Resources>
                                             </c:HighlightedTextBlock>
@@ -138,7 +140,8 @@
                                      Height="120"
                                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                 <Interactions:Interaction.Behaviors>
-                                    <behaviors:ListBoxSelectionBehavior SelectedItems="{Binding GameSelectedScreenshots}" />
+                                    <behaviors:ListBoxSelectionBehavior
+                                        SelectedItems="{Binding GameSelectedScreenshots}" />
                                 </Interactions:Interaction.Behaviors>
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -166,7 +169,8 @@
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Bottom"
                                         Orientation="Horizontal"
-                                        HorizontalAlignment="Right">
+                                        HorizontalAlignment="Right"
+                                        Margin="0,5,0,0">
                                 <StackPanel.Resources>
                                     <Style TargetType="Image">
                                         <Setter Property="Width"
@@ -175,7 +179,8 @@
                                 </StackPanel.Resources>
                                 <xctk:SplitButton Name="AddItemButton"
                                                   Height="20"
-                                                  Command="{Binding AddItemCommand}">
+                                                  Command="{Binding AddItemCommand}"
+                                                  Margin="0,0,5,0">
                                     <xctk:SplitButton.Content>
                                         <Image Source="{StaticResource IconPlus}" />
                                     </xctk:SplitButton.Content>
