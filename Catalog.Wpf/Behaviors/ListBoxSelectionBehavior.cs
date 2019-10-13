@@ -7,6 +7,9 @@ using Microsoft.Xaml.Behaviors;
 
 namespace Catalog.Wpf.Behaviors
 {
+    /// <summary>
+    /// Taken from: https://tyrrrz.me/blog/wpf-listbox-selecteditems-twoway-binding
+    /// </summary>
     public class ListBoxSelectionBehavior : Behavior<ListBox>
     {
         public static readonly DependencyProperty SelectedItemsProperty =
