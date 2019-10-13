@@ -22,7 +22,7 @@ namespace Catalog
             {
                 progress.ProgressChanged += ProgressOnProgressChanged;
 
-                dictionary.Add(progress, default);
+                dictionary.Add(progress, default(T));
             }
         }
 
@@ -36,7 +36,7 @@ namespace Catalog
 
             progress.ProgressChanged += ProgressOnProgressChanged;
 
-            dictionary.Add(progress, default);
+            dictionary.Add(progress, default(T));
         }
 
         private void ProgressOnProgressChanged(object sender, T e)

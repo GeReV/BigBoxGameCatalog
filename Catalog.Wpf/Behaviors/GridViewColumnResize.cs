@@ -57,7 +57,7 @@ namespace Catalog.Wpf.Behaviors
             if (dependencyObject is GridViewColumn element)
             {
                 var behavior = GetOrCreateBehavior(element);
-                behavior.Width = e.NewValue is GridLength value ? value : default;
+                behavior.Width = e.NewValue is GridLength value ? value : GridLength.Auto;
             }
             else
             {
