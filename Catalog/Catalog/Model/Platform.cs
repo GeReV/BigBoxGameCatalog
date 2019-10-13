@@ -5,20 +5,19 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    [Flags]
     public enum Platform
     {
         [Description("DOS")]
-        Dos = 1 << 0,
+        Dos = 1,
         [Description("Windows 3.11")]
-        Win311 = 1 << 1,
+        Win311,
         [Description("Windows 95")]
-        Win95 = 1 << 2,
+        Win95,
         [Description("Windows 98")]
-        Win98 = 1 << 3,
+        Win98,
         [Description("Windows XP")]
-        WinXp = 1 << 4,
+        WinXp,
         [Description("Windows 7 or higher")]
-        Win7OrHigher = 1 << 5,
+        Win7OrHigher,
     }
 }

@@ -201,7 +201,7 @@ namespace Catalog.Wpf
             {
                 Title = ViewModel.GameTitle,
                 MobyGamesSlug = ViewModel.GameMobyGamesSlug,
-                Platform = ViewModel.GamePlatform,
+                Platforms = ViewModel.GamePlatforms,
                 Publisher = ViewModel.GamePublisher,
                 Developers = ViewModel.GameDevelopers.ToList(),
                 Items = ViewModel.GameItems.Select(item => item.BuildItem()),

@@ -22,7 +22,6 @@ namespace Catalog.Wpf.ViewModel
         private string gameTitle;
         private string gameMobyGamesSlug;
         private string gameNotes;
-        private Platform gamePlatform;
         private DateTime gameReleaseDate;
         private Publisher gamePublisher;
         private int saveProgress;
@@ -31,6 +30,10 @@ namespace Catalog.Wpf.ViewModel
         private ICommand removeItemCommand;
         private ItemViewModel currentGameItem;
         private string developerSearchTerm;
+        private ObservableCollection<Platform> gamePlatforms;
+        private ObservableCollection<string> gameTwoLetterIsoLanguageName;
+        private ObservableCollection<ScreenshotViewModel> gameSelectedScreenshots;
+        private ObservableCollection<Developer> gameDevelopers;
 
         public enum ViewStatus
         {
@@ -55,7 +58,10 @@ namespace Catalog.Wpf.ViewModel
             GameLinks = new ObservableCollection<string>();
             GameDevelopers = new ObservableCollection<Developer>();
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
+            GameSelectedScreenshots = new ObservableCollection<ScreenshotViewModel>();
             GameTwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
+            GamePlatforms = new ObservableCollection<Platform>();
+
 
             FilteredDevelopers = new ListCollectionView(Developers)
             {
@@ -136,15 +142,24 @@ namespace Catalog.Wpf.ViewModel
 
         public ObservableCollection<string> GameLinks { get; }
 
-        public ObservableCollection<string> GameTwoLetterIsoLanguageName { get; }
-
-        public Platform GamePlatform
+        public ObservableCollection<string> GameTwoLetterIsoLanguageName
         {
-            get => gamePlatform;
+            get => gameTwoLetterIsoLanguageName;
             set
             {
-                if (value == gamePlatform) return;
-                gamePlatform = value;
+                if (Equals(value, gameTwoLetterIsoLanguageName)) return;
+                gameTwoLetterIsoLanguageName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<Platform> GamePlatforms
+        {
+            get => gamePlatforms;
+            set
+            {
+                if (Equals(value, gamePlatforms)) return;
+                gamePlatforms = value;
                 OnPropertyChanged();
             }
         }
@@ -182,12 +197,32 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<Developer> GameDevelopers { get; }
+        public ObservableCollection<Developer> GameDevelopers
+        {
+            get => gameDevelopers;
+            set
+            {
+                if (Equals(value, gameDevelopers)) return;
+                gameDevelopers = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<ScreenshotViewModel> GameScreenshots { get; }
+
+        public ObservableCollection<ScreenshotViewModel> GameSelectedScreenshots
+        {
+            get => gameSelectedScreenshots;
+            set
+            {
+                if (Equals(value, gameSelectedScreenshots)) return;
+                gameSelectedScreenshots = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<Publisher> Publishers { get; }
         public ObservableCollection<Developer> Developers { get; }
-
         public ListCollectionView FilteredDevelopers { get; }
 
         public IReadOnlyList<Platform> Platforms => Enum

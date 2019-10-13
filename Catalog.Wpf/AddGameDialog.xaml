@@ -10,6 +10,7 @@
         xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
         xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
         xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
+        xmlns:Interactions="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="Add Game"
         Height="600"
@@ -96,9 +97,10 @@
                                                        Margin="0,0,0,5" />
                                 <xctk:CheckListBox Name="DevelopersCheckList"
                                                    Height="100"
-                                                   ItemsSource="{Binding FilteredDevelopers}"
-                                                   SelectedItemsOverride="{Binding GameDevelopers}">
-
+                                                   ItemsSource="{Binding FilteredDevelopers}">
+                                    <Interactions:Interaction.Behaviors>
+                                        <behaviors:CheckListBoxSelectionBehavior SelectedItems="{Binding GameDevelopers}" />
+                                    </Interactions:Interaction.Behaviors>
                                     <xctk:CheckListBox.ItemTemplate>
                                         <DataTemplate DataType="model:Developer">
                                             <c:HighlightedTextBlock Text="{Binding Name}"
@@ -117,8 +119,10 @@
                         </c:FormField>
                         <c:FormField LabelContent="Platform">
                             <xctk:CheckListBox Name="PlatformCheckList"
-                                               ItemsSource="{Binding Platforms}"
-                                               SelectedItemsOverride="{Binding GamePlatform}">
+                                               ItemsSource="{Binding Platforms}">
+                                <Interactions:Interaction.Behaviors>
+                                    <behaviors:CheckListBoxSelectionBehavior SelectedItems="{Binding GamePlatforms}" />
+                                </Interactions:Interaction.Behaviors>
                                 <xctk:CheckListBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock
@@ -133,6 +137,9 @@
                                      ItemsSource="{Binding GameScreenshots}"
                                      Height="120"
                                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                <Interactions:Interaction.Behaviors>
+                                    <behaviors:ListBoxSelectionBehavior SelectedItems="{Binding GameSelectedScreenshots}" />
+                                </Interactions:Interaction.Behaviors>
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <VirtualizingStackPanel IsItemsHost="True"

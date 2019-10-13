@@ -25,7 +25,7 @@ namespace Catalog.Model
 
         public IEnumerable<string> TwoLetterIsoLanguageName { get; set; }
 
-        public Platform Platform { get; set; }
+        public IEnumerable<Platform> Platforms { get; set; }
 
         public IEnumerable<string> Links { get; set; }
 
