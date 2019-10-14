@@ -100,7 +100,7 @@
                                                    ItemsSource="{Binding FilteredDevelopers}">
                                     <Interactions:Interaction.Behaviors>
                                         <behaviors:CheckListBoxSelectionBehavior
-                                            SelectedItems="{Binding GameDevelopers}" />
+                                            SelectedItems="{Binding DataContext.GameDevelopers, ElementName=DevelopersCheckList}" />
                                     </Interactions:Interaction.Behaviors>
                                     <xctk:CheckListBox.ItemTemplate>
                                         <DataTemplate DataType="model:Developer">
@@ -123,7 +123,7 @@
                             <xctk:CheckListBox Name="PlatformCheckList"
                                                ItemsSource="{Binding Platforms}">
                                 <Interactions:Interaction.Behaviors>
-                                    <behaviors:CheckListBoxSelectionBehavior SelectedItems="{Binding GamePlatforms}" />
+                                    <behaviors:CheckListBoxSelectionBehavior SelectedItems="{Binding DataContext.GamePlatforms, ElementName=PlatformCheckList}" />
                                 </Interactions:Interaction.Behaviors>
                                 <xctk:CheckListBox.ItemTemplate>
                                     <DataTemplate>
@@ -141,7 +141,7 @@
                                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                 <Interactions:Interaction.Behaviors>
                                     <behaviors:ListBoxSelectionBehavior
-                                        SelectedItems="{Binding GameSelectedScreenshots}" />
+                                        SelectedItems="{Binding DataContext.GameSelectedScreenshots, ElementName=Screenshots}" />
                                 </Interactions:Interaction.Behaviors>
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>

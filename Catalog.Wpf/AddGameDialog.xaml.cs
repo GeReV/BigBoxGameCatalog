@@ -103,6 +103,8 @@ namespace Catalog.Wpf
 
             var developerCollection = ViewModel.Developers.ToList();
 
+            var gameDevelopers = new List<Developer>();
+
             foreach (var devEntry in gameEntry.Developers)
             {
                 var developer = developerCollection.Find(d => d.Slug == devEntry.Slug);
@@ -119,8 +121,10 @@ namespace Catalog.Wpf
                     ViewModel.Developers.Add(developer);
                 }
 
-                ViewModel.GameDevelopers.Add(developer);
+                gameDevelopers.Add(developer);
             }
+
+            ViewModel.GameDevelopers = gameDevelopers;
 
             SearchMobyGamesButton.IsEnabled = true;
         }
@@ -129,11 +133,13 @@ namespace Catalog.Wpf
         {
             var specs = await Task.Run(() => new Scraper().GetGameSpecs(gameEntry.Slug));
 
-            PlatformCheckList.SelectedItemsOverride = Enum
+            var platforms = Enum
                 .GetValues(typeof(Platform))
                 .Cast<Platform>()
                 .Where(platform => specs.Platforms.Contains(platform.GetDescription()))
                 .ToList();
+
+            ViewModel.GamePlatforms = platforms;
         }
 
         private async void GetScreenshots(GameEntry gameEntry)
@@ -156,7 +162,7 @@ namespace Catalog.Wpf
                 ViewModel.GameScreenshots.Add(image);
             }
 
-            Screenshots.SelectAll();
+            ViewModel.GameSelectedScreenshots = ViewModel.GameScreenshots;
         }
 
         private void AddGameDialog_OnContentRendered(object sender, EventArgs e)
@@ -166,51 +172,23 @@ namespace Catalog.Wpf
 
         private async void OkButton_OnClick(object sender, RoutedEventArgs e)
         {
-            ViewModel.Status = AddGameViewModel.ViewStatus.DownloadingScreenshots;
+            if (!ViewModel.SaveGameCommand.CanExecute(null))
+            {
+                return;
+            }
 
-            var game = await BuildGame();
+            await ViewModel.SaveGameCommand.ExecuteAsync(null);
 
-            ViewModel.Status = AddGameViewModel.ViewStatus.Idle;
-
-//            DialogResult = true;
+            DialogResult = true;
 
             Close();
         }
 
         private void CancelButton_OnClick(object sender, RoutedEventArgs e)
         {
-//            DialogResult = false;
+            DialogResult = false;
 
             Close();
-        }
-
-        private async Task<GameCopy> BuildGame()
-        {
-            var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots",
-                ViewModel.GameMobyGamesSlug);
-
-            var screenshots = await ScreenshotDownloader.DownloadScreenshots(
-                screenshotDirectory,
-                Screenshots.SelectedItems
-                    .Cast<ScreenshotViewModel>()
-                    .Select(ss => ss.Url),
-                new Progress<int>(percentage => ViewModel.SaveProgress = percentage)
-            );
-
-            return new GameCopy
-            {
-                Title = ViewModel.GameTitle,
-                MobyGamesSlug = ViewModel.GameMobyGamesSlug,
-                Platforms = ViewModel.GamePlatforms,
-                Publisher = ViewModel.GamePublisher,
-                Developers = ViewModel.GameDevelopers.ToList(),
-                Items = ViewModel.GameItems.Select(item => item.BuildItem()),
-                Links = ViewModel.GameLinks.ToList(),
-                Notes = ViewModel.GameNotes,
-                TwoLetterIsoLanguageName = ViewModel.GameTwoLetterIsoLanguageName,
-                ReleaseDate = ViewModel.GameReleaseDate,
-                Screenshots = screenshots
-            };
         }
 
         private void AddItemMenu_OnClick(object sender, RoutedEventArgs e)

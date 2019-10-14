@@ -26,14 +26,15 @@ namespace Catalog.Wpf.ViewModel
         private Publisher gamePublisher;
         private int saveProgress;
         private ViewStatus viewStatus = ViewStatus.Idle;
-        private ICommand addItemCommand;
-        private ICommand removeItemCommand;
         private ItemViewModel currentGameItem;
         private string developerSearchTerm;
-        private ObservableCollection<Platform> gamePlatforms;
         private ObservableCollection<string> gameTwoLetterIsoLanguageName;
-        private ObservableCollection<ScreenshotViewModel> gameSelectedScreenshots;
-        private ObservableCollection<Developer> gameDevelopers;
+        private IReadOnlyList<ScreenshotViewModel> gameSelectedScreenshots;
+        private IReadOnlyList<Developer> gameDevelopers;
+        private IReadOnlyList<Platform> gamePlatforms;
+        private ICommand addItemCommand;
+        private ICommand removeItemCommand;
+        private IAsyncCommand saveGameCommand;
 
         public enum ViewStatus
         {
@@ -56,16 +57,16 @@ namespace Catalog.Wpf.ViewModel
                 }
             };
             GameLinks = new ObservableCollection<string>();
-            GameDevelopers = new ObservableCollection<Developer>();
+            GameDevelopers = new List<Developer>();
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
-            GameSelectedScreenshots = new ObservableCollection<ScreenshotViewModel>();
+            GameSelectedScreenshots = new List<ScreenshotViewModel>();
             GameTwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
-            GamePlatforms = new ObservableCollection<Platform>();
+            GamePlatforms = new List<Platform>();
 
 
             FilteredDevelopers = new ListCollectionView(Developers)
             {
-                CustomSort = new SelectedDevelopersComparer(GameDevelopers),
+                CustomSort = new SelectedDevelopersComparer(() => GameDevelopers),
                 Filter = obj =>
                 {
                     if (obj is Developer developer)
@@ -153,7 +154,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<Platform> GamePlatforms
+        public IReadOnlyList<Platform> GamePlatforms
         {
             get => gamePlatforms;
             set
@@ -197,7 +198,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<Developer> GameDevelopers
+        public IReadOnlyList<Developer> GameDevelopers
         {
             get => gameDevelopers;
             set
@@ -210,7 +211,7 @@ namespace Catalog.Wpf.ViewModel
 
         public ObservableCollection<ScreenshotViewModel> GameScreenshots { get; }
 
-        public ObservableCollection<ScreenshotViewModel> GameSelectedScreenshots
+        public IReadOnlyList<ScreenshotViewModel> GameSelectedScreenshots
         {
             get => gameSelectedScreenshots;
             set
@@ -264,5 +265,6 @@ namespace Catalog.Wpf.ViewModel
 
         public ICommand AddItemCommand => addItemCommand ?? (addItemCommand = new AddGameItemCommand(this));
         public ICommand RemoveItemCommand => removeItemCommand ?? (removeItemCommand = new RemoveGameItemCommand(this));
+        public IAsyncCommand SaveGameCommand => saveGameCommand ?? (saveGameCommand = new SaveGameCommand(this));
     }
 }

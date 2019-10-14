@@ -2,17 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Catalog.Model;
 
 namespace Catalog.Wpf
 {
     public class SelectedDevelopersComparer : IComparer
     {
-        private readonly ObservableCollection<Developer> selectedDevelopers;
+        private readonly Func<IEnumerable<Developer>> selectedDevelopersGetter;
 
-        public SelectedDevelopersComparer(ObservableCollection<Developer> selectedDevelopers)
+        public SelectedDevelopersComparer(Func<IEnumerable<Developer>> selectedDevelopersGetter)
         {
-            this.selectedDevelopers = selectedDevelopers;
+            this.selectedDevelopersGetter = selectedDevelopersGetter;
         }
 
         public int Compare(object x, object y)
@@ -26,6 +27,8 @@ namespace Catalog.Wpf
             {
                 return 1;
             }
+
+            var selectedDevelopers = selectedDevelopersGetter.Invoke().ToList();
 
             var selectedX = selectedDevelopers.Contains(developerX);
             var selectedY = selectedDevelopers.Contains(developerY);
