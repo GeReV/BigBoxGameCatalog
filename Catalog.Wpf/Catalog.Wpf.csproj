@@ -187,6 +187,7 @@
     <Compile Include="ViewModel\GameDisambiguationItemViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
     <Compile Include="ViewModel\ItemViewModel.cs" />
+    <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\ScreenshotViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

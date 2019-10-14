@@ -4,7 +4,7 @@
              xmlns:wpf="clr-namespace:Catalog.Wpf"
              xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
              xmlns:converters="clr-namespace:Catalog.Wpf.Converters"
-             StartupUri="AddGameDialog.xaml">
+             StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <converters:EnumDescriptionValueConverter x:Key="EnumDescriptionValueConverter" />

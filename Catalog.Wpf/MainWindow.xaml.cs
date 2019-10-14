@@ -2,29 +2,28 @@
 using System.IO;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Input;
+using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf
 {
     public partial class MainWindow : Window
     {
-
         public MainWindow()
         {
             InitializeComponent();
 
-
+            DataContext = ViewModel;
         }
 
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-
-            DataContext = Application.Current.Database().GetGamesCollection().FindAll();
-        }
+        private MainWindowViewModel ViewModel { get; } = new MainWindowViewModel();
 
         private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
         {
-            new AddGameDialog().ShowDialog();
+            if (new AddGameDialog().ShowDialog() == true && ViewModel.RefreshGames.CanExecute(null))
+            {
+                ViewModel.RefreshGames.Execute(null);
+            }
         }
     }
 }
