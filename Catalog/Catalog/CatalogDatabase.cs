@@ -20,6 +20,10 @@ namespace Catalog
                 .DbRef(x => x.Developers, "developers")
                 .DbRef(x => x.Publisher, "publishers");
 
+            mapper.Entity<Publisher>().Id(x => x.PublisherId);
+
+            mapper.Entity<Developer>().Id(x => x.DeveloperId);
+
             Database = new LiteDatabase(path, mapper);
 
             var gameCollection = GetGamesCollection();
