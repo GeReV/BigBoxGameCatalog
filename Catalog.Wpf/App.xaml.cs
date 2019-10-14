@@ -24,5 +24,12 @@ namespace Catalog.Wpf
             Current.Properties.Add("HomeDirectory", homeDirectory);
             Current.Properties.Add("Database", new CatalogDatabase(Path.Combine(homeDirectory, "database.litedb")));
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+
+            this.Database().Dispose();
+        }
     }
 }
