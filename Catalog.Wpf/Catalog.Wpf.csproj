@@ -139,6 +139,7 @@
     <Compile Include="Commands\IAsyncCommand.cs" />
     <Compile Include="Commands\RemoveGameItemCommand.cs" />
     <Compile Include="Commands\SaveGameCommand.cs" />
+    <Compile Include="Commands\SearchMobyGamesCommand.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\ByteArrayHexValueConverter.cs" />
     <Compile Include="Converters\DictionaryAccessConverter.cs" />

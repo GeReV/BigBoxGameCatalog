@@ -72,13 +72,20 @@
                                         Margin="5,0,0,0"
                                         Padding="4"
                                         HorizontalAlignment="Right"
-                                        Name="SearchMobyGamesButton">
+                                        Name="SearchMobyGamesButton"
+                                        Command="{Binding SearchMobyGamesCommand}"
+                                        CommandParameter="{Binding GameTitle}">
                                     Search MobyGames
                                 </Button>
                                 <TextBox Name="TitleTextbox"
-                                         Text="{Binding GameTitle}"
-                                         KeyUp="TitleTextbox_OnKeyUp"
-                                         VerticalContentAlignment="Center" />
+                                         Text="{Binding GameTitle, UpdateSourceTrigger=PropertyChanged}"
+                                         VerticalContentAlignment="Center">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter"
+                                                    Command="{Binding SearchMobyGamesCommand}"
+                                                    CommandParameter="{Binding GameTitle}" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
                             </DockPanel>
                         </c:FormField>
                         <c:FormField LabelContent="Publishers">
@@ -123,7 +130,8 @@
                             <xctk:CheckListBox Name="PlatformCheckList"
                                                ItemsSource="{Binding Platforms}">
                                 <Interactions:Interaction.Behaviors>
-                                    <behaviors:CheckListBoxSelectionBehavior SelectedItems="{Binding DataContext.GamePlatforms, ElementName=PlatformCheckList}" />
+                                    <behaviors:CheckListBoxSelectionBehavior
+                                        SelectedItems="{Binding DataContext.GamePlatforms, ElementName=PlatformCheckList}" />
                                 </Interactions:Interaction.Behaviors>
                                 <xctk:CheckListBox.ItemTemplate>
                                     <DataTemplate>

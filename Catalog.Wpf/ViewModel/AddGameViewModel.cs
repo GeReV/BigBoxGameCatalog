@@ -34,6 +34,7 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<Platform> gamePlatforms;
         private ICommand addItemCommand;
         private ICommand removeItemCommand;
+        private IAsyncCommand searchMobyGamesCommand;
         private IAsyncCommand saveGameCommand;
 
         public enum ViewStatus
@@ -265,6 +266,10 @@ namespace Catalog.Wpf.ViewModel
 
         public ICommand AddItemCommand => addItemCommand ?? (addItemCommand = new AddGameItemCommand(this));
         public ICommand RemoveItemCommand => removeItemCommand ?? (removeItemCommand = new RemoveGameItemCommand(this));
+
+        public IAsyncCommand SearchMobyGamesCommand =>
+            searchMobyGamesCommand ?? (searchMobyGamesCommand = new SearchMobyGamesCommand(this));
+
         public IAsyncCommand SaveGameCommand => saveGameCommand ?? (saveGameCommand = new SaveGameCommand(this));
     }
 }
