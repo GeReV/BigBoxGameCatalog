@@ -1,10 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using Microsoft.Xaml.Behaviors;
 using Xceed.Wpf.Toolkit;
 using Xceed.Wpf.Toolkit.Primitives;

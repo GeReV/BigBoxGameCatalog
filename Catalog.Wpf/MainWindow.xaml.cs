@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Windows;
-using System.Windows.Input;
+﻿using System.Windows;
 using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf

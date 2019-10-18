@@ -1,11 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using Eto.Wpf.CustomControls;
 using Microsoft.Xaml.Behaviors;
 
 namespace Catalog.Wpf.Behaviors
