@@ -6,8 +6,6 @@ namespace Catalog.Wpf.Commands
 {
     public abstract class AsyncCommandBase : IAsyncCommand
     {
-        public event EventHandler CanExecuteChanged;
-
         private bool isExecuting;
 
         public bool CanExecute(object parameter)
@@ -37,18 +35,25 @@ namespace Catalog.Wpf.Commands
 
         protected abstract Task Perform(object parameter);
 
-        private void RaiseCanExecuteChanged()
+        public virtual event EventHandler CanExecuteChanged
         {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
+
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
         }
 
         #region Explicit implementations
+
         bool ICommand.CanExecute(object parameter) => CanExecute(parameter);
 
 #pragma warning disable 4014
         void ICommand.Execute(object parameter) => ExecuteAsync(parameter);
 #pragma warning restore 4014
+
         #endregion
     }
-
 }
