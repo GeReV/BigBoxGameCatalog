@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Catalog.Model;
+using Catalog.Scrapers;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.ViewModel;
 using Xceed.Wpf.Toolkit.Core.Converters;
@@ -55,12 +56,13 @@ namespace Catalog.Wpf.Commands
             var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots",
                 addGameViewModel.GameMobyGamesSlug);
 
-            return await ScreenshotDownloader.DownloadScreenshots(
-                screenshotDirectory,
-                addGameViewModel.GameSelectedScreenshots
-                    .Select(ss => ss.Url),
-                new Progress<int>(percentage => addGameViewModel.SaveProgress = percentage)
-            );
+            return await new ScreenshotDownloader(new CachingWebClient())
+                .DownloadScreenshots(
+                    screenshotDirectory,
+                    addGameViewModel.GameSelectedScreenshots
+                        .Select(ss => ((ScreenshotViewModel)ss).Url),
+                    new Progress<int>(percentage => addGameViewModel.SaveProgress = percentage)
+                );
         }
 
         private async Task<GameCopy> BuildGame()

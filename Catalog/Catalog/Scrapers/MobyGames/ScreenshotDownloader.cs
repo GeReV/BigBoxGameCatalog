@@ -10,16 +10,23 @@ using File = System.IO.File;
 
 namespace Catalog.Scrapers.MobyGames
 {
-    public static class ScreenshotDownloader
+    public class ScreenshotDownloader
     {
-        public static async Task<Image[]> DownloadScreenshots(string screenshotDirectory, IEnumerable<string> downloadUrls, IProgress<int> progress = null)
+        private readonly IWebClient webClient;
+
+        public ScreenshotDownloader(IWebClient webClient)
+        {
+            this.webClient = webClient;
+        }
+
+        public async Task<Image[]> DownloadScreenshots(string screenshotDirectory, IEnumerable<string> downloadUrls, IProgress<int> progress = null)
         {
             var totalProgress = new AggregateProgress<int>(progressValues =>
             {
                 progress?.Report((int) progressValues.Average());
             });
 
-            var scraper = new Scraper();
+            var scraper = new Scraper(webClient);
 
             var downloadTasks = new List<Task<ImageEntry>>();
 

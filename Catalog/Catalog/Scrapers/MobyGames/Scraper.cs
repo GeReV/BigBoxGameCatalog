@@ -37,8 +37,11 @@ namespace Catalog.Scrapers.MobyGames
 
     public class Scraper : BaseScraper
     {
-        public Scraper()
+        private readonly IWebClient webClient;
+
+        public Scraper(IWebClient webClient)
         {
+            this.webClient = webClient;
         }
 
         private readonly Regex backgroundImageRegex = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)");
@@ -55,7 +58,7 @@ namespace Catalog.Scrapers.MobyGames
 
         public List<SearchResult> Search(string term)
         {
-            var doc = LoadUrl(BuildSearchUrl(term));
+            var doc = webClient.Load(BuildSearchUrl(term));
 
             var results = doc.DocumentNode.SelectNodesByClass(SEARCH_RESULT, "div");
 
@@ -83,7 +86,7 @@ namespace Catalog.Scrapers.MobyGames
         {
             var url = BuildGameUrl(slug);
 
-            var doc = LoadUrl(url).DocumentNode;
+            var doc = webClient.Load(url).DocumentNode;
 
             var details = doc.SelectSingleNodeById(CORE_GAME_RELEASE_ID);
 
@@ -103,7 +106,7 @@ namespace Catalog.Scrapers.MobyGames
         {
             var url = $"{BuildGameUrl(slug)}/techinfo";
 
-            var doc = LoadUrl(url).DocumentNode;
+            var doc = webClient.Load(url).DocumentNode;
 
             var platformTechInfos = doc
                 .SelectNodesByClass("techInfo")
@@ -150,7 +153,7 @@ namespace Catalog.Scrapers.MobyGames
         {
             var url = $"{BuildGameUrl(slug)}/screenshots";
 
-            var doc = LoadUrl(url).DocumentNode;
+            var doc = webClient.Load(url).DocumentNode;
 
             var officialScreenshotsNode = doc
                 .SelectSingleNodeById(OFFICIAL_SCREENSHOTS_ID)
@@ -167,7 +170,7 @@ namespace Catalog.Scrapers.MobyGames
 
         public async Task<ImageEntry> DownloadScreenshot(string url, IProgress<int> progress = null)
         {
-            var doc = LoadUrl(url).DocumentNode;
+            var doc = webClient.Load(url).DocumentNode;
 
             var container = doc.SelectSingleNodeByClass("screenshot") ?? doc.SelectSingleNodeByClass("promoImage");
 
@@ -183,7 +186,7 @@ namespace Catalog.Scrapers.MobyGames
             var baseUrl = new Uri(url);
             var imageUrl = new Uri(baseUrl, src);
 
-            using (var client = new WebClient())
+            using (var client = new System.Net.WebClient())
             {
                 if (progress != null)
                 {
@@ -254,12 +257,6 @@ namespace Catalog.Scrapers.MobyGames
             url.Query = queryString.ToString();
 
             return url.ToString();
-        }
-
-        private HtmlDocument LoadUrl(string url)
-        {
-            var web = new HtmlWeb();
-            return web.Load(url);
         }
 
         private static string ExtractSlug(string href)
