@@ -45,8 +45,11 @@ namespace Catalog.Wpf.ViewModel
             DownloadingScreenshots,
         }
 
-        public AddGameViewModel(IEnumerable<Publisher> publishers, IEnumerable<Developer> developers)
+        public AddGameViewModel(CatalogDatabase database = null)
         {
+            var publishers = database == null ? new List<Publisher>() : database.GetPublishersCollection().FindAll();
+            var developers = database == null ? new List<Developer>() : database.GetDevelopersCollection().FindAll();
+
             Publishers = new ObservableCollection<Publisher>(publishers);
             Developers = new ObservableCollection<Developer>(developers);
 
@@ -90,10 +93,6 @@ namespace Catalog.Wpf.ViewModel
             {
                 FilteredDevelopers.Refresh();
             }
-        }
-
-        public AddGameViewModel() : this(new List<Publisher>(), new List<Developer>())
-        {
         }
 
         public string GameTitle

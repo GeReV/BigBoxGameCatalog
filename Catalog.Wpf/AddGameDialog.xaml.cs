@@ -31,12 +31,7 @@ namespace Catalog.Wpf
         {
             InitializeComponent();
 
-            var database = Application.Current.Database();
-
-            var publishers = database.GetPublishersCollection().FindAll();
-            var developers = database.GetDevelopersCollection().FindAll();
-
-            ViewModel = new AddGameViewModel(publishers, developers);
+            ViewModel = new AddGameViewModel(Application.Current.Database());
         }
 
         public AddGameViewModel ViewModel
