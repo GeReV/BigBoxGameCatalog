@@ -29,9 +29,9 @@ namespace Catalog.Wpf.ViewModel
         private ItemViewModel currentGameItem;
         private string developerSearchTerm;
         private ObservableCollection<string> gameTwoLetterIsoLanguageName;
-        private IReadOnlyList<ScreenshotViewModel> gameSelectedScreenshots;
-        private IReadOnlyList<Developer> gameDevelopers;
-        private IReadOnlyList<Platform> gamePlatforms;
+        private ObservableCollection<ScreenshotViewModel> gameSelectedScreenshots;
+        private ObservableCollection<Developer> gameDevelopers;
+        private ObservableCollection<Platform> gamePlatforms;
         private ICommand addItemCommand;
         private ICommand removeItemCommand;
         private IAsyncCommand saveGameCommand;
@@ -57,11 +57,11 @@ namespace Catalog.Wpf.ViewModel
                 }
             };
             GameLinks = new ObservableCollection<string>();
-            GameDevelopers = new List<Developer>();
+            GameDevelopers = new ObservableCollection<Developer>();
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
-            GameSelectedScreenshots = new List<ScreenshotViewModel>();
+            GameSelectedScreenshots = new ObservableCollection<ScreenshotViewModel>();
             GameTwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
-            GamePlatforms = new List<Platform>();
+            GamePlatforms = new ObservableCollection<Platform>();
 
 
             FilteredDevelopers = new ListCollectionView(Developers)
@@ -154,7 +154,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public IReadOnlyList<Platform> GamePlatforms
+        public ObservableCollection<Platform> GamePlatforms
         {
             get => gamePlatforms;
             set
@@ -198,7 +198,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public IReadOnlyList<Developer> GameDevelopers
+        public ObservableCollection<Developer> GameDevelopers
         {
             get => gameDevelopers;
             set
@@ -211,7 +211,7 @@ namespace Catalog.Wpf.ViewModel
 
         public ObservableCollection<ScreenshotViewModel> GameScreenshots { get; }
 
-        public IReadOnlyList<ScreenshotViewModel> GameSelectedScreenshots
+        public ObservableCollection<ScreenshotViewModel> GameSelectedScreenshots
         {
             get => gameSelectedScreenshots;
             set

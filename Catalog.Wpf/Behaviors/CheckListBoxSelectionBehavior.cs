@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows;
@@ -11,27 +13,61 @@ namespace Catalog.Wpf.Behaviors
 {
     public class CheckListBoxSelectionBehavior : Behavior<CheckListBox>
     {
+        private bool modelHandled;
+
         public static readonly DependencyProperty SelectedItemsProperty =
-            DependencyProperty.Register(nameof(SelectedItems), typeof(IList),
+            DependencyProperty.Register(
+                nameof(SelectedItems),
+                typeof(IList),
                 typeof(CheckListBoxSelectionBehavior),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    OnSelectedItemsChanged));
+                new FrameworkPropertyMetadata(
+                    null,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    PropertyChangedCallback
+                )
+            );
 
-        private static void OnSelectedItemsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        private static void PropertyChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            var behavior = (CheckListBoxSelectionBehavior) sender;
-            if (behavior.modelHandled) return;
+            void Handler(object s, NotifyCollectionChangedEventArgs e) => SelectedItemsChanged(sender, e);
 
-            if (behavior.AssociatedObject == null)
+            if (args.OldValue is INotifyCollectionChanged oldCollection)
+            {
+                oldCollection.CollectionChanged -= Handler;
+            }
+
+            if (args.NewValue is INotifyCollectionChanged newCollection)
+            {
+                newCollection.CollectionChanged += Handler;
+            }
+
+            if (args.NewValue == null)
+            {
                 return;
+            }
 
-            behavior.modelHandled = true;
-            behavior.SelectItems();
-            behavior.modelHandled = false;
+            ResetSelectedItems(sender, (IEnumerable)args.NewValue);
         }
 
-        private bool viewHandled;
-        private bool modelHandled;
+        private static void ResetSelectedItems(object sender, IEnumerable items)
+        {
+            if (!(sender is CheckListBoxSelectionBehavior behavior))
+            {
+                return;
+            }
+
+            var listViewBase = behavior.AssociatedObject;
+
+            var listSelectedItems = listViewBase.SelectedItems;
+
+            listSelectedItems.Clear();
+
+            foreach (var item in items)
+            {
+                listSelectedItems.Add(item);
+            }
+        }
+
 
         public IList SelectedItems
         {
@@ -39,58 +75,72 @@ namespace Catalog.Wpf.Behaviors
             set => SetValue(SelectedItemsProperty, value);
         }
 
-        // Propagate selected items from model to view
-        private void SelectItems()
+        private static void SelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            viewHandled = true;
-            AssociatedObject.SelectedItems.Clear();
-            if (SelectedItems != null)
+            if (!(sender is CheckListBoxSelectionBehavior behavior))
             {
-                foreach (var item in SelectedItems)
-                    AssociatedObject.SelectedItems.Add(item);
+                return;
             }
 
-            viewHandled = false;
+            var listViewBase = behavior.AssociatedObject;
+
+            var listSelectedItems = listViewBase.SelectedItems;
+
+            if (e.OldItems != null)
+            {
+                foreach (var item in e.OldItems)
+                {
+                    if (listSelectedItems.Contains(item))
+                    {
+                        listSelectedItems.Remove(item);
+                    }
+                }
+            }
+
+            if (e.NewItems != null)
+            {
+                foreach (var item in e.NewItems)
+                {
+                    if (!listSelectedItems.Contains(item))
+                    {
+                        listSelectedItems.Add(item);
+                    }
+                }
+            }
         }
 
         // Propagate selected items from view to model
-        private void OnCheckListBoxSelectionChanged(object sender, ItemSelectionChangedEventArgs itemSelectionChangedEventArgs)
+        private void OnSelectionChanged(object sender, ItemSelectionChangedEventArgs e)
         {
-            if (viewHandled)
+            if (modelHandled)
             {
                 return;
             }
 
-            if (AssociatedObject.Items.SourceCollection == null)
+            modelHandled = true;
+
+            if (e.IsSelected)
             {
-                return;
+                if (!SelectedItems.Contains(e.Item))
+                {
+                    SelectedItems.Add(e.Item);
+                }
+            }
+            else
+            {
+                if (SelectedItems.Contains(e.Item))
+                {
+                    SelectedItems.Remove(e.Item);
+                }
             }
 
-            SelectedItems = AssociatedObject.SelectedItems.Cast<object>().ToArray();
+            modelHandled = false;
         }
-
-        // Re-select items when the set of items changes
-        private void OnListBoxItemsChanged(object sender, NotifyCollectionChangedEventArgs args)
-        {
-            if (viewHandled)
-            {
-                return;
-            }
-
-            if (AssociatedObject.Items.SourceCollection == null)
-            {
-                return;
-            }
-
-            SelectItems();
-        }
-
         protected override void OnAttached()
         {
             base.OnAttached();
 
-            AssociatedObject.ItemSelectionChanged += OnCheckListBoxSelectionChanged;
-            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged += OnListBoxItemsChanged;
+            AssociatedObject.ItemSelectionChanged += OnSelectionChanged;
         }
 
         /// <inheritdoc />
@@ -98,13 +148,7 @@ namespace Catalog.Wpf.Behaviors
         {
             base.OnDetaching();
 
-            if (AssociatedObject == null)
-            {
-                return;
-            }
-
-            AssociatedObject.ItemSelectionChanged -= OnCheckListBoxSelectionChanged;
-            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged -= OnListBoxItemsChanged;
+            AssociatedObject.ItemSelectionChanged += OnSelectionChanged;
         }
     }
 }
