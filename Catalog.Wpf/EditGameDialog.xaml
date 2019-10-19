@@ -14,7 +14,7 @@
         xmlns:globalization="clr-namespace:System.Globalization;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Add Game"
-        Height="600"
+        Height="700"
         Width="800"
         d:DataContext="{d:DesignInstance viewModel:EditGameViewModel}"
         Style="{DynamicResource GlobalWindow}"
@@ -134,7 +134,7 @@
                                 </xctk:CheckListBox.ItemTemplate>
                             </xctk:CheckListBox>
                         </c:FormField>
-                        <c:FormField LabelContent="Developers">
+                        <c:FormField LabelContent="Languages">
                             <StackPanel Orientation="Vertical">
                                 <xctk:WatermarkTextBox Name="LanguageSearch"
                                                        Text="{Binding LanguageSearchTerm, UpdateSourceTrigger=PropertyChanged}"
