@@ -6,22 +6,22 @@ using Window = System.Windows.Window;
 
 namespace Catalog.Wpf
 {
-    public partial class AddGameDialog : Window
+    public partial class EditGameDialog : Window
     {
-        public AddGameDialog()
+        public EditGameDialog()
         {
             InitializeComponent();
 
-            ViewModel = new AddGameViewModel(Application.Current.Database());
+            ViewModel = new EditGameViewModel(Application.Current.Database());
         }
 
-        public AddGameViewModel ViewModel
+        public EditGameViewModel ViewModel
         {
-            get => (AddGameViewModel) DataContext;
+            get => (EditGameViewModel) DataContext;
             set => DataContext = value;
         }
 
-        private void AddGameDialog_OnContentRendered(object sender, EventArgs e)
+        private void EditGameDialog_OnContentRendered(object sender, EventArgs e)
         {
             TitleTextbox.Focus();
         }

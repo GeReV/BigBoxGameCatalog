@@ -1,4 +1,4 @@
-﻿<Window x:Class="Catalog.Wpf.AddGameDialog"
+﻿<Window x:Class="Catalog.Wpf.EditGameDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,10 +15,10 @@
         Title="Add Game"
         Height="600"
         Width="800"
-        d:DataContext="{d:DesignInstance viewModel:AddGameViewModel}"
+        d:DataContext="{d:DesignInstance viewModel:EditGameViewModel}"
         Style="{DynamicResource GlobalWindow}"
         Name="Window"
-        ContentRendered="AddGameDialog_OnContentRendered">
+        ContentRendered="EditGameDialog_OnContentRendered">
     <DockPanel Margin="5">
         <StatusBar DockPanel.Dock="Bottom"
                    Margin="0,5,0,0">

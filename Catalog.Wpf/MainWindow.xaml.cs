@@ -16,7 +16,7 @@ namespace Catalog.Wpf
 
         private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (new AddGameDialog().ShowDialog() == true && ViewModel.RefreshGames.CanExecute(null))
+            if (new EditGameDialog().ShowDialog() == true && ViewModel.RefreshGames.CanExecute(null))
             {
                 ViewModel.RefreshGames.Execute(null);
             }

@@ -11,7 +11,7 @@ using Condition = Catalog.Model.Condition;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public sealed class AddGameViewModel : NotifyPropertyChangedBase
+    public sealed class EditGameViewModel : NotifyPropertyChangedBase
     {
         private string gameTitle;
         private string gameMobyGamesSlug;
@@ -39,7 +39,7 @@ namespace Catalog.Wpf.ViewModel
             DownloadingScreenshots,
         }
 
-        public AddGameViewModel(CatalogDatabase database = null)
+        public EditGameViewModel(CatalogDatabase database = null)
         {
             var publishers = database == null ? new List<Publisher>() : database.GetPublishersCollection().FindAll();
             var developers = database == null ? new List<Developer>() : database.GetDevelopersCollection().FindAll();

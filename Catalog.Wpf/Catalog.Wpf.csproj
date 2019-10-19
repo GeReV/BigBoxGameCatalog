@@ -117,8 +117,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddGameDialog.xaml.cs">
-      <DependentUpon>AddGameDialog.xaml</DependentUpon>
+    <Compile Include="EditGameDialog.xaml.cs">
+      <DependentUpon>EditGameDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -183,7 +183,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ViewModel\AddGameViewModel.cs" />
+    <Compile Include="ViewModel\EditGameViewModel.cs" />
     <Compile Include="ViewModel\FileViewModel.cs" />
     <Compile Include="ViewModel\GameDisambiguationItemViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
@@ -214,7 +214,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AddGameDialog.xaml" />
+    <Page Include="EditGameDialog.xaml" />
     <Page Include="Forms\Controls\AddRemoveButtons.xaml" />
     <Page Include="Forms\Controls\FormField.xaml" />
     <Page Include="Forms\ItemForm.xaml" />

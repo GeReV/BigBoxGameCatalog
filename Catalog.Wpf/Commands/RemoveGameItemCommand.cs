@@ -5,11 +5,11 @@ namespace Catalog.Wpf.Commands
 {
     public class RemoveGameItemCommand : CommandBase
     {
-        private readonly AddGameViewModel addGameViewModel;
+        private readonly EditGameViewModel editGameViewModel;
 
-        public RemoveGameItemCommand(AddGameViewModel addGameViewModel)
+        public RemoveGameItemCommand(EditGameViewModel editGameViewModel)
         {
-            this.addGameViewModel = addGameViewModel;
+            this.editGameViewModel = editGameViewModel;
         }
 
         public override bool CanExecute(object parameter)
@@ -19,7 +19,7 @@ namespace Catalog.Wpf.Commands
 
         public override void Execute(object parameter)
         {
-            addGameViewModel.GameItems.Remove((ItemViewModel) parameter);
+            editGameViewModel.GameItems.Remove((ItemViewModel) parameter);
         }
     }
 }

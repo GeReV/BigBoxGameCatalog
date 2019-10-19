@@ -14,22 +14,22 @@ namespace Catalog.Wpf.Commands
 {
     public class SaveGameCommand : AsyncCommandBase
     {
-        private readonly AddGameViewModel addGameViewModel;
+        private readonly EditGameViewModel editGameViewModel;
 
-        public SaveGameCommand(AddGameViewModel addGameViewModel)
+        public SaveGameCommand(EditGameViewModel editGameViewModel)
         {
-            this.addGameViewModel = addGameViewModel;
+            this.editGameViewModel = editGameViewModel;
         }
 
         protected override async Task Perform(object parameter)
         {
-            addGameViewModel.Status = AddGameViewModel.ViewStatus.DownloadingScreenshots;
+            editGameViewModel.Status = EditGameViewModel.ViewStatus.DownloadingScreenshots;
 
             var gameTask = await BuildGame();
 
             InsertGame(gameTask);
 
-            addGameViewModel.Status = AddGameViewModel.ViewStatus.Idle;
+            editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
         }
 
         private static void InsertGame(GameCopy game)
@@ -54,14 +54,14 @@ namespace Catalog.Wpf.Commands
         private async Task<IEnumerable<Image>> DownloadScreenshots()
         {
             var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots",
-                addGameViewModel.GameMobyGamesSlug);
+                editGameViewModel.GameMobyGamesSlug);
 
             return await new ScreenshotDownloader(new CachingWebClient())
                 .DownloadScreenshots(
                     screenshotDirectory,
-                    addGameViewModel.GameSelectedScreenshots
+                    editGameViewModel.GameSelectedScreenshots
                         .Select(ss => ((ScreenshotViewModel)ss).Url),
-                    new Progress<int>(percentage => addGameViewModel.SaveProgress = percentage)
+                    new Progress<int>(percentage => editGameViewModel.SaveProgress = percentage)
                 );
         }
 
@@ -71,16 +71,16 @@ namespace Catalog.Wpf.Commands
 
             return new GameCopy
             {
-                Title = addGameViewModel.GameTitle,
-                MobyGamesSlug = addGameViewModel.GameMobyGamesSlug,
-                Platforms = addGameViewModel.GamePlatforms.ToList(),
-                Publisher = addGameViewModel.GamePublisher,
-                Developers = addGameViewModel.GameDevelopers.ToList(),
-                Items = addGameViewModel.GameItems.Select(item => item.BuildItem()).ToList(),
-                Links = addGameViewModel.GameLinks.ToList(),
-                Notes = addGameViewModel.GameNotes,
-                TwoLetterIsoLanguageName = addGameViewModel.GameTwoLetterIsoLanguageName.ToList(),
-                ReleaseDate = addGameViewModel.GameReleaseDate,
+                Title = editGameViewModel.GameTitle,
+                MobyGamesSlug = editGameViewModel.GameMobyGamesSlug,
+                Platforms = editGameViewModel.GamePlatforms.ToList(),
+                Publisher = editGameViewModel.GamePublisher,
+                Developers = editGameViewModel.GameDevelopers.ToList(),
+                Items = editGameViewModel.GameItems.Select(item => item.BuildItem()).ToList(),
+                Links = editGameViewModel.GameLinks.ToList(),
+                Notes = editGameViewModel.GameNotes,
+                TwoLetterIsoLanguageName = editGameViewModel.GameTwoLetterIsoLanguageName.ToList(),
+                ReleaseDate = editGameViewModel.GameReleaseDate,
                 Screenshots = screenshots.ToList()
             };
         }

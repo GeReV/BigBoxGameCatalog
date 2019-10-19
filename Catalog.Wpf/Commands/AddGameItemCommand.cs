@@ -5,11 +5,11 @@ namespace Catalog.Wpf.Commands
 {
     public class AddGameItemCommand : CommandBase
     {
-        private readonly AddGameViewModel addGameViewModel;
+        private readonly EditGameViewModel editGameViewModel;
 
-        public AddGameItemCommand(AddGameViewModel addGameViewModel)
+        public AddGameItemCommand(EditGameViewModel editGameViewModel)
         {
-            this.addGameViewModel = addGameViewModel;
+            this.editGameViewModel = editGameViewModel;
         }
 
         public override void Execute(object parameter)
@@ -24,8 +24,8 @@ namespace Catalog.Wpf.Commands
                 item.ItemType = itemType;
             }
 
-            addGameViewModel.GameItems.Add(item);
-            addGameViewModel.CurrentGameItem = item;
+            editGameViewModel.GameItems.Add(item);
+            editGameViewModel.CurrentGameItem = item;
         }
     }
 }

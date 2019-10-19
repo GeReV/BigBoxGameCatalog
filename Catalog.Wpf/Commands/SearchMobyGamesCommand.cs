@@ -14,11 +14,11 @@ namespace Catalog.Wpf.Commands
 {
     public class SearchMobyGamesCommand : AsyncCommandBase
     {
-        private readonly AddGameViewModel addGameViewModel;
+        private readonly EditGameViewModel editGameViewModel;
 
-        public SearchMobyGamesCommand(AddGameViewModel addGameViewModel)
+        public SearchMobyGamesCommand(EditGameViewModel editGameViewModel)
         {
-            this.addGameViewModel = addGameViewModel;
+            this.editGameViewModel = editGameViewModel;
         }
 
         protected override bool CanExecuteImpl(object parameter) => !string.IsNullOrWhiteSpace(parameter as string ?? string.Empty);
@@ -47,13 +47,13 @@ namespace Catalog.Wpf.Commands
 
             GetScreenshots(gameEntry);
 
-            addGameViewModel.GameScreenshots.Clear();
+            editGameViewModel.GameScreenshots.Clear();
 
-            addGameViewModel.GameTitle = gameEntry.Name;
-            addGameViewModel.GameMobyGamesSlug = gameEntry.Slug;
-            addGameViewModel.GameLinks.Add(gameEntry.Url);
+            editGameViewModel.GameTitle = gameEntry.Name;
+            editGameViewModel.GameMobyGamesSlug = gameEntry.Slug;
+            editGameViewModel.GameLinks.Add(gameEntry.Url);
 
-            var publisher = addGameViewModel.Publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
+            var publisher = editGameViewModel.Publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
 
             if (publisher == null)
             {
@@ -64,12 +64,12 @@ namespace Catalog.Wpf.Commands
                     Links = new[] {gameEntry.Publisher.Url}
                 };
 
-                addGameViewModel.Publishers.Add(publisher);
+                editGameViewModel.Publishers.Add(publisher);
             }
 
-            addGameViewModel.GamePublisher = publisher;
+            editGameViewModel.GamePublisher = publisher;
 
-            var developerCollection = addGameViewModel.Developers.ToList();
+            var developerCollection = editGameViewModel.Developers.ToList();
 
             foreach (var devEntry in gameEntry.Developers)
             {
@@ -84,10 +84,10 @@ namespace Catalog.Wpf.Commands
                         Links = new[] {devEntry.Url},
                     };
 
-                    addGameViewModel.Developers.Add(developer);
+                    editGameViewModel.Developers.Add(developer);
                 }
 
-                addGameViewModel.GameDevelopers.Add(developer);
+                editGameViewModel.GameDevelopers.Add(developer);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Catalog.Wpf.Commands
 
             foreach (var platform in platforms)
             {
-                addGameViewModel.GamePlatforms.Add(platform);
+                editGameViewModel.GamePlatforms.Add(platform);
             }
         }
 
@@ -124,11 +124,11 @@ namespace Catalog.Wpf.Commands
 
             foreach (var image in images)
             {
-                addGameViewModel.GameScreenshots.Add(image);
+                editGameViewModel.GameScreenshots.Add(image);
             }
 
-            addGameViewModel.GameSelectedScreenshots =
-                new ObservableCollection<ScreenshotViewModel>(addGameViewModel.GameScreenshots);
+            editGameViewModel.GameSelectedScreenshots =
+                new ObservableCollection<ScreenshotViewModel>(editGameViewModel.GameScreenshots);
         }
     }
 }
