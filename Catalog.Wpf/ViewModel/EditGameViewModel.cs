@@ -117,6 +117,8 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
+        public int GameId { get; private set; }
+
         public string GameTitle
         {
             get => gameTitle;
@@ -342,6 +344,7 @@ namespace Catalog.Wpf.ViewModel
 
             return new EditGameViewModel(database)
             {
+                GameId = gameCopy.GameCopyId,
                 GameTitle = gameCopy.Title,
                 GameMobyGamesSlug = gameCopy.MobyGamesSlug,
                 GameNotes = gameCopy.Notes,

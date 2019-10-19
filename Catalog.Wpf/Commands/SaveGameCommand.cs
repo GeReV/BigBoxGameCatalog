@@ -9,6 +9,7 @@ using Catalog.Scrapers;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.ViewModel;
 using Xceed.Wpf.Toolkit.Core.Converters;
+using File = System.IO.File;
 
 namespace Catalog.Wpf.Commands
 {
@@ -48,7 +49,7 @@ namespace Catalog.Wpf.Commands
                 developersCollection.Insert(developer);
             }
 
-            db.GetGamesCollection().Insert(game);
+            db.GetGamesCollection().Upsert(game);
         }
 
         private async Task<IEnumerable<Image>> DownloadScreenshots()
@@ -56,11 +57,15 @@ namespace Catalog.Wpf.Commands
             var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots",
                 editGameViewModel.GameMobyGamesSlug);
 
+            var screenshotsToDownload = editGameViewModel
+                .GameSelectedScreenshots
+                .Where(ss => !new Uri(ss.Url).IsFile || !File.Exists(ss.Url))
+                .Select(ss => ss.Url);
+
             return await new ScreenshotDownloader(Application.Current.ScraperWebClient())
                 .DownloadScreenshots(
                     screenshotDirectory,
-                    editGameViewModel.GameSelectedScreenshots
-                        .Select(ss => ((ScreenshotViewModel)ss).Url),
+                    screenshotsToDownload,
                     new Progress<int>(percentage => editGameViewModel.SaveProgress = percentage)
                 );
         }
@@ -71,6 +76,7 @@ namespace Catalog.Wpf.Commands
 
             return new GameCopy
             {
+                GameCopyId = editGameViewModel.GameId,
                 Title = editGameViewModel.GameTitle,
                 MobyGamesSlug = editGameViewModel.GameMobyGamesSlug,
                 Platforms = editGameViewModel.GamePlatforms.ToList(),
