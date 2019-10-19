@@ -1,12 +1,17 @@
 ﻿using System.Windows;
+using Catalog.Scrapers;
 
 namespace Catalog.Wpf
 {
     public static class ApplicationHelpers
     {
         public static string HomeDirectory(this Application application) =>
-            application.Properties["HomeDirectory"].ToString();
+            application.Properties[nameof(HomeDirectory)].ToString();
+
         public static CatalogDatabase Database(this Application application) =>
-            application.Properties["Database"] as CatalogDatabase;
+            application.Properties[nameof(Database)] as CatalogDatabase;
+
+        public static IWebClient ScraperWebClient(this Application application) =>
+            (IWebClient) application.Properties[nameof(ScraperWebClient)];
     }
 }

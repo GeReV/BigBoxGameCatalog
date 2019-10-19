@@ -56,7 +56,7 @@ namespace Catalog.Wpf.Commands
             var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots",
                 editGameViewModel.GameMobyGamesSlug);
 
-            return await new ScreenshotDownloader(new CachingWebClient())
+            return await new ScreenshotDownloader(Application.Current.ScraperWebClient())
                 .DownloadScreenshots(
                     screenshotDirectory,
                     editGameViewModel.GameSelectedScreenshots

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using Catalog.Model;
 using Catalog.Scrapers;
@@ -21,7 +22,8 @@ namespace Catalog.Wpf.Commands
             this.editGameViewModel = editGameViewModel;
         }
 
-        protected override bool CanExecuteImpl(object parameter) => !string.IsNullOrWhiteSpace(parameter as string ?? string.Empty);
+        protected override bool CanExecuteImpl(object parameter) =>
+            !string.IsNullOrWhiteSpace(parameter as string ?? string.Empty);
 
         protected override async Task Perform(object parameter)
         {
@@ -30,7 +32,7 @@ namespace Catalog.Wpf.Commands
 
         private async Task SearchMobyGames(string term)
         {
-            var scraper = new Scraper(new CachingWebClient());
+            var scraper = new Scraper(Application.Current.ScraperWebClient());
 
             var entries = await Task.Run(() => scraper.Search(term));
 
@@ -93,7 +95,8 @@ namespace Catalog.Wpf.Commands
 
         private async void GetSpecs(GameEntry gameEntry)
         {
-            var specs = await Task.Run(() => new Scraper(new CachingWebClient()).GetGameSpecs(gameEntry.Slug));
+            var specs = await Task.Run(() =>
+                new Scraper(Application.Current.ScraperWebClient()).GetGameSpecs(gameEntry.Slug));
 
             var platforms = Enum
                 .GetValues(typeof(Platform))
@@ -110,7 +113,8 @@ namespace Catalog.Wpf.Commands
         private async void GetScreenshots(GameEntry gameEntry)
         {
             IEnumerable<ScreenshotEntry> screenshotEntries = await Task.Run(() =>
-                new Scraper(new CachingWebClient()).GetGameScreenshots(gameEntry.Slug)
+                new Scraper(Application.Current.ScraperWebClient())
+                    .GetGameScreenshots(gameEntry.Slug)
             );
 
             var listItems = screenshotEntries.Take(20).ToList();
