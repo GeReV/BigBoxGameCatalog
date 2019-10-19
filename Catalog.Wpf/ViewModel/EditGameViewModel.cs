@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -22,7 +23,7 @@ namespace Catalog.Wpf.ViewModel
         private ViewStatus viewStatus = ViewStatus.Idle;
         private ItemViewModel currentGameItem;
         private string developerSearchTerm;
-        private ObservableCollection<string> gameTwoLetterIsoLanguageName;
+        private ObservableCollection<CultureInfo> gameLanguages;
         private ObservableCollection<ScreenshotViewModel> gameSelectedScreenshots;
         private ObservableCollection<Developer> gameDevelopers;
         private ObservableCollection<Platform> gamePlatforms;
@@ -33,6 +34,7 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<string> gameLinks;
         private ObservableCollection<ItemViewModel> gameItems;
         private ObservableCollection<ScreenshotViewModel> gameScreenshots;
+        private string languageSearchTerm;
 
         public enum ViewStatus
         {
@@ -61,9 +63,8 @@ namespace Catalog.Wpf.ViewModel
             GameDevelopers = new ObservableCollection<Developer>();
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
             GameSelectedScreenshots = new ObservableCollection<ScreenshotViewModel>();
-            GameTwoLetterIsoLanguageName = new ObservableCollection<string> {"en"};
+            GameLanguages = new ObservableCollection<CultureInfo> { CultureInfo.GetCultureInfo("en") };
             GamePlatforms = new ObservableCollection<Platform>();
-
 
             FilteredDevelopers = new ListCollectionView(Developers)
             {
@@ -80,6 +81,22 @@ namespace Catalog.Wpf.ViewModel
                 }
             };
 
+            FilteredLanguages = new ListCollectionView(Languages.ToList())
+            {
+                CustomSort = new LanguageComparer(() => GameLanguages),
+                Filter = obj =>
+                {
+                    if (obj is CultureInfo cultureInfo)
+                    {
+                        return cultureInfo.EnglishName.IndexOf(LanguageSearchTerm ?? string.Empty,
+                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
+                    }
+
+                    return false;
+                }
+            };
+
+            PropertyChanged += RefreshFilteredLanguages;
             PropertyChanged += RefreshFilteredDevelopers;
         }
 
@@ -89,6 +106,14 @@ namespace Catalog.Wpf.ViewModel
                 e.PropertyName == nameof(GameDevelopers))
             {
                 FilteredDevelopers.Refresh();
+            }
+        }
+
+        private void RefreshFilteredLanguages(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(LanguageSearchTerm) || e.PropertyName == nameof(GameLanguages))
+            {
+                FilteredLanguages.Refresh();
             }
         }
 
@@ -158,13 +183,29 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<string> GameTwoLetterIsoLanguageName
+        public string LanguageSearchTerm
         {
-            get => gameTwoLetterIsoLanguageName;
+            get => languageSearchTerm;
             set
             {
-                if (Equals(value, gameTwoLetterIsoLanguageName)) return;
-                gameTwoLetterIsoLanguageName = value;
+                if (value == languageSearchTerm) return;
+                languageSearchTerm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public static IEnumerable<CultureInfo> Languages => CultureInfo.GetCultures(CultureTypes.AllCultures)
+            .Where(ci => Equals(ci.Parent, CultureInfo.InvariantCulture) && !Equals(ci, CultureInfo.InvariantCulture));
+
+        public ListCollectionView FilteredLanguages { get; }
+
+        public ObservableCollection<CultureInfo> GameLanguages
+        {
+            get => gameLanguages;
+            set
+            {
+                if (Equals(value, gameLanguages)) return;
+                gameLanguages = value;
                 OnPropertyChanged();
             }
         }
@@ -250,17 +291,17 @@ namespace Catalog.Wpf.ViewModel
         public ObservableCollection<Developer> Developers { get; }
         public ListCollectionView FilteredDevelopers { get; }
 
-        public IReadOnlyList<Platform> Platforms => Enum
+        public static IEnumerable<Platform> Platforms => Enum
             .GetValues(typeof(Platform))
             .Cast<Platform>()
             .ToList();
 
-        public IReadOnlyList<Condition> Conditions => Enum
+        public static IEnumerable<Condition> Conditions => Enum
             .GetValues(typeof(Condition))
             .Cast<Condition>()
             .ToList();
 
-        public IReadOnlyList<ItemType> ItemTypes => Model.ItemTypes.All.ToList();
+        public static IEnumerable<ItemType> ItemTypes => Model.ItemTypes.All.ToList();
 
         public ViewStatus Status
         {
@@ -308,7 +349,7 @@ namespace Catalog.Wpf.ViewModel
                 GameDevelopers = new ObservableCollection<Developer>(gameCopy.Developers),
                 GameLinks = new ObservableCollection<string>(gameCopy.Links),
                 GamePlatforms = new ObservableCollection<Platform>(gameCopy.Platforms),
-                GameTwoLetterIsoLanguageName = new ObservableCollection<string>(gameCopy.TwoLetterIsoLanguageName),
+                GameLanguages = new ObservableCollection<CultureInfo>(gameCopy.TwoLetterIsoLanguageName.Select(lang => CultureInfo.GetCultureInfo(lang))),
                 GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem)),
                 GameScreenshots = screenshots,
                 GameSelectedScreenshots = screenshots,

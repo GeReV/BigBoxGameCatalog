@@ -11,6 +11,7 @@
         xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
         xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
         xmlns:Interactions="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:globalization="clr-namespace:System.Globalization;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Add Game"
         Height="600"
@@ -132,6 +133,29 @@
                                     </DataTemplate>
                                 </xctk:CheckListBox.ItemTemplate>
                             </xctk:CheckListBox>
+                        </c:FormField>
+                        <c:FormField LabelContent="Developers">
+                            <StackPanel Orientation="Vertical">
+                                <xctk:WatermarkTextBox Name="LanguageSearch"
+                                                       Text="{Binding LanguageSearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                                       Watermark="Search languages..."
+                                                       KeepWatermarkOnGotFocus="True"
+                                                       Margin="0,0,0,5" />
+                                <xctk:CheckListBox Name="LanguagesCheckList"
+                                                   Height="60"
+                                                   ItemsSource="{Binding FilteredLanguages}">
+                                    <Interactions:Interaction.Behaviors>
+                                        <behaviors:CheckListBoxSelectionBehavior
+                                            SelectedItems="{Binding DataContext.GameLanguages, ElementName=LanguagesCheckList}" />
+                                    </Interactions:Interaction.Behaviors>
+                                    <xctk:CheckListBox.ItemTemplate>
+                                        <DataTemplate DataType="globalization:CultureInfo">
+                                            <c:HighlightedTextBlock Text="{Binding EnglishName}"
+                                                                    HighlightedText="{Binding ElementName=Window, Path=ViewModel.LanguageSearchTerm}" />
+                                        </DataTemplate>
+                                    </xctk:CheckListBox.ItemTemplate>
+                                </xctk:CheckListBox>
+                            </StackPanel>
                         </c:FormField>
                         <c:FormField LabelContent="Screenshots">
                             <ListBox Name="Screenshots"

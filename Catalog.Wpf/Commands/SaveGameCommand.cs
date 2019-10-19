@@ -79,7 +79,8 @@ namespace Catalog.Wpf.Commands
                 Items = editGameViewModel.GameItems.Select(item => item.BuildItem()).ToList(),
                 Links = editGameViewModel.GameLinks.ToList(),
                 Notes = editGameViewModel.GameNotes,
-                TwoLetterIsoLanguageName = editGameViewModel.GameTwoLetterIsoLanguageName.ToList(),
+                TwoLetterIsoLanguageName =
+                    editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).ToList(),
                 ReleaseDate = editGameViewModel.GameReleaseDate,
                 Screenshots = screenshots.ToList()
             };
