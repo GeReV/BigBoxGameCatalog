@@ -149,7 +149,10 @@
     <Compile Include="Converters\NullableToBooleanConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Forms\Controls\Highlight.cs" />
-    <Compile Include="Forms\Controls\HighlightedTextBlock.cs" />
+    <Compile Include="Forms\Controls\HighlightedTextBlock.cs">
+      <DependentUpon>HighlightedTextBlock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LanguageComparer.cs" />
     <Compile Include="SelectedDevelopersComparer.cs" />
     <Compile Include="Forms\Controls\AddRemoveButtons.xaml.cs">
       <DependentUpon>AddRemoveButtons.xaml</DependentUpon>
@@ -217,6 +220,7 @@
     <Page Include="EditGameDialog.xaml" />
     <Page Include="Forms\Controls\AddRemoveButtons.xaml" />
     <Page Include="Forms\Controls\FormField.xaml" />
+    <Page Include="Forms\Controls\HighlightedTextBlock.xaml" />
     <Page Include="Forms\ItemForm.xaml" />
     <Page Include="GameDisambiguationDialog.xaml" />
     <Page Include="MainWindow.xaml" />

@@ -2,5 +2,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Forms/Controls/FormField.xaml" />
+        <ResourceDictionary Source="/Forms/Controls/HighlightedTextBlock.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

@@ -112,15 +112,7 @@
                                     <xctk:CheckListBox.ItemTemplate>
                                         <DataTemplate DataType="model:Developer">
                                             <c:HighlightedTextBlock Text="{Binding Name}"
-                                                                    HighlightedText="{Binding ElementName=Window, Path=ViewModel.DeveloperSearchTerm}">
-                                                <c:HighlightedTextBlock.Resources>
-                                                    <Style TargetType="c:Highlight">
-                                                        <Setter Property="Background"
-                                                                Value="LightGoldenrodYellow" />
-                                                    </Style>
-                                                </c:HighlightedTextBlock.Resources>
-                                            </c:HighlightedTextBlock>
-
+                                                                    HighlightedText="{Binding ElementName=Window, Path=ViewModel.DeveloperSearchTerm}" />
                                         </DataTemplate>
                                     </xctk:CheckListBox.ItemTemplate>
                                 </xctk:CheckListBox>
