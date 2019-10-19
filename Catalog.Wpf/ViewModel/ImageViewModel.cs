@@ -1,4 +1,6 @@
-﻿using System.Windows.Media;
+﻿using System;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Catalog.Model;
 
 namespace Catalog.Wpf.ViewModel
@@ -37,5 +39,12 @@ namespace Catalog.Wpf.ViewModel
                 Path = Path
             };
         }
+
+        public static ImageViewModel FromImage(Image image) =>
+            new ImageViewModel
+            {
+                Path = image.Path,
+                ThumbnailSource = new BitmapImage(new Uri(image.Path)),
+            };
     }
 }

@@ -33,7 +33,14 @@
                                   MinWidth="300" />
             </Grid.ColumnDefinitions>
             <ListBox Name="Games"
-                     ItemsSource="{Binding Games}">
+                     ItemsSource="{Binding Games}"
+                     IsSynchronizedWithCurrentItem="True">
+                <ListBox.Resources>
+                    <Style TargetType="ListBoxItem">
+                        <EventSetter Event="MouseDoubleClick" Handler="Games_OnItemDoubleClick"></EventSetter>
+
+                    </Style>
+                </ListBox.Resources>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="model:GameCopy">
                         <TextBlock Text="{Binding Title}" />

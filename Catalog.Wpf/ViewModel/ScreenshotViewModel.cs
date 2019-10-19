@@ -1,9 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Catalog.Model;
 using Catalog.Wpf.Annotations;
 using Eto.Drawing;
+using Image = Catalog.Model.Image;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -45,5 +48,13 @@ namespace Catalog.Wpf.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public static ScreenshotViewModel FromImage(Image image) =>
+            new ScreenshotViewModel
+            {
+                Url = image.Path,
+                ThumbnailUrl = image.Path,
+                ThumbnailSource = new BitmapImage(new Uri(image.Path))
+            };
     }
 }

@@ -30,6 +30,9 @@ namespace Catalog.Wpf.ViewModel
         private ICommand removeItemCommand;
         private IAsyncCommand searchMobyGamesCommand;
         private IAsyncCommand saveGameCommand;
+        private ObservableCollection<string> gameLinks;
+        private ObservableCollection<ItemViewModel> gameItems;
+        private ObservableCollection<ScreenshotViewModel> gameScreenshots;
 
         public enum ViewStatus
         {
@@ -122,7 +125,16 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<ItemViewModel> GameItems { get; }
+        public ObservableCollection<ItemViewModel> GameItems
+        {
+            get => gameItems;
+            set
+            {
+                if (Equals(value, gameItems)) return;
+                gameItems = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ItemViewModel CurrentGameItem
         {
@@ -135,7 +147,16 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<string> GameLinks { get; }
+        public ObservableCollection<string> GameLinks
+        {
+            get => gameLinks;
+            set
+            {
+                if (Equals(value, gameLinks)) return;
+                gameLinks = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<string> GameTwoLetterIsoLanguageName
         {
@@ -203,7 +224,16 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<ScreenshotViewModel> GameScreenshots { get; }
+        public ObservableCollection<ScreenshotViewModel> GameScreenshots
+        {
+            get => gameScreenshots;
+            set
+            {
+                if (Equals(value, gameScreenshots)) return;
+                gameScreenshots = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<ScreenshotViewModel> GameSelectedScreenshots
         {
@@ -264,5 +294,25 @@ namespace Catalog.Wpf.ViewModel
             searchMobyGamesCommand ?? (searchMobyGamesCommand = new SearchMobyGamesCommand(this));
 
         public IAsyncCommand SaveGameCommand => saveGameCommand ?? (saveGameCommand = new SaveGameCommand(this));
+
+        public static EditGameViewModel FromGameCopy(GameCopy gameCopy, CatalogDatabase database)
+        {
+            var screenshots = new ObservableCollection<ScreenshotViewModel>(gameCopy.Screenshots.Select(ScreenshotViewModel.FromImage));
+
+            return new EditGameViewModel(database)
+            {
+                GameTitle = gameCopy.Title,
+                GameMobyGamesSlug = gameCopy.MobyGamesSlug,
+                GameNotes = gameCopy.Notes,
+                GamePublisher = gameCopy.Publisher,
+                GameDevelopers = new ObservableCollection<Developer>(gameCopy.Developers),
+                GameLinks = new ObservableCollection<string>(gameCopy.Links),
+                GamePlatforms = new ObservableCollection<Platform>(gameCopy.Platforms),
+                GameTwoLetterIsoLanguageName = new ObservableCollection<string>(gameCopy.TwoLetterIsoLanguageName),
+                GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem)),
+                GameScreenshots = screenshots,
+                GameSelectedScreenshots = screenshots,
+            };
+        }
     }
 }

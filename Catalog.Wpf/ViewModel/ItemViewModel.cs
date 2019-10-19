@@ -22,6 +22,8 @@ namespace Catalog.Wpf.ViewModel
         private ICommand removeFileCommand;
         private ICommand addScanCommand;
         private ICommand removeScanCommand;
+        private ObservableCollection<ImageViewModel> scans;
+        private ObservableCollection<FileViewModel> files;
 
         public ItemViewModel()
         {
@@ -84,9 +86,27 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<ImageViewModel> Scans { get; }
+        public ObservableCollection<ImageViewModel> Scans
+        {
+            get => scans;
+            set
+            {
+                if (Equals(value, scans)) return;
+                scans = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public ObservableCollection<FileViewModel> Files { get; }
+        public ObservableCollection<FileViewModel> Files
+        {
+            get => files;
+            set
+            {
+                if (Equals(value, files)) return;
+                files = value;
+                OnPropertyChanged();
+            }
+        }
 
         public IEnumerable<Condition> Conditions => Enum
             .GetValues(typeof(Condition))
@@ -113,5 +133,17 @@ namespace Catalog.Wpf.ViewModel
                 Scans = Scans.Select(vm => vm.BuildImage())
             };
         }
+
+        public static ItemViewModel FromItem(Item item) =>
+            new ItemViewModel
+            {
+                ItemType = Model.ItemTypes.All.First(t => t.Type == item.ItemType.Type),
+                Missing = item.Missing,
+                Condition = item.Condition,
+                ConditionDetails = item.ConditionDetails,
+                Notes = item.Notes,
+                Scans = new ObservableCollection<ImageViewModel>(item.Scans.Select(ImageViewModel.FromImage)),
+                Files = new ObservableCollection<FileViewModel>(item.Files.Select(FileViewModel.FromFile)),
+            };
     }
 }

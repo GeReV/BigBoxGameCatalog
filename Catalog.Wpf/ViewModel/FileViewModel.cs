@@ -62,5 +62,12 @@ namespace Catalog.Wpf.ViewModel
                 Sha256Checksum = Sha256Checksum
             };
         }
+
+        public static FileViewModel FromFile(File file) =>
+            new FileViewModel
+            {
+                Path = file.Path,
+                Sha256Checksum = file.Sha256Checksum,
+            };
     }
 }

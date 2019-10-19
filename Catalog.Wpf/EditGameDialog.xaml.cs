@@ -8,11 +8,11 @@ namespace Catalog.Wpf
 {
     public partial class EditGameDialog : Window
     {
-        public EditGameDialog()
+        public EditGameDialog(EditGameViewModel viewModel = null)
         {
             InitializeComponent();
 
-            ViewModel = new EditGameViewModel(Application.Current.Database());
+            ViewModel = viewModel ?? new EditGameViewModel(Application.Current.Database());
         }
 
         public EditGameViewModel ViewModel
