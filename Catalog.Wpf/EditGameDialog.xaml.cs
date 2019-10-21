@@ -13,6 +13,8 @@ namespace Catalog.Wpf
             InitializeComponent();
 
             ViewModel = viewModel ?? new EditGameViewModel(Application.Current.Database());
+
+            Title = ViewModel.GameId == 0 ? "Add Game" : $"Edit Game: {ViewModel.GameTitle}";
         }
 
         public EditGameViewModel ViewModel
