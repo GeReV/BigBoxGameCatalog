@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -32,11 +33,20 @@ namespace Catalog.Wpf.ViewModel
                     gameCopy = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(Title));
+                    OnPropertyChanged(nameof(Publisher));
+                    OnPropertyChanged(nameof(Developers));
+                    OnPropertyChanged(nameof(Notes));
                     OnPropertyChanged(nameof(Cover));
                 }
             }
 
             public string Title => GameCopy.Title;
+
+            public Publisher Publisher => GameCopy.Publisher;
+
+            public IList<Developer> Developers => GameCopy.Developers;
+
+            public string Notes => GameCopy.Notes;
 
             public ImageSource Cover => GameCopy.CoverImage?.Path == null
                 ? null
@@ -109,7 +119,7 @@ namespace Catalog.Wpf.ViewModel
             var db = Application.Current.Database();
 
             Games = new ObservableCollection<Game>(
-                db.GetGamesCollection().FindAll().Select(gc => new Game(gc))
+                db.GetGamesCollection().IncludeAll(1).FindAll().Select(gc => new Game(gc))
             );
         }
 
