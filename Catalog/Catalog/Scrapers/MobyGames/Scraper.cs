@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Catalog.Scrapers.MobyGames.Model;
-using Eto.Drawing;
 using HtmlAgilityPack;
 
 namespace Catalog.Scrapers.MobyGames

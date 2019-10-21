@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames.Model;
-using Eto.Forms;
 using File = System.IO.File;
 
 namespace Catalog.Scrapers.MobyGames

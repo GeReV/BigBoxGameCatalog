@@ -1,6 +1,4 @@
-﻿using Eto.Drawing;
-
-namespace Catalog.Model
+﻿namespace Catalog.Model
 {
     public class ItemType
     {
