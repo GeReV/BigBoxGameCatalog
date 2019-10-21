@@ -162,6 +162,7 @@
     <Compile Include="Forms\Controls\ImageSelector.xaml.cs">
       <DependentUpon>ImageSelector.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameComparer.cs" />
     <Compile Include="LanguageComparer.cs" />
     <Compile Include="SelectedDevelopersComparer.cs" />
     <Compile Include="Forms\Controls\AddRemoveButtons.xaml.cs">

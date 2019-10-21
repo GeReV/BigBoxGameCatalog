@@ -53,7 +53,26 @@ namespace Catalog.Wpf.ViewModel
             RefreshGames = new DelegateCommand(_ => RefreshGamesCollection());
 
             RefreshGamesCollection();
+
+            FilteredGames = new ListCollectionView(Games)
+            {
+                CustomSort = new GameComparer(),
+                Filter = obj =>
+                {
+                    if (obj is Game game)
+                    {
+                        return game.Title.IndexOf(SearchTerm ?? string.Empty,
+                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
+                    }
+
+                    return false;
+                }
+            };
+
+            PropertyChanged += RefreshFilteredGames;
         }
+
+        public ListCollectionView FilteredGames { get; }
 
         public ICommand RefreshGames { get; }
 
@@ -92,6 +111,16 @@ namespace Catalog.Wpf.ViewModel
             Games = new ObservableCollection<Game>(
                 db.GetGamesCollection().FindAll().Select(gc => new Game(gc))
             );
+        }
+
+        private void RefreshFilteredGames(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(SearchTerm))
+            {
+                return;
+            }
+
+            FilteredGames.Refresh();
         }
     }
 }
