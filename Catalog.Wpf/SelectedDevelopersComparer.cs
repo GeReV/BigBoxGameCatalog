@@ -35,7 +35,7 @@ namespace Catalog.Wpf
 
             if (selectedX != selectedY)
             {
-                return selectedX.CompareTo(selectedY);
+                return selectedY.CompareTo(selectedX);
             }
 
             return string.Compare(developerX.Name, developerY.Name, StringComparison.InvariantCultureIgnoreCase);
