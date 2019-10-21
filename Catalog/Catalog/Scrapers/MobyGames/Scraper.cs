@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -45,15 +43,15 @@ namespace Catalog.Scrapers.MobyGames
 
         private readonly Regex backgroundImageRegex = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)");
 
-        const string SEARCH_RESULT = "searchResult";
-        const string SEARCH_TITLE = "searchTitle";
-        const string SEARCH_DETAILS = "searchDetails";
+        private const string SEARCH_RESULT = "searchResult";
+        private const string SEARCH_TITLE = "searchTitle";
+        private const string SEARCH_DETAILS = "searchDetails";
 
-        const string CORE_GAME_RELEASE_ID = "coreGameRelease";
-        const string GAME_NAME_TITLE = "niceHeaderTitle";
+        private const string CORE_GAME_RELEASE_ID = "coreGameRelease";
+        private const string GAME_NAME_TITLE = "niceHeaderTitle";
 
-        const string OFFICIAL_SCREENSHOTS_ID = "official_screenshots";
-        const string THUMBNAIL_GALLERY = "thumbnailGallery";
+        private const string OFFICIAL_SCREENSHOTS_ID = "official_screenshots";
+        private const string THUMBNAIL_GALLERY = "thumbnailGallery";
 
         public List<SearchResult> Search(string term)
         {
