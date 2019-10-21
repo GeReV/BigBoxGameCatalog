@@ -1,7 +1,5 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using Catalog.Model;
 using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf
@@ -15,7 +13,7 @@ namespace Catalog.Wpf
             DataContext = ViewModel;
         }
 
-        private MainWindowViewModel ViewModel { get; } = new MainWindowViewModel();
+        public MainWindowViewModel ViewModel { get; } = new MainWindowViewModel();
 
         private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -27,17 +25,9 @@ namespace Catalog.Wpf
 
         private void Games_OnItemDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var gamesCollection = Application.Current.Database().GetGamesCollection();
-
-            var gameCopy = gamesCollection
-                .IncludeAll(1)
-                .FindById(((GameCopy) Games.SelectedItem).GameCopyId);
-
-            var viewModel = EditGameViewModel.FromGameCopy(gameCopy, Application.Current.Database());
-
-            if (new EditGameDialog(viewModel).ShowDialog() == true && ViewModel.RefreshGames.CanExecute(null))
+            if (ViewModel.EditGameCommand.CanExecute(Games.SelectedItem))
             {
-                ViewModel.RefreshGames.Execute(null);
+                ViewModel.EditGameCommand.Execute(Games.SelectedItem);
             }
         }
     }

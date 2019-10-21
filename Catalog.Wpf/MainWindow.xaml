@@ -6,8 +6,10 @@
         xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+        xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
         mc:Ignorable="d"
         Title="MainWindow"
+        Name="Main"
         Height="960"
         Width="1280"
         Style="{DynamicResource GlobalWindow}"
@@ -33,17 +35,55 @@
                                   MinWidth="300" />
             </Grid.ColumnDefinitions>
             <ListBox Name="Games"
-                     ItemsSource="{Binding Games}"
-                     IsSynchronizedWithCurrentItem="True">
-                <ListBox.Resources>
+                     ItemsSource="{Binding FilteredGames}"
+                     IsSynchronizedWithCurrentItem="True"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
-                        <EventSetter Event="MouseDoubleClick" Handler="Games_OnItemDoubleClick"></EventSetter>
-
+                        <EventSetter Event="MouseDoubleClick"
+                                     Handler="Games_OnItemDoubleClick" />
+                        <Setter Property="ToolTip"
+                                Value="{Binding Title}" />
+                        <Setter Property="Tag"
+                                Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                        <Setter Property="ContextMenu">
+                            <Setter.Value>
+                                <ContextMenu>
+                                    <MenuItem Header="Edit Game..."
+                                              Command="{Binding PlacementTarget.Tag.EditGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                        <MenuItem.Icon>
+                                            <Image Source="{StaticResource IconPencil}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Delete Game..."
+                                              Command="{Binding PlacementTarget.Tag.DeleteGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                              CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                        <MenuItem.Icon>
+                                            <Image Source="{StaticResource IconCross}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </Setter.Value>
+                        </Setter>
                     </Style>
-                </ListBox.Resources>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
-                    <DataTemplate DataType="model:GameCopy">
-                        <TextBlock Text="{Binding Title}" />
+                    <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
+                        <StackPanel Margin="5"
+                                    Width="100">
+                            <Image Source="{Binding Cover}" />
+                            <controls:HighlightedTextBlock Text="{Binding Title}"
+                                                           Margin="0,5,0,0"
+                                                           HorizontalAlignment="Center"
+                                                           TextWrapping="WrapWithOverflow"
+                                                           TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

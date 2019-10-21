@@ -27,6 +27,8 @@
                          UriSource="/Catalog.Wpf;component/Resources/box.png" />
             <BitmapImage x:Key="IconCassette"
                          UriSource="/Catalog.Wpf;component/Resources/cassette.png" />
+            <BitmapImage x:Key="IconCross"
+                         UriSource="/Catalog.Wpf;component/Resources/cross.png" />
             <BitmapImage x:Key="IconDiscBlue"
                          UriSource="/Catalog.Wpf;component/Resources/disc-blue.png" />
             <BitmapImage x:Key="IconDiscCase"
@@ -41,6 +43,8 @@
                          UriSource="/Catalog.Wpf;component/Resources/document.png" />
             <BitmapImage x:Key="IconMinus"
                          UriSource="/Catalog.Wpf;component/Resources/minus.png" />
+            <BitmapImage x:Key="IconPencil"
+                         UriSource="/Catalog.Wpf;component/Resources/pencil.png" />
             <BitmapImage x:Key="IconPlus"
                          UriSource="/Catalog.Wpf;component/Resources/plus.png" />
             <BitmapImage x:Key="IconProhibition"
