@@ -12,20 +12,10 @@ namespace Catalog.Wpf.ViewModel
 {
     public sealed class ScreenshotViewModel : NotifyPropertyChangedBase
     {
-        private ImageSource thumbnailSource;
         private string thumbnailUrl;
         private string url;
 
-        public ImageSource ThumbnailSource
-        {
-            get => thumbnailSource;
-            set
-            {
-                if (Equals(value, thumbnailSource)) return;
-                thumbnailSource = value;
-                OnPropertyChanged();
-            }
-        }
+        public ImageSource ThumbnailSource => new BitmapImage(new Uri(ThumbnailUrl));
 
         public string ThumbnailUrl
         {
@@ -35,6 +25,7 @@ namespace Catalog.Wpf.ViewModel
                 if (value == thumbnailUrl) return;
                 thumbnailUrl = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ThumbnailSource));
             }
         }
 
@@ -53,8 +44,7 @@ namespace Catalog.Wpf.ViewModel
             new ScreenshotViewModel
             {
                 Url = image.Path,
-                ThumbnailUrl = image.Path,
-                ThumbnailSource = new BitmapImage(new Uri(image.Path))
+                ThumbnailUrl = image.Path
             };
     }
 }

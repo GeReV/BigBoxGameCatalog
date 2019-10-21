@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using HtmlAgilityPack;
 
@@ -31,28 +32,42 @@ namespace Catalog.Scrapers.MobyGames
         {
             return node.SelectSingleNode($"./following-sibling::{selector}");
         }
-        
+
         public static HtmlNode SelectFollowingNodeByTagName(this HtmlNode node, string tag)
         {
             return node.SelectFollowingNode(tag);
         }
-        
+
         public static HtmlNode SelectFollowingNodeByClass(this HtmlNode node, string className, string tag = null)
         {
             return node.SelectFollowingNode(classSelector(className, tag));
         }
-        
+
         public static HtmlNode SelectFollowingNodeById(this HtmlNode node, string id)
         {
             return node.SelectFollowingNode($"*[@id='{id}']");
         }
 
+        public static HtmlNode SelectNodeWithText(this HtmlNode details, string title)
+        {
+            return details
+                .SelectNodes($".//*")
+                .FirstOrDefault(node => node.PlainInnerText() == title);
+        }
+
+        public static HtmlNode SelectNodeWithTextStartingWith(this HtmlNode details, string title)
+        {
+            return details
+                .SelectNodes(".//*")
+                .FirstOrDefault(node => node.PlainInnerText().StartsWith(title));
+        }
+
         public static string PlainInnerText(this HtmlNode node)
         {
-            
+
             return NormalizeWhitespace(HtmlEntity.DeEntitize(node.InnerText));
         }
-        
+
         private static string NormalizeWhitespace(string s)
         {
             return s.Replace('\u00A0', ' ');

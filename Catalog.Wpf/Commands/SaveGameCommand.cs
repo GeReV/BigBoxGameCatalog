@@ -54,15 +54,15 @@ namespace Catalog.Wpf.Commands
 
         private async Task<IEnumerable<Image>> DownloadScreenshots()
         {
-            var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(), "screenshots",
-                editGameViewModel.GameMobyGamesSlug);
+            var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(),
+                editGameViewModel.GameMobyGamesSlug, "screenshots");
 
             var screenshotsToDownload = editGameViewModel
                 .GameSelectedScreenshots
-                .Where(ss => !new Uri(ss.Url).IsFile || !File.Exists(ss.Url))
+                .Where(ss => !new Uri(ss.Url).IsFile)
                 .Select(ss => ss.Url);
 
-            return await new ScreenshotDownloader(Application.Current.ScraperWebClient())
+            return await new ImageDownloader(Application.Current.ScraperWebClient())
                 .DownloadScreenshots(
                     screenshotDirectory,
                     screenshotsToDownload,
@@ -70,9 +70,27 @@ namespace Catalog.Wpf.Commands
                 );
         }
 
+        private async Task<Image> DownloadCoverArt()
+        {
+            var gameDirectory =
+                Path.Combine(Application.Current.HomeDirectory(), editGameViewModel.GameMobyGamesSlug);
+
+            var url = editGameViewModel.GameCoverImage.Url;
+
+            if (!new Uri(url).IsFile)
+            {
+                return await new ImageDownloader(Application.Current.ScraperWebClient())
+                    .DownloadCoverArt(gameDirectory, url);
+            }
+
+            return new Image(url);
+        }
+
         private async Task<GameCopy> BuildGame()
         {
             var screenshots = await DownloadScreenshots();
+
+            var cover = await DownloadCoverArt();
 
             return new GameCopy
             {
@@ -89,6 +107,7 @@ namespace Catalog.Wpf.Commands
                 TwoLetterIsoLanguageName =
                     editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).ToList(),
                 ReleaseDate = editGameViewModel.GameReleaseDate,
+                CoverImage = cover,
                 Screenshots = screenshots.ToList()
             };
         }

@@ -9,9 +9,9 @@ namespace Catalog.Wpf
 {
     public partial class GameDisambiguationDialog : Window
     {
-        private readonly List<SearchResult> entries;
+        private readonly ICollection<SearchResult> entries;
 
-        public GameDisambiguationDialog(List<SearchResult> entries)
+        public GameDisambiguationDialog(ICollection<SearchResult> entries)
         {
             InitializeComponent();
 

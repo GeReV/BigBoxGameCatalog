@@ -10,15 +10,15 @@
         xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
         xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
         xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
-        xmlns:Interactions="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:interactions="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:globalization="clr-namespace:System.Globalization;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Add Game"
-        Height="700"
+        Height="850"
         Width="800"
+        Name="Window"
         d:DataContext="{d:DesignInstance viewModel:EditGameViewModel}"
         Style="{DynamicResource GlobalWindow}"
-        Name="Window"
         ContentRendered="EditGameDialog_OnContentRendered">
     <DockPanel Margin="5">
         <StatusBar DockPanel.Dock="Bottom"
@@ -109,10 +109,10 @@
                                 <xctk:CheckListBox Name="DevelopersCheckList"
                                                    Height="100"
                                                    ItemsSource="{Binding FilteredDevelopers}">
-                                    <Interactions:Interaction.Behaviors>
+                                    <interactions:Interaction.Behaviors>
                                         <behaviors:CheckListBoxSelectionBehavior
                                             SelectedItems="{Binding DataContext.GameDevelopers, ElementName=DevelopersCheckList}" />
-                                    </Interactions:Interaction.Behaviors>
+                                    </interactions:Interaction.Behaviors>
                                     <xctk:CheckListBox.ItemTemplate>
                                         <DataTemplate DataType="model:Developer">
                                             <c:HighlightedTextBlock Text="{Binding Name}"
@@ -125,10 +125,10 @@
                         <c:FormField LabelContent="Platform">
                             <xctk:CheckListBox Name="PlatformCheckList"
                                                ItemsSource="{Binding Platforms}">
-                                <Interactions:Interaction.Behaviors>
+                                <interactions:Interaction.Behaviors>
                                     <behaviors:CheckListBoxSelectionBehavior
                                         SelectedItems="{Binding DataContext.GamePlatforms, ElementName=PlatformCheckList}" />
-                                </Interactions:Interaction.Behaviors>
+                                </interactions:Interaction.Behaviors>
                                 <xctk:CheckListBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock
@@ -147,10 +147,10 @@
                                 <xctk:CheckListBox Name="LanguagesCheckList"
                                                    Height="60"
                                                    ItemsSource="{Binding FilteredLanguages}">
-                                    <Interactions:Interaction.Behaviors>
+                                    <interactions:Interaction.Behaviors>
                                         <behaviors:CheckListBoxSelectionBehavior
                                             SelectedItems="{Binding DataContext.GameLanguages, ElementName=LanguagesCheckList}" />
-                                    </Interactions:Interaction.Behaviors>
+                                    </interactions:Interaction.Behaviors>
                                     <xctk:CheckListBox.ItemTemplate>
                                         <DataTemplate DataType="globalization:CultureInfo">
                                             <c:HighlightedTextBlock Text="{Binding EnglishName}"
@@ -160,16 +160,31 @@
                                 </xctk:CheckListBox>
                             </StackPanel>
                         </c:FormField>
+                        <c:FormField LabelContent="Cover Image">
+                            <StackPanel Orientation="Horizontal">
+                                <c:ImageSelector ImageSource="{Binding CoverImageSource}"
+                                                 Command="{Binding SelectCoverImageCommand}"
+                                                 HorizontalAlignment="Left"
+                                                 Width="96"
+                                                 Height="120" />
+                                <Button Command="{Binding SearchMobyGamesCoverCommand}"
+                                        VerticalAlignment="Top"
+                                        Margin="5,0,0,0"
+                                        Padding="4">
+                                    Search MobyGames
+                                </Button>
+                            </StackPanel>
+                        </c:FormField>
                         <c:FormField LabelContent="Screenshots">
                             <ListBox Name="Screenshots"
                                      SelectionMode="Multiple"
                                      ItemsSource="{Binding GameScreenshots}"
                                      Height="120"
                                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                                <Interactions:Interaction.Behaviors>
+                                <interactions:Interaction.Behaviors>
                                     <behaviors:ListBoxSelectionBehavior
                                         SelectedItems="{Binding DataContext.GameSelectedScreenshots, ElementName=Screenshots}" />
-                                </Interactions:Interaction.Behaviors>
+                                </interactions:Interaction.Behaviors>
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <VirtualizingStackPanel IsItemsHost="True"

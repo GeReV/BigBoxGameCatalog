@@ -31,6 +31,8 @@ namespace Catalog.Model
 
         public List<string> Links { get; set; }
 
+        public Image CoverImage { get; set; }
+
         public List<Image> Screenshots { get; set; }
 
         public List<Item> Items { get; set; }

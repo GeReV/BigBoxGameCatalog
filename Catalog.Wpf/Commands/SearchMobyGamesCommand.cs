@@ -123,7 +123,6 @@ namespace Catalog.Wpf.Commands
             {
                 Url = item.Url,
                 ThumbnailUrl = item.Thumbnail,
-                ThumbnailSource = new BitmapImage(new Uri(item.Thumbnail))
             });
 
             foreach (var image in images)

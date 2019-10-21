@@ -35,7 +35,7 @@ namespace Catalog.Scrapers.MobyGames
         }
     }
 
-    public class Scraper : BaseScraper
+    public class Scraper
     {
         private readonly IWebClient webClient;
 
@@ -116,10 +116,7 @@ namespace Catalog.Scrapers.MobyGames
 
             if (platformTechInfos.ContainsKey("Windows"))
             {
-                var minimumOs = SelectNodeWithText(
-                        platformTechInfos["Windows"],
-                        "Minimum OS Class Required"
-                    )
+                var minimumOs = platformTechInfos["Windows"].SelectNodeWithText("Minimum OS Class Required")
                     ?.SelectFollowingNodeByTagName("td")
                     ?.PlainInnerText()
                     .Trim();
@@ -135,7 +132,7 @@ namespace Catalog.Scrapers.MobyGames
             var mediaTypes = platformTechInfos
                 .Where(pair => pair.Key == "DOS" || pair.Key == "Windows")
                 .SelectMany(pair =>
-                    SelectNodeWithText(pair.Value, "Media Type")
+                    pair.Value.SelectNodeWithText("Media Type")
                         ?.SelectFollowingNodeByTagName("td")
                         ?.SelectNodes(".//a[not(img)]")
                 )
@@ -168,6 +165,19 @@ namespace Catalog.Scrapers.MobyGames
             return officialScreenshots.Concat(screenshots).ToArray();
         }
 
+        public CoverArtCollectionEntry[] GetCoverArt(string slug)
+        {
+            var url = $"{BuildGameUrl(slug)}/cover-art";
+
+            var doc = webClient.Load(url).DocumentNode;
+
+            var baseUri = new Uri(url);
+
+            return doc.SelectNodesByClass("coverHeading")
+                .Select(cover => ExtractCoverArtCollectionEntry(baseUri, cover))
+                .ToArray();
+        }
+
         public async Task<ImageEntry> DownloadScreenshot(string url, IProgress<int> progress = null)
         {
             var doc = webClient.Load(url).DocumentNode;
@@ -186,21 +196,54 @@ namespace Catalog.Scrapers.MobyGames
             var baseUrl = new Uri(url);
             var imageUrl = new Uri(baseUrl, src);
 
-            using (var client = new System.Net.WebClient())
+            using var client = new System.Net.WebClient();
+
+            if (progress != null)
             {
-                if (progress != null)
-                {
-                    client.DownloadProgressChanged += (_, args) => { progress.Report(args.ProgressPercentage); };
-                }
-
-                var data = await client.DownloadDataTaskAsync(imageUrl);
-
-                return new ImageEntry
-                {
-                    Data = data,
-                    Url = imageUrl
-                };
+                client.DownloadProgressChanged += (_, args) => { progress.Report(args.ProgressPercentage); };
             }
+
+            var data = await client.DownloadDataTaskAsync(imageUrl);
+
+            return new ImageEntry
+            {
+                Data = data,
+                Url = imageUrl
+            };
+        }
+
+        public async Task<ImageEntry> DownloadCoverArt(string url, IProgress<int> progress = null)
+        {
+            var doc = webClient.Load(url).DocumentNode;
+
+            var container = doc.SelectSingleNodeById("main");
+
+            var src = container
+                ?.SelectSingleNode(".//img")
+                .GetAttributeValue("src", null);
+
+            if (src == null)
+            {
+                throw new ScraperException($"Could not find cover art in page: {url}");
+            }
+
+            var baseUrl = new Uri(url);
+            var imageUrl = new Uri(baseUrl, src);
+
+            using var client = new System.Net.WebClient();
+
+            if (progress != null)
+            {
+                client.DownloadProgressChanged += (_, args) => { progress.Report(args.ProgressPercentage); };
+            }
+
+            var data = await client.DownloadDataTaskAsync(imageUrl);
+
+            return new ImageEntry
+            {
+                Data = data,
+                Url = imageUrl
+            };
         }
 
         private IEnumerable<ScreenshotEntry> ExtractOfficialScreenshots(Uri baseUri, HtmlNode gallery)
@@ -283,7 +326,7 @@ namespace Catalog.Scrapers.MobyGames
 
         private static PublisherEntry ExtractPublisher(HtmlNode details)
         {
-            var publisherNode = SelectNodeWithText(details, "Published by")
+            var publisherNode = details.SelectNodeWithText("Published by")
                 ?.NextSibling
                 .SelectSingleNode("a");
 
@@ -297,7 +340,7 @@ namespace Catalog.Scrapers.MobyGames
 
         private static DeveloperEntry[] ExtractDevelopers(HtmlNode details)
         {
-            var developerNodes = SelectNodeWithText(details, "Developed by")
+            var developerNodes = details.SelectNodeWithText("Developed by")
                 ?.NextSibling
                 .SelectNodes("a");
 
@@ -311,7 +354,7 @@ namespace Catalog.Scrapers.MobyGames
 
         private static string[] ExtractPlatforms(HtmlNode details)
         {
-            return SelectNodeWithTextStartingWith(details, "Platform")
+            return details.SelectNodeWithTextStartingWith("Platform")
                 ?.NextSibling
                 .SelectNodes("a")
                 .Select(node => node.PlainInnerText())
@@ -320,10 +363,59 @@ namespace Catalog.Scrapers.MobyGames
 
         private static string ExtractReleaseDate(HtmlNode details)
         {
-            return SelectNodeWithText(details, "Released")
+            return details.SelectNodeWithText("Released")
                 ?.NextSibling
                 .SelectSingleNode("a")
                 .PlainInnerText();
+        }
+
+        private CoverArtCollectionEntry ExtractCoverArtCollectionEntry(Uri baseUri, HtmlNode coverCollection)
+        {
+            var platform = coverCollection.SelectSingleNode(".//h2").PlainInnerText();
+
+            var country = coverCollection.SelectNodeWithText("Country")?.NextSibling?.NextSibling
+                .PlainInnerText();
+
+            var covers = coverCollection
+                .SelectFollowingNodeByClass("row")
+                .SelectNodesByClass("thumbnail")
+                .Select(cover =>
+                {
+
+                    var caption = cover
+                        .SelectSingleNodeByClass("thumbnail-cover-caption")
+                        .PlainInnerText()
+                        .Trim();
+
+                    var thumbnail = cover.SelectSingleNodeByClass("thumbnail-cover") ??
+                                    throw new ScraperException(
+                                        $"Could not find cover art element with class \"thumbnail-cover\" in {platform}, {country}.");
+
+                    var thumbnailUrl = backgroundImageRegex
+                        .Match(thumbnail.GetAttributeValue("style", string.Empty))
+                        ?.Groups[1]
+                        .Value;
+
+                    return new CoverArtEntry
+                    {
+                        Type = caption switch
+                        {
+                            "Front Cover" => CoverArtEntry.CoverArtType.Front,
+                            "Back Cover" => CoverArtEntry.CoverArtType.Back,
+                            var s when s.StartsWith("Media") => CoverArtEntry.CoverArtType.Media,
+                            _ => CoverArtEntry.CoverArtType.Other,
+                        },
+                        Url = thumbnail.GetAttributeValue("href", string.Empty),
+                        Thumbnail = new Uri(baseUri, thumbnailUrl).ToString(),
+                    };
+                });
+
+            return new CoverArtCollectionEntry
+            {
+                Platform = platform,
+                Country = country,
+                Covers = covers.ToArray()
+            };
         }
     }
 }
