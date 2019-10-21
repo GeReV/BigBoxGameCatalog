@@ -34,63 +34,79 @@
                 <ColumnDefinition Width="*"
                                   MinWidth="300" />
             </Grid.ColumnDefinitions>
-            <ListBox Name="Games"
-                     ItemsSource="{Binding FilteredGames}"
-                     IsSynchronizedWithCurrentItem="True"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <EventSetter Event="MouseDoubleClick"
-                                     Handler="Games_OnItemDoubleClick" />
-                        <Setter Property="ToolTip"
-                                Value="{Binding Title}" />
-                        <Setter Property="Tag"
-                                Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                        <Setter Property="ContextMenu">
-                            <Setter.Value>
-                                <ContextMenu>
-                                    <MenuItem Header="Edit Game..."
-                                              Command="{Binding PlacementTarget.Tag.EditGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                              CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                        <MenuItem.Icon>
-                                            <Image Source="{StaticResource IconPencil}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Delete Game..."
-                                              Command="{Binding PlacementTarget.Tag.DeleteGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                              CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                        <MenuItem.Icon>
-                                            <Image Source="{StaticResource IconCross}" />
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                </ContextMenu>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
-                        <StackPanel Margin="5"
-                                    Width="100">
-                            <Image Source="{Binding Cover}" />
-                            <controls:HighlightedTextBlock Text="{Binding Title}"
-                                                           Margin="0,5,0,0"
-                                                           HorizontalAlignment="Center"
-                                                           TextWrapping="WrapWithOverflow"
-                                                           TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <DockPanel>
+                <xctk:WatermarkTextBox Name="Search"
+                                       DockPanel.Dock="Top"
+                                       Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                                       Watermark="Search..."
+                                       KeepWatermarkOnGotFocus="True"
+                                       Margin="0,0,0,5" />
+                <ListBox Name="Games"
+                         ItemsSource="{Binding FilteredGames}"
+                         IsSynchronizedWithCurrentItem="True"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <EventSetter Event="MouseDoubleClick"
+                                         Handler="Games_OnItemDoubleClick" />
+                            <Setter Property="ToolTip"
+                                    Value="{Binding Title}" />
+                            <Setter Property="Tag"
+                                    Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu>
+                                        <MenuItem Header="Edit Game..."
+                                                  Command="{Binding PlacementTarget.Tag.EditGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource IconPencil}" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Delete Game..."
+                                                  Command="{Binding PlacementTarget.Tag.DeleteGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource IconCross}" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
+                            <StackPanel Margin="5"
+                                        Width="100">
+                                <Image Source="{Binding Cover}" />
+                                <controls:HighlightedTextBlock Text="{Binding Title}"
+                                                               HighlightedText="{Binding ViewModel.SearchTerm, ElementName=Main}"
+                                                               Margin="0,5,0,0"
+                                                               HorizontalAlignment="Center"
+                                                               TextWrapping="WrapWithOverflow"
+                                                               TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
             <GridSplitter Grid.Column="1"
                           Width="5"
                           HorizontalAlignment="Stretch" />
-            <TreeView Grid.Column="2" />
+            <StackPanel Grid.Column="2">
+                <Image Source="{Binding FilteredGames/Cover}"
+                       Height="350"
+                       HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding FilteredGames/Title}"
+                           Margin="0,5,0,0" />
+
+            </StackPanel>
         </Grid>
     </DockPanel>
 </Window>
