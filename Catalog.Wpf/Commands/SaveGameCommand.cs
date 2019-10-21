@@ -78,6 +78,7 @@ namespace Catalog.Wpf.Commands
             {
                 GameCopyId = editGameViewModel.GameId,
                 Title = editGameViewModel.GameTitle,
+                Sealed = editGameViewModel.GameSealed,
                 MobyGamesSlug = editGameViewModel.GameMobyGamesSlug,
                 Platforms = editGameViewModel.GamePlatforms.ToList(),
                 Publisher = editGameViewModel.GamePublisher,

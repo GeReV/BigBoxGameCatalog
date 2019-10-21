@@ -89,6 +89,9 @@
                                 </TextBox>
                             </DockPanel>
                         </c:FormField>
+                        <c:FormField LabelContent="Sealed">
+                            <CheckBox IsChecked="{Binding GameSealed}" />
+                        </c:FormField>
                         <c:FormField LabelContent="Publishers">
                             <ComboBox Name="PublishersList"
                                       ItemsSource="{Binding Publishers}"

@@ -13,6 +13,8 @@ namespace Catalog.Model
 
         public string Title { get; set; }
 
+        public bool Sealed { get; set; }
+
         public string Notes { get; set; }
 
         public string MobyGamesSlug { get; set; }

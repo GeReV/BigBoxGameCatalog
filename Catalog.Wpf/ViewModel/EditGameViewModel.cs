@@ -35,6 +35,7 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<ItemViewModel> gameItems;
         private ObservableCollection<ScreenshotViewModel> gameScreenshots;
         private string languageSearchTerm;
+        private bool gameSealed;
 
         public enum ViewStatus
         {
@@ -126,6 +127,17 @@ namespace Catalog.Wpf.ViewModel
             {
                 if (value == gameTitle) return;
                 gameTitle = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool GameSealed
+        {
+            get => gameSealed;
+            set
+            {
+                if (value == gameSealed) return;
+                gameSealed = value;
                 OnPropertyChanged();
             }
         }
@@ -346,6 +358,7 @@ namespace Catalog.Wpf.ViewModel
             {
                 GameId = gameCopy.GameCopyId,
                 GameTitle = gameCopy.Title,
+                gameSealed = gameCopy.Sealed,
                 GameMobyGamesSlug = gameCopy.MobyGamesSlug,
                 GameNotes = gameCopy.Notes,
                 GamePublisher = gameCopy.Publisher,
