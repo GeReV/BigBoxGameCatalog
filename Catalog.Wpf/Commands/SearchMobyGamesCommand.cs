@@ -128,10 +128,8 @@ namespace Catalog.Wpf.Commands
             foreach (var image in images)
             {
                 editGameViewModel.GameScreenshots.Add(image);
+                editGameViewModel.GameSelectedScreenshots.Add(image);
             }
-
-            editGameViewModel.GameSelectedScreenshots =
-                new ObservableCollection<ScreenshotViewModel>(editGameViewModel.GameScreenshots);
         }
     }
 }
