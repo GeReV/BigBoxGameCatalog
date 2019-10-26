@@ -8,7 +8,7 @@
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="Big Box Game Catalog"
         Name="Main"
         Height="960"
         Width="1280"

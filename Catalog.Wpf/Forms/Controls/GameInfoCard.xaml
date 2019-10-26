@@ -4,52 +4,73 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+             xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel+Game}">
+    <UserControl.Resources>
+        <Style TargetType="controls:FormField">
+            <Setter Property="LabelWidth"
+                    Value="80" />
+            <Setter Property="LabelPadding"
+                    Value="0,0,5,0" />
+        </Style>
+    </UserControl.Resources>
     <StackPanel DataContext="{Binding Game, RelativeSource={RelativeSource AncestorType=UserControl}}">
         <Image Source="{Binding Cover}"
                Height="350"
                HorizontalAlignment="Center" />
         <TextBlock Text="{Binding Title}"
-                   Margin="0,5,0,0" />
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <TextBlock>Published by:</TextBlock>
-            <TextBlock Text="{Binding Publisher.Name}"
-                       Grid.Row="0"
-                       Grid.Column="1" />
-
-            <TextBlock Grid.Row="1"
-                       Grid.Column="0">
-                Developed by:
-            </TextBlock>
-            <ItemsControl Grid.Row="1"
-                          Grid.Column="1"
-                          ItemsSource="{Binding Developers}">
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Margin="0,5" />
+        <controls:FormField LabelContent="Published by:"
+                            Visibility="{Binding Publisher, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
+            <TextBlock Text="{Binding Publisher.Name}" />
+        </controls:FormField>
+        <controls:FormField LabelContent="Developed by:"
+                            Visibility="{Binding Developers, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
+            <ItemsControl ItemsSource="{Binding Developers}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Name}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+        </controls:FormField>
+        <controls:FormField LabelContent="Notes:"
+                            Visibility="{Binding Notes, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
+            <TextBlock Text="{Binding Notes}" />
+        </controls:FormField>
+        <controls:FormField LabelContent="Items:">
+            <TreeView ItemsSource="{Binding GameCopy.Items}"
+                      Height="80"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type model:Item}"
+                                              ItemsSource="{Binding Children}">
+                        <HierarchicalDataTemplate.Resources>
+                            <Style TargetType="controls:GameItem">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Missing}"
+                                                 Value="True">
+                                        <Setter Property="Opacity"
+                                                Value="0.5" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </HierarchicalDataTemplate.Resources>
 
-            <TextBlock Grid.Row="2"
-                       Grid.Column="0">
-                Notes:
-            </TextBlock>
-            <TextBlock Text="{Binding Notes}"
-                       Grid.Row="2"
-                       Grid.Column="1" />
-        </Grid>
+                        <controls:GameItem ItemType="{Binding ItemType}" />
+                    </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type model:Image}">
+                        <controls:FileItem File="{Binding}" />
+                    </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+        </controls:FormField>
     </StackPanel>
 </UserControl>

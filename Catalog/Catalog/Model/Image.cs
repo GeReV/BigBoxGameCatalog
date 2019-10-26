@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    public class Image
+    public class Image : LocalResource
     {
         public Image()
         {
@@ -14,7 +14,5 @@ namespace Catalog.Model
         {
             Path = path;
         }
-
-        public string Path { get; set; }
     }
 }

@@ -115,6 +115,9 @@
     <Compile Include="Commands\EditGameCommand.cs" />
     <Compile Include="Commands\SearchMobyGamesCoverCommand.cs" />
     <Compile Include="Commands\SelectCoverImageCommand.cs" />
+    <Compile Include="Converters\FilenameTrimConverter.cs" />
+    <Compile Include="Converters\NullableOrEmptyToBooleanConverter.cs" />
+    <Compile Include="Converters\NullableOrEmptyToVisibilityConverter.cs" />
     <Compile Include="CoverSelectionDialog.xaml.cs">
       <DependentUpon>CoverSelectionDialog.xaml</DependentUpon>
     </Compile>
@@ -149,8 +152,14 @@
     <Compile Include="Converters\FileIconValueConverter.cs" />
     <Compile Include="Converters\NullableToBooleanConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
+    <Compile Include="Forms\Controls\FileItem.xaml.cs">
+      <DependentUpon>FileItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Controls\GameInfoCard.xaml.cs">
       <DependentUpon>GameInfoCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Controls\GameItem.xaml.cs">
+      <DependentUpon>GameItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Forms\Controls\Highlight.cs" />
     <Compile Include="Forms\Controls\HighlightedTextBlock.cs">
@@ -227,8 +236,10 @@
     <Page Include="CoverSelectionDialog.xaml" />
     <Page Include="EditGameDialog.xaml" />
     <Page Include="Forms\Controls\AddRemoveButtons.xaml" />
+    <Page Include="Forms\Controls\FileItem.xaml" />
     <Page Include="Forms\Controls\FormField.xaml" />
     <Page Include="Forms\Controls\GameInfoCard.xaml" />
+    <Page Include="Forms\Controls\GameItem.xaml" />
     <Page Include="Forms\Controls\HighlightedTextBlock.xaml" />
     <Page Include="Forms\Controls\ImageSelector.xaml" />
     <Page Include="Forms\ItemForm.xaml" />

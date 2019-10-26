@@ -13,7 +13,10 @@
             <converters:DictionaryAccessConverter x:Key="DictionaryAccessConverter" />
             <converters:NullableToBooleanConverter x:Key="NullableToBooleanConverter" />
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:NullableOrEmptyToVisibilityConverter x:Key="NullableOrEmptyToVisibilityConverter" />
+            <converters:NullableOrEmptyToBooleanConverter x:Key="NullableOrEmptyToBooleanConverter" />
             <converters:NullConverter x:Key="NullConverter" />
+            <converters:FilenameTrimConverter x:Key="FilenameTrimConverter" />
 
             <Style x:Key="GlobalWindow"
                    TargetType="{x:Type Window}">

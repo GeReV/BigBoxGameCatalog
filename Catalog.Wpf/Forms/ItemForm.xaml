@@ -30,12 +30,7 @@
                           SelectedValue="{Binding ItemType}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate DataType="model:ItemType">
-                            <StackPanel Orientation="Horizontal">
-                                <Image VerticalAlignment="Center"
-                                       Source="{Binding Converter={StaticResource ItemTypeIconConverter}}"
-                                       Margin="0,0,5,0" />
-                                <TextBlock Text="{Binding Description}" />
-                            </StackPanel>
+                            <controls:GameItem ItemType="{Binding}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
@@ -96,20 +91,13 @@
                             <DataTemplate DataType="viewModel:FileViewModel">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <Image Width="16"
-                                           Source="{Binding Path, Converter={StaticResource FileIconValueConverter}}"
-                                           Margin="0,0,5,0" />
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding Path}"
-                                               ToolTip="{Binding Path}"
-                                               Margin="0,0,5,0"
-                                               TextTrimming="WordEllipsis" />
 
-                                    <ContentControl Grid.Column="2">
+                                    <controls:FileItem File="{Binding}" />
+
+                                    <ContentControl Grid.Column="1">
                                         <ContentControl.Resources>
                                             <ControlTemplate x:Key="Progress">
                                                 <ProgressBar Width="60"

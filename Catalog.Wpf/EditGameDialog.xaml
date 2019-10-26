@@ -282,24 +282,19 @@
                                         <GridViewColumn behaviors:GridViewColumnResize.Width="*">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="viewModel:ItemViewModel">
-                                                    <StackPanel Orientation="Horizontal"
-                                                                HorizontalAlignment="Stretch">
-                                                        <StackPanel.Style>
-                                                            <Style TargetType="StackPanel">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding Missing}"
-                                                                                 Value="True">
-                                                                        <Setter Property="Opacity"
-                                                                                Value="0.5" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </StackPanel.Style>
-                                                        <Image VerticalAlignment="Center"
-                                                               Source="{Binding ItemType, Converter={StaticResource ItemTypeIconConverter}}"
-                                                               Margin="0,0,5,0" />
-                                                        <TextBlock Text="{Binding ItemType.Description}" />
-                                                    </StackPanel>
+                                                    <DataTemplate.Resources>
+                                                        <Style TargetType="c:GameItem">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Missing}"
+                                                                             Value="True">
+                                                                    <Setter Property="Opacity"
+                                                                            Value="0.5" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </DataTemplate.Resources>
+
+                                                    <c:GameItem ItemType="{Binding ItemType}" />
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>

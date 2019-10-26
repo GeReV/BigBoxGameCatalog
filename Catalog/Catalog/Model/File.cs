@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    public class File
+    public class File : LocalResource
     {
-        public string Path { get; set; }
-
         public byte[] Sha256Checksum { get; set; }
     }
 }

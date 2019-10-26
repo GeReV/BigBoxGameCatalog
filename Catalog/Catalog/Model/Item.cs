@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using LiteDB;
 
 namespace Catalog.Model
 {
@@ -18,5 +21,8 @@ namespace Catalog.Model
         public IEnumerable<Image> Scans { get; set; }
 
         public IEnumerable<File> Files { get; set; }
+
+        [BsonIgnore]
+        public IEnumerable<object> Children => Scans.Concat<object>(Files);
     }
 }

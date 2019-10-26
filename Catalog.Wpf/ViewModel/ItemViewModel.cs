@@ -137,7 +137,7 @@ namespace Catalog.Wpf.ViewModel
         public static ItemViewModel FromItem(Item item) =>
             new ItemViewModel
             {
-                ItemType = Model.ItemTypes.All.First(t => t.Type == item.ItemType.Type),
+                ItemType = item.ItemType,
                 Missing = item.Missing,
                 Condition = item.Condition,
                 ConditionDetails = item.ConditionDetails,
