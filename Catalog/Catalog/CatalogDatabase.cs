@@ -23,6 +23,7 @@ namespace Catalog
             );
 
             mapper.Entity<GameCopy>()
+                .Id(x => x.GameCopyId)
                 .DbRef(x => x.Developers, "developers")
                 .DbRef(x => x.Publisher, "publishers");
 
@@ -35,14 +36,17 @@ namespace Catalog
             var gameCollection = GetGamesCollection();
 
             gameCollection.EnsureIndex(x => x.Title);
+            gameCollection.EnsureIndex(x => x.MobyGamesSlug, true);
 
             var publisherCollection = GetPublishersCollection();
 
             publisherCollection.EnsureIndex(x => x.Name, true);
+            publisherCollection.EnsureIndex(x => x.Slug, true);
 
             var developerCollection = GetDevelopersCollection();
 
             developerCollection.EnsureIndex(x => x.Name, true);
+            developerCollection.EnsureIndex(x => x.Slug, true);
         }
 
         public void Dispose()
