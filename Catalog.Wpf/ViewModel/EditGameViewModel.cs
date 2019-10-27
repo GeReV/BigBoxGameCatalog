@@ -415,12 +415,12 @@ namespace Catalog.Wpf.ViewModel
                 GameMobyGamesSlug = gameCopy.MobyGamesSlug,
                 GameNotes = gameCopy.Notes,
                 GamePublisher = gameCopy.Publisher,
-                GameDevelopers = new ObservableCollection<Developer>(gameCopy.Developers),
-                GameLinks = new ObservableCollection<string>(gameCopy.Links),
-                GamePlatforms = new ObservableCollection<Platform>(gameCopy.Platforms),
+                GameDevelopers = new ObservableCollection<Developer>(gameCopy.Developers.Distinct()),
+                GameLinks = new ObservableCollection<string>(gameCopy.Links.Distinct()),
+                GamePlatforms = new ObservableCollection<Platform>(gameCopy.Platforms.Distinct()),
                 GameLanguages =
                     new ObservableCollection<CultureInfo>(
-                        gameCopy.TwoLetterIsoLanguageName.Select(lang => CultureInfo.GetCultureInfo(lang))),
+                        gameCopy.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang))),
                 GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem)),
                 GameScreenshots = screenshots,
                 GameSelectedScreenshots = screenshots,

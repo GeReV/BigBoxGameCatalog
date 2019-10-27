@@ -15,7 +15,7 @@ namespace Catalog.Model
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return DeveloperId == other.DeveloperId;
+            return DeveloperId != 0 && DeveloperId == other.DeveloperId || Slug == other.Slug;
         }
 
         public override bool Equals(object obj)
@@ -26,6 +26,12 @@ namespace Catalog.Model
             return Equals((Developer) obj);
         }
 
-        public override int GetHashCode() => DeveloperId;
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (DeveloperId * 397) ^ (Slug != null ? Slug.GetHashCode() : 0);
+            }
+        }
     }
 }
