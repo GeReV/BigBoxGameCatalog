@@ -11,15 +11,15 @@ namespace Catalog.Wpf.Converters
         {
             if (value == null)
             {
-                return Visibility.Hidden;
+                return Visibility.Collapsed;
             }
 
-            return (bool)value ? Visibility.Visible : Visibility.Hidden;
+            return (bool)value ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var visibility = (Visibility) (value ?? Visibility.Hidden);
+            var visibility = (Visibility) (value ?? Visibility.Collapsed);
 
             return visibility == Visibility.Visible;
         }
