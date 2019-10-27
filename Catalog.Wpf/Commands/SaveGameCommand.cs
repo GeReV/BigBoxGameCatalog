@@ -105,10 +105,10 @@ namespace Catalog.Wpf.Commands
                 Links = editGameViewModel.GameLinks.Distinct().ToList(),
                 Notes = editGameViewModel.GameNotes,
                 TwoLetterIsoLanguageName =
-                    editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).ToList(),
+                    editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList(),
                 ReleaseDate = editGameViewModel.GameReleaseDate,
                 CoverImage = cover,
-                Screenshots = screenshots.ToList()
+                Screenshots = screenshots.Distinct().ToList()
             };
         }
     }
