@@ -4,18 +4,14 @@ namespace Catalog.Model
 {
     public class ItemType : IEquatable<ItemType>
     {
-        public ItemType()
-        {
-        }
-
         public ItemType(string type, string description)
         {
             Type = type;
             Description = description;
         }
 
-        public string Type { get; private set; }
-        public string Description { get; private set; }
+        public string Type { get; }
+        public string Description { get; }
 
         public bool Equals(ItemType other)
         {

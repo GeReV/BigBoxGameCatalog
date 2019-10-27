@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Catalog.Model;
 using LiteDB;
@@ -15,6 +16,11 @@ namespace Catalog
             var mapper = BsonMapper.Global;
 
             mapper.UseLowerCaseDelimiter();
+
+            mapper.RegisterType(
+                type => type.Type,
+                value => ItemTypes.All.First(it => it.Type == value.AsString)
+            );
 
             mapper.Entity<GameCopy>()
                 .DbRef(x => x.Developers, "developers")
