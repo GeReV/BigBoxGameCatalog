@@ -159,6 +159,7 @@
     <Compile Include="Converters\FileIconValueConverter.cs" />
     <Compile Include="Converters\NullableToBooleanConverter.cs" />
     <Compile Include="Converters\NullConverter.cs" />
+    <Compile Include="Forms\Controls\DropDownButton.cs" />
     <Compile Include="Forms\Controls\FileItem.xaml.cs">
       <DependentUpon>FileItem.xaml</DependentUpon>
     </Compile>
@@ -183,6 +184,12 @@
     </Compile>
     <Compile Include="Forms\Controls\FormField.cs">
       <DependentUpon>FormField.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\GameDetailView.xaml.cs">
+      <DependentUpon>GameDetailView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\GameGalleryView.xaml.cs">
+      <DependentUpon>GameGalleryView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Forms\ItemForm.xaml.cs">
       <DependentUpon>ItemForm.xaml</DependentUpon>
@@ -216,6 +223,7 @@
     <Compile Include="ViewModel\GameItemGroupViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
     <Compile Include="ViewModel\ItemViewModel.cs" />
+    <Compile Include="ViewModel\MainWindowViewMode.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\ScreenshotViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -252,6 +260,8 @@
     <Page Include="Forms\Controls\GameStats.xaml" />
     <Page Include="Forms\Controls\HighlightedTextBlock.xaml" />
     <Page Include="Forms\Controls\ImageSelector.xaml" />
+    <Page Include="Forms\GameDetailView.xaml" />
+    <Page Include="Forms\GameGalleryView.xaml" />
     <Page Include="Forms\ItemForm.xaml" />
     <Page Include="GameDisambiguationDialog.xaml" />
     <Page Include="MainWindow.xaml" />

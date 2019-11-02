@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using Catalog.Wpf.ViewModel;
 
@@ -17,18 +18,15 @@ namespace Catalog.Wpf
 
         private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (new EditGameDialog().ShowDialog() == true && ViewModel.RefreshGames.CanExecute(null))
+            if (new EditGameDialog().ShowDialog() == true)
             {
-                ViewModel.RefreshGames.Execute(null);
+                CommandExecutor.Execute(ViewModel.RefreshGames);
             }
         }
 
-        private void Games_OnItemDoubleClick(object sender, MouseButtonEventArgs e)
+        private void GameGalleryView_OnGameDoubleClick(object sender, EventArgs e)
         {
-            if (ViewModel.EditGameCommand.CanExecute(Games.SelectedItem))
-            {
-                ViewModel.EditGameCommand.Execute(Games.SelectedItem);
-            }
+            CommandExecutor.Execute(ViewModel.EditGameCommand, ViewModel.SelectedGame);
         }
     }
 }

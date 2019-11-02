@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
+        xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
         mc:Ignorable="d"
         Title="Big Box Game Catalog"
         Name="Main"
@@ -17,13 +17,51 @@
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
-                <xctk:IconButton Name="AddGameButton"
-                                 Content="Add Game"
-                                 Click="AddGameButton_OnClick">
-                    <xctk:IconButton.Icon>
-                        <Image Source="{StaticResource IconPlus}" />
-                    </xctk:IconButton.Icon>
-                </xctk:IconButton>
+                <ToolBar.Resources>
+                    <Style TargetType="controls:DropDownButton"
+                           BasedOn="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" />
+                </ToolBar.Resources>
+                <Button Name="AddGameButton"
+                        Click="AddGameButton_OnClick">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{StaticResource IconPlus}"
+                               Width="16" />
+                        <TextBlock>Add Game</TextBlock>
+                    </StackPanel>
+                </Button>
+                <Separator />
+                <controls:DropDownButton>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding ViewMode.IconSource}" />
+                        <Path Fill="#FF444444"
+                              Margin="2,0,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Data="M 0 0 L 4 4 L 8 0 Z" />
+                    </StackPanel>
+                    <controls:DropDownButton.Menu>
+                        <ContextMenu ItemsSource="{x:Static viewModel:MainWindowViewMode.Modes}">
+                            <ContextMenu.ItemContainerStyle>
+                                <Style TargetType="MenuItem"
+                                       d:DataContext="{d:DesignInstance viewModel:MainWindowViewMode}">
+                                    <Style.Resources>
+                                        <Image x:Key="ViewModeIcon"
+                                               x:Shared="False"
+                                               Source="{Binding IconSource}" />
+                                    </Style.Resources>
+                                    <Setter Property="Header"
+                                            Value="{Binding Name}" />
+                                    <Setter Property="Icon"
+                                            Value="{StaticResource ViewModeIcon}" />
+                                    <Setter Property="Command"
+                                            Value="{Binding PlacementTarget.DataContext.ChangeViewModeCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                    <Setter Property="CommandParameter"
+                                            Value="{Binding}" />
+                                </Style>
+                            </ContextMenu.ItemContainerStyle>
+                        </ContextMenu>
+                    </controls:DropDownButton.Menu>
+                </controls:DropDownButton>
             </ToolBar>
         </ToolBarTray>
         <Grid Margin="5">
@@ -35,68 +73,42 @@
                                   MinWidth="300" />
             </Grid.ColumnDefinitions>
             <DockPanel>
+                <DockPanel.Resources>
+                    <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.GalleryMode}"
+                                  DataType="viewModel:MainWindowViewModel">
+                        <forms:GameGalleryView GameDoubleClick="GameGalleryView_OnGameDoubleClick" />
+                    </DataTemplate>
+                    <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.DetailsMode}"
+                                  DataType="viewModel:MainWindowViewModel">
+                        <forms:GameDetailView GameDoubleClick="GameGalleryView_OnGameDoubleClick" />
+                    </DataTemplate>
+                </DockPanel.Resources>
                 <xctk:WatermarkTextBox Name="Search"
                                        DockPanel.Dock="Top"
                                        Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
                                        Watermark="Search..."
                                        KeepWatermarkOnGotFocus="True"
                                        Margin="0,0,0,5" />
-                <ListBox Name="Games"
-                         ItemsSource="{Binding FilteredGames}"
-                         IsSynchronizedWithCurrentItem="True"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <EventSetter Event="MouseDoubleClick"
-                                         Handler="Games_OnItemDoubleClick" />
-                            <Setter Property="ToolTip"
-                                    Value="{Binding Title}" />
-                            <Setter Property="Tag"
-                                    Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                            <Setter Property="ContextMenu">
-                                <Setter.Value>
-                                    <ContextMenu>
-                                        <MenuItem Header="Edit Game..."
-                                                  Command="{Binding PlacementTarget.Tag.EditGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                  CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                            <MenuItem.Icon>
-                                                <Image Source="{StaticResource IconPencil}" />
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="Delete Game..."
-                                                  Command="{Binding PlacementTarget.Tag.DeleteGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                  CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                            <MenuItem.Icon>
-                                                <Image Source="{StaticResource IconCross}" />
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                    </ContextMenu>
-                                </Setter.Value>
-                            </Setter>
+                <ContentControl Content="{Binding}">
+                    <ContentControl.Style>
+                        <Style TargetType="{x:Type ContentControl}">
+                            <Setter Property="ContentTemplate"
+                                    Value="{StaticResource {x:Static viewModel:MainWindowViewMode.GalleryMode}}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ViewMode}"
+                                             Value="{x:Static viewModel:MainWindowViewMode.GalleryMode}">
+                                    <Setter Property="ContentTemplate"
+                                            Value="{StaticResource {x:Static viewModel:MainWindowViewMode.GalleryMode}}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ViewMode}"
+                                             Value="{x:Static viewModel:MainWindowViewMode.DetailsMode}">
+                                    <Setter Property="ContentTemplate"
+                                            Value="{StaticResource {x:Static viewModel:MainWindowViewMode.DetailsMode}}" />
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
-                            <StackPanel Margin="5"
-                                        Width="100">
-                                <Image Source="{Binding Cover}" />
-                                <controls:HighlightedTextBlock Text="{Binding Title}"
-                                                               HighlightedText="{Binding ViewModel.SearchTerm, ElementName=Main}"
-                                                               Margin="0,5,0,0"
-                                                               HorizontalAlignment="Center"
-                                                               TextWrapping="WrapWithOverflow"
-                                                               TextTrimming="CharacterEllipsis" />
-                                <controls:GameStats GameItemGroups="{Binding GameStats, Delay=50}"
-                                                    HorizontalAlignment="Center" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    </ContentControl.Style>
+                </ContentControl>
             </DockPanel>
             <GridSplitter Grid.Column="1"
                           Width="5"

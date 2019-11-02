@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="Catalog.Wpf.Forms.GameDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Catalog.Wpf.Forms"
+             xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
+             xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+             xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="300"
+             d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
+    <ListView ItemsSource="{Binding FilteredGames}"
+              SelectedItem="{Binding SelectedGame}"
+              IsSynchronizedWithCurrentItem="True"
+              behaviors:GridViewColumnResize.Enabled="True">
+        <ListView.Resources>
+            <Style TargetType="ListViewItem">
+                <EventSetter Event="MouseDoubleClick"
+                             Handler="OnGameDoubleClick" />
+            </Style>
+        </ListView.Resources>
+        <ListView.View>
+            <GridView AllowsColumnReorder="False">
+                <GridViewColumn Header="Game" behaviors:GridViewColumnResize.Width="4*">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
+                            <controls:HighlightedTextBlock Text="{Binding Title}"
+                                                           HighlightedText="{Binding ViewModel.SearchTerm, ElementName=Main}" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+                <GridViewColumn Header="Items" behaviors:GridViewColumnResize.Width="*">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
+                            <controls:GameStats GameItemGroups="{Binding GameStats}"
+                                                Wrap="False" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+            </GridView>
+        </ListView.View>
+    </ListView>
+</UserControl>

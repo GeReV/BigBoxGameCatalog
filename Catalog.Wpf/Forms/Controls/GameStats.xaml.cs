@@ -12,6 +12,15 @@ namespace Catalog.Wpf.Forms.Controls
             nameof(GameItemGroups), typeof(IEnumerable<GameItemGroupViewModel>), typeof(GameStats),
             new PropertyMetadata(default(LocalResource)));
 
+        public static readonly DependencyProperty WrapProperty = DependencyProperty.Register(
+            nameof(Wrap), typeof(bool), typeof(GameStats), new PropertyMetadata(true));
+
+        public bool Wrap
+        {
+            get => (bool) GetValue(WrapProperty);
+            set => SetValue(WrapProperty, value);
+        }
+
         public IEnumerable<GameItemGroupViewModel> GameItemGroups
         {
             get => (IEnumerable<GameItemGroupViewModel>) GetValue(GameItemGroupsProperty);
