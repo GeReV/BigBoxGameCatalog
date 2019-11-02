@@ -24,56 +24,60 @@
                         Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
             </Style>
 
+            <BitmapImage x:Key="IconApplicationDetail"
+                         UriSource="pack://application:,,,/Resources/application-detail.png" />
+            <BitmapImage x:Key="IconApplicationIconLarge"
+                         UriSource="pack://application:,,,/Resources/application-icon-large.png" />
             <BitmapImage x:Key="IconBook"
-                         UriSource="/Catalog.Wpf;component/Resources/book.png" />
+                         UriSource="pack://application:,,,/Resources/book.png" />
             <BitmapImage x:Key="IconBox"
-                         UriSource="/Catalog.Wpf;component/Resources/box.png" />
+                         UriSource="pack://application:,,,/Resources/box.png" />
             <BitmapImage x:Key="IconCassette"
-                         UriSource="/Catalog.Wpf;component/Resources/cassette.png" />
+                         UriSource="pack://application:,,,/Resources/cassette.png" />
             <BitmapImage x:Key="IconCross"
-                         UriSource="/Catalog.Wpf;component/Resources/cross.png" />
+                         UriSource="pack://application:,,,/Resources/cross.png" />
             <BitmapImage x:Key="IconDiscBlue"
-                         UriSource="/Catalog.Wpf;component/Resources/disc-blue.png" />
+                         UriSource="pack://application:,,,/Resources/disc-blue.png" />
             <BitmapImage x:Key="IconDiscCase"
-                         UriSource="/Catalog.Wpf;component/Resources/disc-case.png" />
+                         UriSource="pack://application:,,,/Resources/disc-case.png" />
             <BitmapImage x:Key="IconDisc"
-                         UriSource="/Catalog.Wpf;component/Resources/disc.png" />
+                         UriSource="pack://application:,,,/Resources/disc.png" />
             <BitmapImage x:Key="IconDiscBlack"
-                         UriSource="/Catalog.Wpf;component/Resources/disk-black.png" />
+                         UriSource="pack://application:,,,/Resources/disk-black.png" />
             <BitmapImage x:Key="IconDisk"
-                         UriSource="/Catalog.Wpf;component/Resources/disk.png" />
+                         UriSource="pack://application:,,,/Resources/disk.png" />
             <BitmapImage x:Key="IconDocument"
-                         UriSource="/Catalog.Wpf;component/Resources/document.png" />
+                         UriSource="pack://application:,,,/Resources/document.png" />
             <BitmapImage x:Key="IconMinus"
-                         UriSource="/Catalog.Wpf;component/Resources/minus.png" />
+                         UriSource="pack://application:,,,/Resources/minus.png" />
             <BitmapImage x:Key="IconPencil"
-                         UriSource="/Catalog.Wpf;component/Resources/pencil.png" />
+                         UriSource="pack://application:,,,/Resources/pencil.png" />
             <BitmapImage x:Key="IconPlus"
-                         UriSource="/Catalog.Wpf;component/Resources/plus.png" />
+                         UriSource="pack://application:,,,/Resources/plus.png" />
             <BitmapImage x:Key="IconProhibition"
-                         UriSource="/Catalog.Wpf;component/Resources/prohibition.png" />
+                         UriSource="pack://application:,,,/Resources/prohibition.png" />
 
             <converters:DictionaryValueConverter x:Key="ItemTypeIconConverter"
                                                  KeyType="model:ItemType">
                 <converters:DictionaryValueConverter.Values>
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Manual}"
-                                 UriSource="/Catalog.Wpf;component/Resources/book.png" />
+                                 UriSource="pack://application:,,,/Resources/book.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.BigBox}"
-                                 UriSource="/Catalog.Wpf;component/Resources/box.png" />
+                                 UriSource="pack://application:,,,/Resources/box.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Cassette}"
-                                 UriSource="/Catalog.Wpf;component/Resources/cassette.png" />
+                                 UriSource="pack://application:,,,/Resources/cassette.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.DvdRom}"
-                                 UriSource="/Catalog.Wpf;component/Resources/disc-blue.png" />
+                                 UriSource="pack://application:,,,/Resources/disc-blue.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.JewelCase}"
-                                 UriSource="/Catalog.Wpf;component/Resources/disc-case.png" />
+                                 UriSource="pack://application:,,,/Resources/disc-case.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.CdRom}"
-                                 UriSource="/Catalog.Wpf;component/Resources/disc.png" />
+                                 UriSource="pack://application:,,,/Resources/disc.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Floppy525}"
-                                 UriSource="/Catalog.Wpf;component/Resources/disk-black.png" />
+                                 UriSource="pack://application:,,,/Resources/disk-black.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Floppy35}"
-                                 UriSource="/Catalog.Wpf;component/Resources/disk.png" />
+                                 UriSource="pack://application:,,,/Resources/disk.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Appendix}"
-                                 UriSource="/Catalog.Wpf;component/Resources/document.png" />
+                                 UriSource="pack://application:,,,/Resources/document.png" />
                 </converters:DictionaryValueConverter.Values>
             </converters:DictionaryValueConverter>
         </ResourceDictionary>

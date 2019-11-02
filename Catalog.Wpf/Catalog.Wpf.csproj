@@ -264,54 +264,64 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Catalog\Catalog.csproj">
+      <Project>{58bf8550-c25f-4a56-ab47-c4c67254a62e}</Project>
+      <Name>Catalog</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Catalog\Catalog\Catalog.csproj">
       <Project>{6f814801-2bb4-4c66-953f-28f2febbabe8}</Project>
       <Name>Catalog</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\book.png">
+    <Resource Include="Resources\application-detail.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\application-icon-large.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\book.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\box.png">
+    </Resource>
+    <Resource Include="Resources\box.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\cassette.png">
+    </Resource>
+    <Resource Include="Resources\cassette.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\cross.png">
+    </Resource>
+    <Resource Include="Resources\cross.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\disc-blue.png">
+    </Resource>
+    <Resource Include="Resources\disc-blue.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\disc-case.png">
+    </Resource>
+    <Resource Include="Resources\disc-case.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\disc.png">
+    </Resource>
+    <Resource Include="Resources\disc.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\disk-black.png">
+    </Resource>
+    <Resource Include="Resources\disk-black.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\disk.png">
+    </Resource>
+    <Resource Include="Resources\disk.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\document.png">
+    </Resource>
+    <Resource Include="Resources\document.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\minus.png">
+    </Resource>
+    <Resource Include="Resources\minus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\pencil.png">
+    </Resource>
+    <Resource Include="Resources\pencil.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\plus.png">
+    </Resource>
+    <Resource Include="Resources\plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\prohibition.png">
+    </Resource>
+    <Resource Include="Resources\prohibition.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
