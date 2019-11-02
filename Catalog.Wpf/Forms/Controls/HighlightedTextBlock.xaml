@@ -3,7 +3,7 @@
                     xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls">
     <Style TargetType="controls:Highlight">
         <Setter Property="Background"
-                Value="LightGoldenrodYellow" />
+                Value="PaleGoldenrod" />
     </Style>
 </ResourceDictionary>
 
