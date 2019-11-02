@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="Catalog.Wpf.Forms.Controls.GameStats"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Catalog.Wpf.Forms.Controls"
+             xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+             xmlns:wpf="clr-namespace:Catalog.Wpf"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="300">
+    <ItemsControl
+        DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GameStats}}"
+        ItemsSource="{Binding GameItemGroups}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type viewModel:GameItemGroupViewModel}">
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,3,0">
+                    <Canvas Width="16"
+                            Height="16">
+                        <Image Canvas.Top="0"
+                               Canvas.Left="0"
+                               Width="16"
+                               Source="{Binding ItemType, Converter={StaticResource ItemTypeIconConverter}}">
+                            <Image.Style>
+                                <Style TargetType="Image">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Missing}"
+                                                     Value="True">
+                                            <Setter Property="Opacity"
+                                                    Value="0.5" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
+                        </Image>
+                        <Image Canvas.Bottom="0"
+                               Canvas.Right="0"
+                               Width="8"
+                               Source="{StaticResource IconProhibition}"
+                               Visibility="{Binding Missing, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </Canvas>
+
+                    <TextBlock Text="{Binding CountString}" />
+                </StackPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

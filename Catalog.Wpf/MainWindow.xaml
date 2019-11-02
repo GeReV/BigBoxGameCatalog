@@ -91,6 +91,8 @@
                                                                HorizontalAlignment="Center"
                                                                TextWrapping="WrapWithOverflow"
                                                                TextTrimming="CharacterEllipsis" />
+                                <controls:GameStats GameItemGroups="{Binding GameStats, Delay=50}"
+                                                    HorizontalAlignment="Center" />
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

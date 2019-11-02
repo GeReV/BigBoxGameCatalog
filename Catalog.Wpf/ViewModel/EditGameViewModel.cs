@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Catalog.Model;
 using Catalog.Wpf.Commands;
+using Catalog.Wpf.Comparers;
 using Condition = Catalog.Model.Condition;
 
 namespace Catalog.Wpf.ViewModel

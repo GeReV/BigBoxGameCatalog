@@ -7,11 +7,14 @@
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+             xmlns:commands="clr-namespace:Catalog.Wpf.Commands"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel+Game}">
     <UserControl.Resources>
+        <commands:OpenFolderLocationCommand x:Key="OpenFolderLocationCommand" />
+        <commands:OpenFileCommand x:Key="OpenFileCommand" />
         <Style TargetType="controls:FormField">
             <Setter Property="LabelWidth"
                     Value="80" />
@@ -19,58 +22,102 @@
                     Value="0,0,5,0" />
         </Style>
     </UserControl.Resources>
-    <StackPanel DataContext="{Binding Game, RelativeSource={RelativeSource AncestorType=UserControl}}">
-        <Image Source="{Binding Cover}"
-               Height="350"
-               HorizontalAlignment="Center" />
-        <TextBlock Text="{Binding Title}"
-                   FontSize="16"
-                   FontWeight="Bold"
-                   Margin="0,5" />
-        <controls:FormField LabelContent="Published by:"
-                            Visibility="{Binding Publisher, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
-            <TextBlock Text="{Binding Publisher.Name}" />
-        </controls:FormField>
-        <controls:FormField LabelContent="Developed by:"
-                            Visibility="{Binding Developers, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
-            <ItemsControl ItemsSource="{Binding Developers}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </controls:FormField>
-        <controls:FormField LabelContent="Notes:"
-                            Visibility="{Binding Notes, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
-            <TextBlock Text="{Binding Notes}" />
-        </controls:FormField>
-        <controls:FormField LabelContent="Items:">
-            <TreeView ItemsSource="{Binding GameCopy.Items}"
-                      Height="80"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type model:Item}"
-                                              ItemsSource="{Binding Children}">
-                        <HierarchicalDataTemplate.Resources>
-                            <Style TargetType="controls:GameItem">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Missing}"
-                                                 Value="True">
-                                        <Setter Property="Opacity"
-                                                Value="0.5" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </HierarchicalDataTemplate.Resources>
-
-                        <controls:GameItem ItemType="{Binding ItemType}" />
-                    </HierarchicalDataTemplate>
-                    <DataTemplate DataType="{x:Type model:Image}">
-                        <controls:FileItem File="{Binding}" />
-                    </DataTemplate>
-                </TreeView.Resources>
-            </TreeView>
-        </controls:FormField>
-    </StackPanel>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <StackPanel DataContext="{Binding Game, RelativeSource={RelativeSource AncestorType=UserControl}}">
+            <Image Source="{Binding Cover}"
+                   Height="350"
+                   HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding Title}"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Margin="0,5" />
+            <controls:FormField LabelContent="Published by:"
+                                Visibility="{Binding Publisher, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
+                <TextBlock Text="{Binding Publisher.Name}" />
+            </controls:FormField>
+            <controls:FormField LabelContent="Developed by:"
+                                Visibility="{Binding Developers, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding Developers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </controls:FormField>
+            <controls:FormField LabelContent="Notes:"
+                                Visibility="{Binding Notes, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
+                <TextBlock Text="{Binding Notes}" />
+            </controls:FormField>
+            <controls:FormField LabelContent="Items:">
+                <TreeView ItemsSource="{Binding GameCopy.Items}"
+                          Height="80"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type model:Item}"
+                                                  ItemsSource="{Binding Children}">
+                            <controls:GameItem ItemType="{Binding ItemType}"
+                                               Missing="{Binding Missing}" />
+                        </HierarchicalDataTemplate>
+                        <DataTemplate DataType="{x:Type model:Image}">
+                            <controls:FileItem File="{Binding}"
+                                               MouseDoubleClick="FileItem_OnMouseDoubleClick">
+                                <controls:FileItem.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Open file"
+                                                  Command="{StaticResource OpenFileCommand}"
+                                                  CommandParameter="{Binding}" />
+                                        <MenuItem Header="Open folder location"
+                                                  Command="{StaticResource OpenFolderLocationCommand}"
+                                                  CommandParameter="{Binding}" />
+                                    </ContextMenu>
+                                </controls:FileItem.ContextMenu>
+                            </controls:FileItem>
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type model:File}">
+                            <controls:FileItem File="{Binding}"
+                                               MouseDoubleClick="FileItem_OnMouseDoubleClick">
+                                <controls:FileItem.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Open file"
+                                                  Command="{StaticResource OpenFileCommand}"
+                                                  CommandParameter="{Binding}" />
+                                        <MenuItem Header="Open folder location"
+                                                  Command="{StaticResource OpenFolderLocationCommand}"
+                                                  CommandParameter="{Binding}" />
+                                    </ContextMenu>
+                                </controls:FileItem.ContextMenu>
+                            </controls:FileItem>
+                        </DataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+            </controls:FormField>
+            <controls:FormField LabelContent="Screenshots">
+                <ListBox ItemsSource="{Binding Screenshots}"
+                         Height="120"
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <EventSetter Event="MouseDoubleClick"
+                                         Handler="Screenshot_OnItemDoubleClick" />
+                            <EventSetter Event="KeyUp"
+                                         Handler="Screenshot_OnItemKeyUp" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel IsItemsHost="True"
+                                                    Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding ThumbnailSource}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ListBox>
+            </controls:FormField>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

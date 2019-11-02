@@ -111,10 +111,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandExecutor.cs" />
     <Compile Include="Commands\DeleteGameCommand.cs" />
     <Compile Include="Commands\EditGameCommand.cs" />
+    <Compile Include="Commands\OpenFileCommand.cs" />
+    <Compile Include="Commands\OpenFolderLocationCommand.cs" />
     <Compile Include="Commands\SearchMobyGamesCoverCommand.cs" />
     <Compile Include="Commands\SelectCoverImageCommand.cs" />
+    <Compile Include="Comparers\GameComparer.cs" />
+    <Compile Include="Comparers\GameItemGroupComparer.cs" />
+    <Compile Include="Comparers\LanguageComparer.cs" />
+    <Compile Include="Comparers\SelectedDevelopersComparer.cs" />
     <Compile Include="Converters\FilenameTrimConverter.cs" />
     <Compile Include="Converters\NullableOrEmptyToBooleanConverter.cs" />
     <Compile Include="Converters\NullableOrEmptyToVisibilityConverter.cs" />
@@ -161,6 +168,9 @@
     <Compile Include="Forms\Controls\GameItem.xaml.cs">
       <DependentUpon>GameItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Controls\GameStats.xaml.cs">
+      <DependentUpon>GameStats.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Controls\Highlight.cs" />
     <Compile Include="Forms\Controls\HighlightedTextBlock.cs">
       <DependentUpon>HighlightedTextBlock.xaml</DependentUpon>
@@ -168,9 +178,6 @@
     <Compile Include="Forms\Controls\ImageSelector.xaml.cs">
       <DependentUpon>ImageSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GameComparer.cs" />
-    <Compile Include="LanguageComparer.cs" />
-    <Compile Include="SelectedDevelopersComparer.cs" />
     <Compile Include="Forms\Controls\AddRemoveButtons.xaml.cs">
       <DependentUpon>AddRemoveButtons.xaml</DependentUpon>
     </Compile>
@@ -183,6 +190,7 @@
     <Compile Include="GameDisambiguationDialog.xaml.cs">
       <DependentUpon>GameDisambiguationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GameItemGrouping.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -205,6 +213,7 @@
     <Compile Include="ViewModel\EditGameViewModel.cs" />
     <Compile Include="ViewModel\FileViewModel.cs" />
     <Compile Include="ViewModel\GameDisambiguationItemViewModel.cs" />
+    <Compile Include="ViewModel\GameItemGroupViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
     <Compile Include="ViewModel\ItemViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
@@ -240,6 +249,7 @@
     <Page Include="Forms\Controls\FormField.xaml" />
     <Page Include="Forms\Controls\GameInfoCard.xaml" />
     <Page Include="Forms\Controls\GameItem.xaml" />
+    <Page Include="Forms\Controls\GameStats.xaml" />
     <Page Include="Forms\Controls\HighlightedTextBlock.xaml" />
     <Page Include="Forms\Controls\ImageSelector.xaml" />
     <Page Include="Forms\ItemForm.xaml" />

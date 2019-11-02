@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Catalog.Model;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Comparers
 {
     public class SelectedDevelopersComparer : IComparer
     {

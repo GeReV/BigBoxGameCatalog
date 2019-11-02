@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -10,11 +11,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Catalog.Model;
 using Catalog.Wpf.Commands;
+using Catalog.Wpf.Comparers;
 
 namespace Catalog.Wpf.ViewModel
 {
     public class MainWindowViewModel : NotifyPropertyChangedBase
     {
+
         public class Game : NotifyPropertyChangedBase
         {
             private GameCopy gameCopy;
@@ -37,6 +40,7 @@ namespace Catalog.Wpf.ViewModel
                     OnPropertyChanged(nameof(Developers));
                     OnPropertyChanged(nameof(Notes));
                     OnPropertyChanged(nameof(Cover));
+                    OnPropertyChanged(nameof(GameStats));
                 }
             }
 
@@ -51,9 +55,15 @@ namespace Catalog.Wpf.ViewModel
             public ImageSource Cover => GameCopy.CoverImage?.Path == null
                 ? null
                 : new BitmapImage(new Uri(GameCopy.CoverImage.Path));
+
+            public IEnumerable<ScreenshotViewModel> Screenshots =>
+                GameCopy.Screenshots.Select(ScreenshotViewModel.FromImage).ToList();
+
+            public IEnumerable<GameItemGroupViewModel> GameStats =>
+                GameItemGrouping.GroupItems(GameCopy.Items);
         }
 
-        private ObservableCollection<Game> games;
+        private ObservableCollection<Game> games = new ObservableCollection<Game>();
         private string searchTerm;
         private ICommand editGameCommand;
         private ICommand deleteGameCommand;
@@ -118,9 +128,14 @@ namespace Catalog.Wpf.ViewModel
         {
             var db = Application.Current.Database();
 
-            Games = new ObservableCollection<Game>(
-                db.GetGamesCollection().IncludeAll(1).FindAll().Select(gc => new Game(gc))
-            );
+            var updatedGames = db.GetGamesCollection().IncludeAll(1).FindAll().Select(gc => new Game(gc));
+
+            Games.Clear();
+
+            foreach (var game in updatedGames)
+            {
+                Games.Add(game);
+            }
         }
 
         private void RefreshFilteredGames(object sender, PropertyChangedEventArgs e)

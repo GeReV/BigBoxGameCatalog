@@ -6,13 +6,22 @@ namespace Catalog.Wpf.Forms.Controls
 {
     public partial class GameItem : UserControl
     {
-        public static readonly DependencyProperty ItemTProperty = DependencyProperty.Register(
+        public static readonly DependencyProperty ItemTypeProperty = DependencyProperty.Register(
             nameof(ItemType), typeof(ItemType), typeof(GameItem), new PropertyMetadata(default(ItemType)));
+
+        public static readonly DependencyProperty MissingProperty = DependencyProperty.Register(
+            nameof(Missing), typeof(bool), typeof(GameItem), new PropertyMetadata(false));
+
+        public bool Missing
+        {
+            get => (bool) GetValue(MissingProperty);
+            set => SetValue(MissingProperty, value);
+        }
 
         public ItemType ItemType
         {
-            get => (ItemType) GetValue(ItemTProperty);
-            set => SetValue(ItemTProperty, value);
+            get => (ItemType) GetValue(ItemTypeProperty);
+            set => SetValue(ItemTypeProperty, value);
         }
 
         public GameItem()

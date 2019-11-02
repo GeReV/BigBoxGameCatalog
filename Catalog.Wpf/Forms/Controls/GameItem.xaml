@@ -8,10 +8,33 @@
              d:DesignHeight="16"
              d:DesignWidth="300">
     <StackPanel Orientation="Horizontal"
+                Margin="2,0"
                 DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:GameItem}}">
-        <Image Width="16"
-               Source="{Binding ItemType, Converter={StaticResource ItemTypeIconConverter}}"
-               Margin="0,0,5,0" />
-        <TextBlock Text="{Binding ItemType.Description}" />
+        <StackPanel.Resources>
+            <Style x:Key="MissingTransparency">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Missing}"
+                                 Value="True">
+                        <Setter Property="UIElement.Opacity"
+                                Value="0.5" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </StackPanel.Resources>
+        <Canvas Width="16"
+                Height="16">
+            <Image Canvas.Top="0"
+                   Canvas.Left="0"
+                   Width="16"
+                   Style="{StaticResource MissingTransparency}"
+                   Source="{Binding ItemType, Converter={StaticResource ItemTypeIconConverter}}" />
+            <Image Canvas.Bottom="0"
+                   Canvas.Right="0"
+                   Width="8"
+                   Source="{StaticResource IconProhibition}"
+                   Visibility="{Binding Missing, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </Canvas>
+        <TextBlock Text="{Binding ItemType.Description}"
+                   Style="{StaticResource MissingTransparency}" />
     </StackPanel>
 </UserControl>
