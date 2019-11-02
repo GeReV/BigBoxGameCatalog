@@ -54,20 +54,32 @@ namespace Catalog.Wpf.Commands
 
         private async Task<IEnumerable<Image>> DownloadScreenshots()
         {
-            var screenshotDirectory = Path.Combine(Application.Current.HomeDirectory(),
-                editGameViewModel.GameMobyGamesSlug, "screenshots");
+            var destinationDirectory = Path.Combine(
+                Application.Current.HomeDirectory(),
+                editGameViewModel.GameMobyGamesSlug,
+                "screenshots"
+            );
 
-            var screenshotsToDownload = editGameViewModel
-                .GameSelectedScreenshots
+            var selectedScreenshots = editGameViewModel.GameSelectedScreenshots;
+
+            var screenshotsToDownload = selectedScreenshots
                 .Where(ss => !new Uri(ss.Url).IsFile)
-                .Select(ss => ss.Url);
+                .ToList();
 
-            return await new ImageDownloader(Application.Current.ScraperWebClient())
+            var existingScreenshots = selectedScreenshots
+                .Except(screenshotsToDownload)
+                .Select(ss => new Image(ss.Url));
+
+            var newScreenshots = await new ImageDownloader(Application.Current.ScraperWebClient())
                 .DownloadScreenshots(
-                    screenshotDirectory,
-                    screenshotsToDownload,
+                    destinationDirectory,
+                    screenshotsToDownload.Select(ss => ss.Url),
                     new Progress<int>(percentage => editGameViewModel.SaveProgress = percentage)
                 );
+
+            return newScreenshots
+                .Concat(existingScreenshots)
+                .OrderBy(image => image.Path);
         }
 
         private async Task<Image> DownloadCoverArt()
