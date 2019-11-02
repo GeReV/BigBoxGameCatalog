@@ -178,7 +178,7 @@ namespace Catalog.Wpf.Behaviors
         {
             private const int MARGIN = 25;
             private const long REFRESH_TIME = Timeout.Infinite;
-            private const long DELAY = 500;
+            private const long DELAY = 50;
 
             private readonly ListView element;
             private readonly Timer timer;
