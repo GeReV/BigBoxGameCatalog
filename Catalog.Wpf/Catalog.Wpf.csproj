@@ -278,10 +278,6 @@
       <Project>{58bf8550-c25f-4a56-ab47-c4c67254a62e}</Project>
       <Name>Catalog</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Catalog\Catalog\Catalog.csproj">
-      <Project>{6f814801-2bb4-4c66-953f-28f2febbabe8}</Project>
-      <Name>Catalog</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\application-detail.png">
