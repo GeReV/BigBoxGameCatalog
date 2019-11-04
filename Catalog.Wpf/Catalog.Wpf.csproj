@@ -216,6 +216,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="ResettableLazy.cs" />
     <Compile Include="ViewModel\CoverSelectionViewModel.cs" />
     <Compile Include="ViewModel\EditGameViewModel.cs" />
     <Compile Include="ViewModel\FileViewModel.cs" />

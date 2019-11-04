@@ -11,10 +11,14 @@ namespace Catalog.Wpf.ViewModel
     public class GameViewModel : NotifyPropertyChangedBase
     {
         private GameCopy gameCopy;
+        private ResettableLazy<IEnumerable<GameItemGroupViewModel>> gameStats;
 
         public GameViewModel(GameCopy gameCopy)
         {
             GameCopy = gameCopy;
+
+            gameStats = new ResettableLazy<IEnumerable<GameItemGroupViewModel>>(() =>
+                GameItemGrouping.GroupItems(GameCopy.Items));
         }
 
         public GameCopy GameCopy
@@ -24,13 +28,10 @@ namespace Catalog.Wpf.ViewModel
             {
                 if (Equals(value, gameCopy)) return;
                 gameCopy = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Title));
-                OnPropertyChanged(nameof(Publisher));
-                OnPropertyChanged(nameof(Developers));
-                OnPropertyChanged(nameof(Notes));
-                OnPropertyChanged(nameof(Cover));
-                OnPropertyChanged(nameof(GameStats));
+
+                gameStats.Reset();
+
+                OnPropertyChanged(null);
             }
         }
 
@@ -49,6 +50,8 @@ namespace Catalog.Wpf.ViewModel
         public IEnumerable<ScreenshotViewModel> Screenshots =>
             GameCopy.Screenshots.Select(ScreenshotViewModel.FromImage).ToList();
 
-        public IEnumerable<GameItemGroupViewModel> GameStats => GameItemGrouping.GroupItems(GameCopy.Items);
+        public IEnumerable<GameItemGroupViewModel> GameStats => gameStats.Value;
+
+        public bool HasBigBox => GameStats.Any(group => group.ItemType.Equals(ItemTypes.BigBox) && !group.Missing);
     }
 }
