@@ -11,7 +11,7 @@
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel+Game}">
+             d:DataContext="{d:DesignInstance viewModel:GameViewModel}">
     <UserControl.Resources>
         <commands:OpenFolderLocationCommand x:Key="OpenFolderLocationCommand" />
         <commands:OpenFileCommand x:Key="OpenFileCommand" />

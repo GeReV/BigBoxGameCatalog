@@ -14,7 +14,7 @@ namespace Catalog.Wpf.Commands
 
         public override void Execute(object parameter)
         {
-            if (!(parameter is MainWindowViewModel.Game game))
+            if (!(parameter is GameViewModel game))
             {
                 return;
             }

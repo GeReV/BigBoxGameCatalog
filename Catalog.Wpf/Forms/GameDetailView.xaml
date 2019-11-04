@@ -25,7 +25,7 @@
             <GridView AllowsColumnReorder="False">
                 <GridViewColumn Header="Game" behaviors:GridViewColumnResize.Width="4*">
                     <GridViewColumn.CellTemplate>
-                        <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
+                        <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
                             <controls:HighlightedTextBlock Text="{Binding Title}"
                                                            HighlightedText="{Binding ViewModel.SearchTerm, ElementName=Main}" />
                         </DataTemplate>
@@ -33,7 +33,7 @@
                 </GridViewColumn>
                 <GridViewColumn Header="Items" behaviors:GridViewColumnResize.Width="*">
                     <GridViewColumn.CellTemplate>
-                        <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
+                        <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
                             <controls:GameStats GameItemGroups="{Binding GameStats}"
                                                 Wrap="False" />
                         </DataTemplate>

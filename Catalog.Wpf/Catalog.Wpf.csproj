@@ -221,6 +221,7 @@
     <Compile Include="ViewModel\FileViewModel.cs" />
     <Compile Include="ViewModel\GameDisambiguationItemViewModel.cs" />
     <Compile Include="ViewModel\GameItemGroupViewModel.cs" />
+    <Compile Include="ViewModel\GameViewModel.cs" />
     <Compile Include="ViewModel\ImageViewModel.cs" />
     <Compile Include="ViewModel\ItemViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewMode.cs" />

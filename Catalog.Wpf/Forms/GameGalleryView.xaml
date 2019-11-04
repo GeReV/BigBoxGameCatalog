@@ -50,7 +50,7 @@
             </ItemsPanelTemplate>
         </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
-            <DataTemplate DataType="{x:Type viewModel:MainWindowViewModel+Game}">
+            <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
                 <StackPanel Margin="5"
                             Width="100">
                     <Image Source="{Binding Cover}" />
