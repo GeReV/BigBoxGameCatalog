@@ -13,12 +13,15 @@ namespace Catalog.Wpf.ViewModel
         private GameCopy gameCopy;
         private ResettableLazy<IEnumerable<GameItemGroupViewModel>> gameStats;
 
-        public GameViewModel(GameCopy gameCopy)
+        public GameViewModel()
         {
-            GameCopy = gameCopy;
-
             gameStats = new ResettableLazy<IEnumerable<GameItemGroupViewModel>>(() =>
                 GameItemGrouping.GroupItems(GameCopy.Items));
+        }
+
+        public GameViewModel(GameCopy gameCopy) : this()
+        {
+            GameCopy = gameCopy;
         }
 
         public GameCopy GameCopy

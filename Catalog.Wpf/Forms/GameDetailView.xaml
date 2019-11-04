@@ -11,7 +11,8 @@
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
-    <ListView ItemsSource="{Binding FilteredGames}"
+    <ListView Name="GamesListView"
+              ItemsSource="{Binding FilteredGames}"
               SelectedItem="{Binding SelectedGame}"
               IsSynchronizedWithCurrentItem="True"
               behaviors:GridViewColumnResize.Enabled="True">
@@ -20,10 +21,19 @@
                 <EventSetter Event="MouseDoubleClick"
                              Handler="OnGameDoubleClick" />
             </Style>
+            <Style TargetType="GridViewColumnHeader">
+                <Setter Property="HorizontalContentAlignment"
+                        Value="Left" />
+                <EventSetter Event="Click"
+                             Handler="ListViewHeader_OnClick" />
+            </Style>
         </ListView.Resources>
         <ListView.View>
             <GridView AllowsColumnReorder="False">
-                <GridViewColumn Header="Game" behaviors:GridViewColumnResize.Width="4*">
+                <GridViewColumn behaviors:GridViewColumnResize.Width="4*">
+                    <GridViewColumn.Header>
+                        <GridViewColumnHeader Tag="Title">Game</GridViewColumnHeader>
+                    </GridViewColumn.Header>
                     <GridViewColumn.CellTemplate>
                         <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
                             <controls:HighlightedTextBlock Text="{Binding Title}"
@@ -31,7 +41,21 @@
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>
-                <GridViewColumn Header="Items" behaviors:GridViewColumnResize.Width="*">
+                <GridViewColumn behaviors:GridViewColumnResize.Width="28">
+                    <GridViewColumn.Header>
+                        <GridViewColumnHeader Tag="HasBigBox" />
+                    </GridViewColumn.Header>
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
+                            <Image Source="{StaticResource IconBox}"
+                                   Width="16"
+                                   Height="16"
+                                   Visibility="{Binding HasBigBox, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+                <GridViewColumn Header="Items"
+                                behaviors:GridViewColumnResize.Width="*">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
                             <controls:GameStats GameItemGroups="{Binding GameStats}"
