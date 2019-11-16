@@ -16,23 +16,22 @@ namespace Catalog.Wpf.Converters
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string file = value?.ToString();
+            var file = value?.ToString();
 
             if (icon == null && file != null && File.Exists(file))
             {
-                using (var nativeIcon = Icon.ExtractAssociatedIcon(file))
-                {
-                    if (nativeIcon == null)
-                    {
-                        return Application.Current.Resources.FindName("IconDocument") as BitmapSource;
-                    }
+                using var nativeIcon = Icon.ExtractAssociatedIcon(file);
 
-                    icon = Imaging.CreateBitmapSourceFromHIcon(
-                        nativeIcon.Handle,
-                        Int32Rect.Empty,
-                        BitmapSizeOptions.FromEmptyOptions()
-                    );
+                if (nativeIcon == null)
+                {
+                    return Application.Current.Resources.FindName("IconDocument") as BitmapSource;
                 }
+
+                icon = Imaging.CreateBitmapSourceFromHIcon(
+                    nativeIcon.Handle,
+                    Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions()
+                );
             }
 
             return icon;

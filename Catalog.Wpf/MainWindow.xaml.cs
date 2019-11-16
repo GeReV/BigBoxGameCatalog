@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Input;
 using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf
