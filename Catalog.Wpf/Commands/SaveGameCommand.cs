@@ -43,10 +43,17 @@ namespace Catalog.Wpf.Commands
             }
 
             var developersCollection = db.GetDevelopersCollection();
+            var filesCollection = db.GetFilesCollection();
+            var imagesCollection = db.GetImagesCollection();
 
-            foreach (var developer in game.Developers.Where(d => d.DeveloperId == 0))
+            developersCollection.InsertBulk(game.Developers.Where(d => d.DeveloperId == 0));
+
+            imagesCollection.InsertBulk(game.Screenshots.Where(s => s.LocalResourceId == 0));
+
+            foreach (var item in game.Items)
             {
-                developersCollection.Insert(developer);
+                filesCollection.InsertBulk(item.Files.Where(f => f.LocalResourceId == 0));
+                imagesCollection.InsertBulk(item.Scans.Where(i => i.LocalResourceId == 0));
             }
 
             db.GetGamesCollection().Upsert(game);
@@ -87,6 +94,11 @@ namespace Catalog.Wpf.Commands
             var gameDirectory =
                 Path.Combine(Application.Current.HomeDirectory(), editGameViewModel.GameMobyGamesSlug);
 
+            if (editGameViewModel.GameCoverImage == null)
+            {
+                return null;
+            }
+
             var url = editGameViewModel.GameCoverImage.Url;
 
             if (!new Uri(url).IsFile)
@@ -104,7 +116,7 @@ namespace Catalog.Wpf.Commands
 
             var cover = await DownloadCoverArt();
 
-            return new GameCopy
+            var gameCopy = new GameCopy
             {
                 GameCopyId = editGameViewModel.GameId,
                 Title = editGameViewModel.GameTitle,
@@ -122,6 +134,8 @@ namespace Catalog.Wpf.Commands
                 CoverImage = cover,
                 Screenshots = screenshots.Distinct().ToList()
             };
+
+            return gameCopy;
         }
     }
 }

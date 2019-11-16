@@ -16,7 +16,6 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
         private string searchTerm;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
-        private GameViewModel selectedGame;
         private ICommand editGameCommand;
         private ICommand deleteGameCommand;
 
@@ -89,22 +88,11 @@ namespace Catalog.Wpf.ViewModel
 
         public ICommand ChangeViewModeCommand => new DelegateCommand(mode => { ViewMode = (MainWindowViewMode) mode; });
 
-        public GameViewModel SelectedGame
-        {
-            get => selectedGame;
-            set
-            {
-                if (Equals(value, selectedGame)) return;
-                selectedGame = value;
-                OnPropertyChanged();
-            }
-        }
-
         public void RefreshGamesCollection()
         {
             var db = Application.Current.Database();
 
-            var updatedGames = db.GetGamesCollection().IncludeAll(1).FindAll().Select(gc => new GameViewModel(gc));
+            var updatedGames = db.GetGamesCollection().IncludeAll(2).FindAll().Select(gc => new GameViewModel(gc));
 
             Games.Clear();
 

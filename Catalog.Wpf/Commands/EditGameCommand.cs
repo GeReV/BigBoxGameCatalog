@@ -25,7 +25,7 @@ namespace Catalog.Wpf.Commands
             var gamesCollection = db.GetGamesCollection();
 
             var gameCopy = gamesCollection
-                .IncludeAll(1)
+                .IncludeAll(2)
                 .FindById(game.GameCopy.GameCopyId);
 
             var viewModel = EditGameViewModel.FromGameCopy(gameCopy, db);

@@ -25,7 +25,18 @@ namespace Catalog
             mapper.Entity<GameCopy>()
                 .Id(x => x.GameCopyId)
                 .DbRef(x => x.Developers, "developers")
-                .DbRef(x => x.Publisher, "publishers");
+                .DbRef(x => x.Publisher, "publishers")
+                .DbRef(x => x.Screenshots, "images");
+
+            mapper.Entity<Item>()
+                .DbRef(x => x.Files, "files")
+                .DbRef(x => x.Scans, "images");
+
+            mapper.Entity<File>()
+                .Id(x => x.LocalResourceId);
+
+            mapper.Entity<Image>()
+                .Id(x => x.LocalResourceId);
 
             mapper.Entity<Publisher>().Id(x => x.PublisherId);
 
@@ -54,19 +65,14 @@ namespace Catalog
             Database.Dispose();
         }
 
-        public LiteCollection<GameCopy> GetGamesCollection()
-        {
-            return Database.GetCollection<GameCopy>("games");
-        }
+        public LiteCollection<GameCopy> GetGamesCollection() => Database.GetCollection<GameCopy>("games");
 
-        public LiteCollection<Publisher> GetPublishersCollection()
-        {
-            return Database.GetCollection<Publisher>("publishers");
-        }
+        public LiteCollection<Publisher> GetPublishersCollection() => Database.GetCollection<Publisher>("publishers");
 
-        public LiteCollection<Developer> GetDevelopersCollection()
-        {
-            return Database.GetCollection<Developer>("developers");
-        }
+        public LiteCollection<Developer> GetDevelopersCollection() => Database.GetCollection<Developer>("developers");
+
+        public LiteCollection<File> GetFilesCollection() => Database.GetCollection<File>("files");
+
+        public LiteCollection<Image> GetImagesCollection() => Database.GetCollection<Image>("images");
     }
 }

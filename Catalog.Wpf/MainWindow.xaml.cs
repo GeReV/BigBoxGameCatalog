@@ -26,7 +26,7 @@ namespace Catalog.Wpf
 
         private void GameGalleryView_OnGameDoubleClick(object sender, EventArgs e)
         {
-            CommandExecutor.Execute(ViewModel.EditGameCommand, ViewModel.SelectedGame);
+            CommandExecutor.Execute(ViewModel.EditGameCommand, ViewModel.FilteredGames.CurrentItem);
         }
     }
 }

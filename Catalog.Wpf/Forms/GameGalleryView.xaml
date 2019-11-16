@@ -10,9 +10,8 @@
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
-    <ListBox ItemsSource="{Binding Games}"
+    <ListBox ItemsSource="{Binding FilteredGames}"
              IsSynchronizedWithCurrentItem="True"
-             SelectedItem="{Binding SelectedGame}"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">

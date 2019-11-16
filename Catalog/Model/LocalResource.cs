@@ -4,6 +4,8 @@ namespace Catalog.Model
 {
     public abstract class LocalResource : IEquatable<LocalResource>
     {
+        public int LocalResourceId { get; set; }
+
         public string Path { get; set; }
 
         public bool Equals(LocalResource other)

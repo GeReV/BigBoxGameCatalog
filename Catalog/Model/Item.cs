@@ -18,9 +18,9 @@ namespace Catalog.Model
 
         public string Notes { get; set; }
 
-        public IEnumerable<Image> Scans { get; set; }
+        public List<Image> Scans { get; set; }
 
-        public IEnumerable<File> Files { get; set; }
+        public List<File> Files { get; set; }
 
         [BsonIgnore]
         public IEnumerable<object> Children => Scans.Concat<object>(Files);

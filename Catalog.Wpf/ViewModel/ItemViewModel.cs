@@ -129,8 +129,8 @@ namespace Catalog.Wpf.ViewModel
                 Condition = Condition,
                 ConditionDetails = ConditionDetails,
                 Notes = Notes,
-                Files = Files.Select(vm => vm.BuildFile()),
-                Scans = Scans.Select(vm => vm.BuildImage())
+                Files = Files.Select(vm => vm.BuildFile()).ToList(),
+                Scans = Scans.Select(vm => vm.BuildImage()).ToList()
             };
         }
 

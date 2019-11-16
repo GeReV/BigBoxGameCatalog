@@ -13,7 +13,6 @@
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
     <ListView Name="GamesListView"
               ItemsSource="{Binding FilteredGames}"
-              SelectedItem="{Binding SelectedGame}"
               IsSynchronizedWithCurrentItem="True"
               behaviors:GridViewColumnResize.Enabled="True">
         <ListView.Resources>
