@@ -7,11 +7,11 @@ namespace Catalog.Wpf.Forms.Controls
     public partial class FileItem : UserControl
     {
         public static readonly DependencyProperty FileProperty = DependencyProperty.Register(
-            nameof(File), typeof(LocalResource), typeof(FileItem), new PropertyMetadata(default(LocalResource)));
+            nameof(File), typeof(ILocalResource), typeof(FileItem), new PropertyMetadata(default(ILocalResource)));
 
-        public LocalResource File
+        public ILocalResource File
         {
-            get => (LocalResource) GetValue(FileProperty);
+            get => (ILocalResource) GetValue(FileProperty);
             set => SetValue(FileProperty, value);
         }
         public FileItem()

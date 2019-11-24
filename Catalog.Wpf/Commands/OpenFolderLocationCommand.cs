@@ -7,7 +7,7 @@ namespace Catalog.Wpf.Commands
     {
         public override void Execute(object parameter)
         {
-            if (!(parameter is LocalResource resource))
+            if (!(parameter is ILocalResource resource))
             {
                 return;
             }

@@ -10,7 +10,7 @@ namespace Catalog.Wpf.Commands
         {
             switch (parameter)
             {
-                case LocalResource resource:
+                case ILocalResource resource:
                     Process.Start(resource.Path);
                     break;
                 case ScreenshotViewModel screenshot:

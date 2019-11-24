@@ -120,9 +120,9 @@ namespace Catalog.Wpf.ViewModel
         public ICommand AddScanCommand => addScanCommand ?? (addScanCommand = new GameItemAddScanCommand(this));
         public ICommand RemoveScanCommand => removeScanCommand ?? (removeScanCommand = new GameItemRemoveScanCommand(this));
 
-        public Item BuildItem()
+        public GameItem BuildItem()
         {
-            return new Item
+            return new GameItem
             {
                 ItemType = ItemType,
                 Missing = Missing,
@@ -134,16 +134,16 @@ namespace Catalog.Wpf.ViewModel
             };
         }
 
-        public static ItemViewModel FromItem(Item item) =>
+        public static ItemViewModel FromItem(GameItem gameItem) =>
             new ItemViewModel
             {
-                ItemType = item.ItemType,
-                Missing = item.Missing,
-                Condition = item.Condition,
-                ConditionDetails = item.ConditionDetails,
-                Notes = item.Notes,
-                Scans = new ObservableCollection<ImageViewModel>(item.Scans.Select(ImageViewModel.FromImage)),
-                Files = new ObservableCollection<FileViewModel>(item.Files.Select(FileViewModel.FromFile)),
+                ItemType = gameItem.ItemType,
+                Missing = gameItem.Missing,
+                Condition = gameItem.Condition,
+                ConditionDetails = gameItem.ConditionDetails,
+                Notes = gameItem.Notes,
+                Scans = new ObservableCollection<ImageViewModel>(gameItem.Scans.Select(ImageViewModel.FromImage)),
+                Files = new ObservableCollection<FileViewModel>(gameItem.Files.Select(FileViewModel.FromFile)),
             };
     }
 }

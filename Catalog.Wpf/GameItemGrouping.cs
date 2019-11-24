@@ -11,7 +11,7 @@ namespace Catalog.Wpf
     {
         private static readonly GameItemGroupComparer GameItemGroupComparer = new GameItemGroupComparer();
 
-        public static IEnumerable<GameItemGroupViewModel> GroupItems(IEnumerable<Item> items)
+        public static IEnumerable<GameItemGroupViewModel> GroupItems(IEnumerable<GameItem> items)
         {
             var result = items
                 .Aggregate(

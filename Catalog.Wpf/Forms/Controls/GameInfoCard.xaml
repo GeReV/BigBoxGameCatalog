@@ -55,7 +55,7 @@
                           Height="80"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <TreeView.Resources>
-                        <HierarchicalDataTemplate DataType="{x:Type model:Item}"
+                        <HierarchicalDataTemplate DataType="{x:Type model:GameItem}"
                                                   ItemsSource="{Binding Children}">
                             <controls:GameItem ItemType="{Binding ItemType}"
                                                Missing="{Binding Missing}" />

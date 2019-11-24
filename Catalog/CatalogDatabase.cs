@@ -28,15 +28,15 @@ namespace Catalog
                 .DbRef(x => x.Publisher, "publishers")
                 .DbRef(x => x.Screenshots, "images");
 
-            mapper.Entity<Item>()
+            mapper.Entity<GameItem>()
                 .DbRef(x => x.Files, "files")
                 .DbRef(x => x.Scans, "images");
 
-            mapper.Entity<File>()
-                .Id(x => x.LocalResourceId);
-
-            mapper.Entity<Image>()
-                .Id(x => x.LocalResourceId);
+//            mapper.Entity<File>()
+//                .Id(x => x.LocalResourceId);
+//
+//            mapper.Entity<Image>()
+//                .Id(x => x.LocalResourceId);
 
             mapper.Entity<Publisher>().Id(x => x.PublisherId);
 

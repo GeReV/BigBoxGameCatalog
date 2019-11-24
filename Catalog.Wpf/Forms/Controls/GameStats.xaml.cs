@@ -10,7 +10,7 @@ namespace Catalog.Wpf.Forms.Controls
     {
         public static readonly DependencyProperty GameItemGroupsProperty = DependencyProperty.Register(
             nameof(GameItemGroups), typeof(IEnumerable<GameItemGroupViewModel>), typeof(GameStats),
-            new PropertyMetadata(default(LocalResource)));
+            new PropertyMetadata(default(ILocalResource)));
 
         public static readonly DependencyProperty WrapProperty = DependencyProperty.Register(
             nameof(Wrap), typeof(bool), typeof(GameStats), new PropertyMetadata(true));
