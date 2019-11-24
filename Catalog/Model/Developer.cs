@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Catalog.Model
@@ -7,9 +9,19 @@ namespace Catalog.Model
     public class Developer : IEquatable<Developer>
     {
         public int DeveloperId { get; set; }
+
+        [Required]
         public string Slug { get; set; }
+        [Required]
         public string Name { get; set; }
-        public string[] Links { get; set; }
+        public List<string> Links { get; set; } = new List<string>();
+
+//        public List<GameCopy> Games { get; set; } = new List<GameCopy>();
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime DateCreated { get; set; }
+
+        public List<GameCopyDeveloper> GameCopyDevelopers { get; set; }
 
         public bool Equals(Developer other)
         {

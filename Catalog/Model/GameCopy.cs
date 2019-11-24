@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Catalog.Model
 {
@@ -11,6 +9,7 @@ namespace Catalog.Model
     {
         public int GameCopyId { get; set; }
 
+        [Required]
         public string Title { get; set; }
 
         public bool Sealed { get; set; }
@@ -19,22 +18,27 @@ namespace Catalog.Model
 
         public string MobyGamesSlug { get; set; }
 
-        public List<Developer> Developers { get; set; }
+        public List<Developer> Developers { get; set; } = new List<Developer>();
+
+        public List<GameCopyDeveloper> GameCopyDevelopers { get; set; }
 
         public Publisher Publisher { get; set; }
 
         public DateTime ReleaseDate { get; set; }
 
-        public List<string> TwoLetterIsoLanguageName { get; set; }
+        public List<string> TwoLetterIsoLanguageName { get; set; } = new List<string>();
 
-        public List<Platform> Platforms { get; set; }
+        public List<Platform> Platforms { get; set; } = new List<Platform>();
 
-        public List<string> Links { get; set; }
+        public List<string> Links { get; set; } = new List<string>();
 
         public Image CoverImage { get; set; }
 
-        public List<Image> Screenshots { get; set; }
+        public List<Image> Screenshots { get; set; } = new List<Image>();
 
-        public List<Item> Items { get; set; }
+        public List<GameItem> Items { get; set; } = new List<GameItem>();
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime DateCreated { get; set; }
     }
 }
