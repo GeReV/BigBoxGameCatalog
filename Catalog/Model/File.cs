@@ -5,14 +5,17 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    public class File : ILocalResource
+    public class File : ILocalResource, IModel
     {
         public int FileId { get; set; }
+
+        public virtual GameItem GameItem { get; set; }
         public byte[] Sha256Checksum { get; set; }
         public string Path { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
+
+        public DateTime LastUpdated { get; set; }
 
         public bool Equals(ILocalResource other)
         {
@@ -31,5 +34,7 @@ namespace Catalog.Model
         {
             return (Path != null ? Path.GetHashCode() : 0);
         }
+
+        public bool IsNew => FileId == 0;
     }
 }

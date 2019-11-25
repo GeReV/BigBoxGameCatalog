@@ -5,11 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Catalog.Model;
-using Catalog.Scrapers;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.ViewModel;
-using Xceed.Wpf.Toolkit.Core.Converters;
-using File = System.IO.File;
 
 namespace Catalog.Wpf.Commands
 {
@@ -28,38 +25,24 @@ namespace Catalog.Wpf.Commands
 
             var gameTask = await BuildGame();
 
-            InsertGame(gameTask);
+            await InsertGame(gameTask);
 
             editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
         }
 
-        private static void InsertGame(GameCopy game)
+        private static async Task InsertGame(GameCopy game)
         {
             var db = Application.Current.Database();
 
-            if (game.Publisher.PublisherId == 0)
-            {
-                db.GetPublishersCollection().Insert(game.Publisher);
-            }
+            using var transaction = await db.Database.BeginTransactionAsync();
 
-            var developersCollection = db.GetDevelopersCollection();
-            var filesCollection = db.GetFilesCollection();
-            var imagesCollection = db.GetImagesCollection();
+            db.Update(game);
+            await db.SaveChangesAsync();
 
-            developersCollection.InsertBulk(game.Developers.Where(d => d.DeveloperId == 0));
-
-            imagesCollection.InsertBulk(game.Screenshots.Where(s => s.LocalResourceId == 0));
-
-            foreach (var item in game.Items)
-            {
-                filesCollection.InsertBulk(item.Files.Where(f => f.LocalResourceId == 0));
-                imagesCollection.InsertBulk(item.Scans.Where(i => i.LocalResourceId == 0));
-            }
-
-            db.GetGamesCollection().Upsert(game);
+            await transaction.CommitAsync();
         }
 
-        private async Task<IEnumerable<Image>> DownloadScreenshots()
+        private async Task<IEnumerable<string>> DownloadScreenshots()
         {
             var destinationDirectory = Path.Combine(
                 Application.Current.HomeDirectory(),
@@ -75,7 +58,7 @@ namespace Catalog.Wpf.Commands
 
             var existingScreenshots = selectedScreenshots
                 .Except(screenshotsToDownload)
-                .Select(ss => new Image(ss.Url));
+                .Select(ss => ss.Url);
 
             var newScreenshots = await new ImageDownloader(Application.Current.ScraperWebClient())
                 .DownloadScreenshots(
@@ -86,10 +69,10 @@ namespace Catalog.Wpf.Commands
 
             return newScreenshots
                 .Concat(existingScreenshots)
-                .OrderBy(image => image.Path);
+                .OrderBy(s => s);
         }
 
-        private async Task<Image> DownloadCoverArt()
+        private async Task<string> DownloadCoverArt()
         {
             var gameDirectory =
                 Path.Combine(Application.Current.HomeDirectory(), editGameViewModel.GameMobyGamesSlug);
@@ -107,7 +90,7 @@ namespace Catalog.Wpf.Commands
                     .DownloadCoverArt(gameDirectory, url);
             }
 
-            return new Image(url);
+            return url;
         }
 
         private async Task<GameCopy> BuildGame()
@@ -116,24 +99,22 @@ namespace Catalog.Wpf.Commands
 
             var cover = await DownloadCoverArt();
 
-            var gameCopy = new GameCopy
-            {
-                GameCopyId = editGameViewModel.GameId,
-                Title = editGameViewModel.GameTitle,
-                Sealed = editGameViewModel.GameSealed,
-                MobyGamesSlug = editGameViewModel.GameMobyGamesSlug,
-                Platforms = editGameViewModel.GamePlatforms.Distinct().ToList(),
-                Publisher = editGameViewModel.GamePublisher,
-                Developers = editGameViewModel.GameDevelopers.Distinct().ToList(),
-                Items = editGameViewModel.GameItems.Select(item => item.BuildItem()).ToList(),
-                Links = editGameViewModel.GameLinks.Distinct().ToList(),
-                Notes = editGameViewModel.GameNotes,
-                TwoLetterIsoLanguageName =
-                    editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList(),
-                ReleaseDate = editGameViewModel.GameReleaseDate,
-                CoverImage = cover,
-                Screenshots = screenshots.Distinct().ToList()
-            };
+            var gameCopy = editGameViewModel.Game;
+
+            gameCopy.Title = editGameViewModel.GameTitle;
+            gameCopy.Sealed = editGameViewModel.GameSealed;
+            gameCopy.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
+            gameCopy.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
+            gameCopy.Publisher = editGameViewModel.GamePublisher;
+            gameCopy.Developers = editGameViewModel.GameDevelopers.Distinct().ToList();
+            gameCopy.Items = editGameViewModel.GameItems.Select(item => item.BuildItem()).ToList();
+            gameCopy.Links = editGameViewModel.GameLinks.Distinct().ToList();
+            gameCopy.Notes = editGameViewModel.GameNotes;
+            gameCopy.TwoLetterIsoLanguageName =
+                editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList();
+            gameCopy.ReleaseDate = editGameViewModel.GameReleaseDate;
+            gameCopy.CoverImage = cover;
+            gameCopy.Screenshots = screenshots.Distinct().ToList();
 
             return gameCopy;
         }

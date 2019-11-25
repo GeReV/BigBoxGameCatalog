@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -17,6 +18,7 @@ namespace Catalog.Wpf.ViewModel
 {
     public sealed class EditGameViewModel : NotifyPropertyChangedBase
     {
+        private readonly CatalogContext database;
         private string gameTitle;
         private string gameMobyGamesSlug;
         private string gameNotes;
@@ -53,14 +55,14 @@ namespace Catalog.Wpf.ViewModel
             DownloadingScreenshots,
         }
 
-        public EditGameViewModel(CatalogDatabase database = null)
+        public EditGameViewModel(CatalogContext database)
         {
-            var publishers = database == null ? new List<Publisher>() : database.GetPublishersCollection().FindAll();
-            var developers = database == null ? new List<Developer>() : database.GetDevelopersCollection().FindAll();
+            this.database = database;
 
-            Publishers = new ObservableCollection<Publisher>(publishers);
-            Developers = new ObservableCollection<Developer>(developers);
+            Publishers = new ObservableCollection<Publisher>(database.Publishers);
+            Developers = new ObservableCollection<Developer>(database.Developers);
 
+            Game = new GameCopy();
             GameItems = new ObservableCollection<ItemViewModel>
             {
                 new ItemViewModel
@@ -126,7 +128,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public int GameId { get; private set; }
+        public GameCopy Game { get; private set; }
 
         public string GameTitle
         {
@@ -388,31 +390,31 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ICommand AddItemCommand => addItemCommand ?? (addItemCommand = new AddGameItemCommand(this));
-        public ICommand RemoveItemCommand => removeItemCommand ?? (removeItemCommand = new RemoveGameItemCommand(this));
+        public ICommand AddItemCommand => addItemCommand ??= new AddGameItemCommand(this);
+        public ICommand RemoveItemCommand => removeItemCommand ??= new RemoveGameItemCommand(this);
 
         public IAsyncCommand SearchMobyGamesCommand =>
-            searchMobyGamesCommand ?? (searchMobyGamesCommand = new SearchMobyGamesCommand(this));
+            searchMobyGamesCommand ??= new SearchMobyGamesCommand(this);
 
-        public IAsyncCommand SaveGameCommand => saveGameCommand ?? (saveGameCommand = new SaveGameCommand(this));
+        public IAsyncCommand SaveGameCommand => saveGameCommand ??= new SaveGameCommand(this);
 
         public IAsyncCommand SearchMobyGamesCoverCommand =>
-            searchMobyGamesCoverCommand ?? (searchMobyGamesCoverCommand = new SearchMobyGamesCoverCommand(this));
+            searchMobyGamesCoverCommand ??= new SearchMobyGamesCoverCommand(this);
 
         public ICommand SelectCoverImageCommand =>
-            selectCoverImageCommand ?? (selectCoverImageCommand = new SelectCoverImageCommand(this));
+            selectCoverImageCommand ??= new SelectCoverImageCommand(this);
 
-        public static EditGameViewModel FromGameCopy(GameCopy gameCopy, CatalogDatabase database)
+        public static EditGameViewModel FromGameCopy(GameCopy gameCopy, CatalogContext database)
         {
             var screenshots =
                 new ObservableCollection<ScreenshotViewModel>(
-                    gameCopy.Screenshots.Select(ScreenshotViewModel.FromImage));
+                    gameCopy.Screenshots.Select(ScreenshotViewModel.FromPath));
 
             return new EditGameViewModel(database)
             {
-                GameId = gameCopy.GameCopyId,
+                Game = gameCopy,
                 GameTitle = gameCopy.Title,
-                gameSealed = gameCopy.Sealed,
+                GameSealed = gameCopy.Sealed,
                 GameMobyGamesSlug = gameCopy.MobyGamesSlug,
                 GameNotes = gameCopy.Notes,
                 GamePublisher = gameCopy.Publisher,
@@ -425,7 +427,7 @@ namespace Catalog.Wpf.ViewModel
                 GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem)),
                 GameScreenshots = screenshots,
                 GameSelectedScreenshots = screenshots,
-                GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromImage(gameCopy.CoverImage)
+                GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromPath(gameCopy.CoverImage)
             };
         }
     }

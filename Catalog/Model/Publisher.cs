@@ -6,17 +6,20 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    public class Publisher : IEquatable<Publisher>
+    public class Publisher : IEquatable<Publisher>, IModel
     {
         public int PublisherId { get; set; }
         [Required] public string Slug { get; set; }
         [Required] public string Name { get; set; }
         public List<string> Links { get; set; } = new List<string>();
 
-        public List<GameCopy> Games { get; set; } = new List<GameCopy>();
+        public virtual ICollection<GameCopy> Games { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
+
+        public DateTime LastUpdated { get; set; }
+
+        public bool IsNew => PublisherId == 0;
 
         public override string ToString()
         {

@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.Comparers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -81,10 +82,10 @@ namespace Catalog.Wpf.ViewModel
         }
 
         public ICommand EditGameCommand =>
-            editGameCommand ?? (editGameCommand = new EditGameCommand(this));
+            editGameCommand ??= new EditGameCommand(this);
 
         public ICommand DeleteGameCommand =>
-            deleteGameCommand ?? (deleteGameCommand = new DeleteGameCommand(this));
+            deleteGameCommand ??= new DeleteGameCommand(this);
 
         public ICommand ChangeViewModeCommand => new DelegateCommand(mode => { ViewMode = (MainWindowViewMode) mode; });
 
@@ -92,7 +93,9 @@ namespace Catalog.Wpf.ViewModel
         {
             var db = Application.Current.Database();
 
-            var updatedGames = db.GetGamesCollection().IncludeAll(2).FindAll().Select(gc => new GameViewModel(gc));
+            var updatedGames = db.Games
+                .Include(g => g.Items)
+                .Select(gc => new GameViewModel(gc));
 
             Games.Clear();
 

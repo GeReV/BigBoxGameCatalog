@@ -14,7 +14,7 @@ namespace Catalog.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.1");
+                .HasAnnotation("ProductVersion", "3.0.0");
 
             modelBuilder.Entity("Catalog.Model.Developer", b =>
                 {
@@ -23,11 +23,17 @@ namespace Catalog.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<int?>("GameCopyId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<string>("Links")
                         .HasColumnType("TEXT");
@@ -60,11 +66,13 @@ namespace Catalog.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("GameItemId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Path")
                         .HasColumnType("TEXT");
@@ -85,12 +93,18 @@ namespace Catalog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("CoverImageImageId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("CoverImage")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
+
+                    b.Property<DateTime>("LastUpdated")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<string>("Links")
                         .HasColumnType("TEXT");
@@ -110,6 +124,9 @@ namespace Catalog.Migrations
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Screenshots")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("Sealed")
                         .HasColumnType("INTEGER");
 
@@ -121,8 +138,6 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("GameCopyId");
-
-                    b.HasIndex("CoverImageImageId");
 
                     b.HasIndex("MobyGamesSlug");
 
@@ -140,6 +155,16 @@ namespace Catalog.Migrations
 
                     b.Property<int>("DeveloperId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
 
                     b.HasKey("GameCopyId", "DeveloperId");
 
@@ -161,8 +186,9 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<int>("GameCopyId")
                         .HasColumnType("INTEGER");
@@ -170,6 +196,11 @@ namespace Catalog.Migrations
                     b.Property<string>("ItemType")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<bool>("Missing")
                         .HasColumnType("INTEGER");
@@ -191,21 +222,18 @@ namespace Catalog.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("GameCopyId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("GameItemId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Path")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ImageId");
-
-                    b.HasIndex("GameCopyId");
 
                     b.HasIndex("GameItemId");
 
@@ -219,8 +247,14 @@ namespace Catalog.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
+
+                    b.Property<DateTime>("LastUpdated")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<string>("Links")
                         .HasColumnType("TEXT");
@@ -253,17 +287,14 @@ namespace Catalog.Migrations
 
             modelBuilder.Entity("Catalog.Model.File", b =>
                 {
-                    b.HasOne("Catalog.Model.GameItem", null)
+                    b.HasOne("Catalog.Model.GameItem", "GameItem")
                         .WithMany("Files")
-                        .HasForeignKey("GameItemId");
+                        .HasForeignKey("GameItemId")
+                        .OnDelete(DeleteBehavior.ClientCascade);
                 });
 
             modelBuilder.Entity("Catalog.Model.GameCopy", b =>
                 {
-                    b.HasOne("Catalog.Model.Image", "CoverImage")
-                        .WithMany()
-                        .HasForeignKey("CoverImageImageId");
-
                     b.HasOne("Catalog.Model.Publisher", "Publisher")
                         .WithMany("Games")
                         .HasForeignKey("PublisherId");
@@ -295,13 +326,10 @@ namespace Catalog.Migrations
 
             modelBuilder.Entity("Catalog.Model.Image", b =>
                 {
-                    b.HasOne("Catalog.Model.GameCopy", null)
-                        .WithMany("Screenshots")
-                        .HasForeignKey("GameCopyId");
-
-                    b.HasOne("Catalog.Model.GameItem", null)
+                    b.HasOne("Catalog.Model.GameItem", "GameItem")
                         .WithMany("Scans")
-                        .HasForeignKey("GameItemId");
+                        .HasForeignKey("GameItemId")
+                        .OnDelete(DeleteBehavior.ClientCascade);
                 });
 #pragma warning restore 612, 618
         }

@@ -9,13 +9,13 @@ using LiteDB;
 
 namespace Catalog.Model
 {
-    public class GameItem
+    public class GameItem : IModel
     {
         public int GameItemId { get; set; }
 
         [Required] public ItemType ItemType { get; set; }
 
-        [Required] public GameCopy Game { get; set; }
+        [Required] public virtual GameCopy Game { get; set; }
 
         public bool Missing { get; set; }
 
@@ -25,14 +25,17 @@ namespace Catalog.Model
 
         public string Notes { get; set; }
 
-        public List<Image> Scans { get; set; } = new List<Image>();
+        public virtual ICollection<Image> Scans { get; set; }
 
-        public List<File> Files { get; set; } = new List<File>();
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public virtual ICollection<File> Files { get; set; }
+
         public DateTime DateCreated { get; set; }
+
+        public DateTime LastUpdated { get; set; }
 
         [NotMapped]
         public IEnumerable<object> Children => Scans.Concat<object>(Files);
 
+        public bool IsNew => GameItemId == 0;
     }
 }

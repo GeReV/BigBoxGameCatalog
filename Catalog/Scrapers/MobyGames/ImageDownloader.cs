@@ -21,7 +21,7 @@ namespace Catalog.Scrapers.MobyGames
             scraper = new Scraper(webClient);
         }
 
-        public async Task<Image[]> DownloadScreenshots(string screenshotDirectory, IEnumerable<string> downloadUrls,
+        public async Task<string[]> DownloadScreenshots(string screenshotDirectory, IEnumerable<string> downloadUrls,
             IProgress<int> progress = null)
         {
             var totalProgress = new AggregateProgress<int>(progressValues =>
@@ -58,7 +58,7 @@ namespace Catalog.Scrapers.MobyGames
             }
         }
 
-        public Task<Image> DownloadCoverArt(string directory, string url, IProgress<int> progress = null)
+        public Task<string> DownloadCoverArt(string directory, string url, IProgress<int> progress = null)
         {
             EnsureDirectory(directory);
 
@@ -74,7 +74,7 @@ namespace Catalog.Scrapers.MobyGames
             }
         }
 
-        private static Image WriteImage(string directory, Task<ImageEntry> t, string filename = null)
+        private static string WriteImage(string directory, Task<ImageEntry> t, string filename = null)
         {
             filename ??= t.Result.Url.Segments.Last();
 
@@ -82,7 +82,7 @@ namespace Catalog.Scrapers.MobyGames
 
             File.WriteAllBytes(destination, t.Result.Data);
 
-            return new Image(destination);
+            return destination;
         }
     }
 }

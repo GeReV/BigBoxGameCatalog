@@ -35,38 +35,9 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            DeleteImages(game.GameCopy.Screenshots);
-
-            foreach (var item in game.GameCopy.Items)
-            {
-                DeleteFiles(item.Files);
-
-                DeleteImages(item.Scans);
-            }
-
-            Application.Current.Database().GetGamesCollection().Delete(game.GameCopy.GameCopyId);
+            Application.Current.Database().Remove(game.GameCopy);
 
             mainWindowViewModel.RefreshGamesCollection();
-        }
-
-        private static void DeleteFiles(IEnumerable<File> files)
-        {
-            var filesCollection = Application.Current.Database().GetFilesCollection();
-
-            foreach (var file in files)
-            {
-                filesCollection.Delete(file.LocalResourceId);
-            }
-        }
-
-        private static void DeleteImages(IEnumerable<Image> images)
-        {
-            var imagesCollection = Application.Current.Database().GetImagesCollection();
-
-            foreach (var image in images)
-            {
-                imagesCollection.Delete(image.LocalResourceId);
-            }
         }
     }
 }

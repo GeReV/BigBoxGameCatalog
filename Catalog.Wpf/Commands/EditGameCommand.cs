@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using Catalog.Model;
 using Catalog.Wpf.ViewModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf.Commands
 {
@@ -22,13 +24,11 @@ namespace Catalog.Wpf.Commands
 
             var db = Application.Current.Database();
 
-            var gamesCollection = db.GetGamesCollection();
+            db.Entry(game.GameCopy)
+                .Collection(v => v.Items)
+                .Load();
 
-            var gameCopy = gamesCollection
-                .IncludeAll(2)
-                .FindById(game.GameCopy.GameCopyId);
-
-            var viewModel = EditGameViewModel.FromGameCopy(gameCopy, db);
+            var viewModel = EditGameViewModel.FromGameCopy(game.GameCopy, db);
 
             if (new EditGameDialog(viewModel).ShowDialog() == true)
             {

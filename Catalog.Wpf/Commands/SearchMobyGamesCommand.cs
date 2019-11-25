@@ -63,7 +63,7 @@ namespace Catalog.Wpf.Commands
                 {
                     Name = gameEntry.Publisher.Name,
                     Slug = gameEntry.Publisher.Slug,
-                    Links = new[] {gameEntry.Publisher.Url}
+                    Links = new List<string> {gameEntry.Publisher.Url}
                 };
 
                 editGameViewModel.Publishers.Add(publisher);
@@ -83,7 +83,7 @@ namespace Catalog.Wpf.Commands
                     {
                         Name = devEntry.Name,
                         Slug = devEntry.Slug,
-                        Links = new[] {devEntry.Url},
+                        Links = new List<string> {devEntry.Url},
                     };
 
                     editGameViewModel.Developers.Add(developer);

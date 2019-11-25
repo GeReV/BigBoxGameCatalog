@@ -42,16 +42,16 @@ namespace Catalog.Wpf.ViewModel
 
         public Publisher Publisher => GameCopy.Publisher;
 
-        public IList<Developer> Developers => GameCopy.Developers;
+        public IEnumerable<Developer> Developers => GameCopy.Developers;
 
         public string Notes => GameCopy.Notes;
 
-        public ImageSource Cover => GameCopy.CoverImage?.Path == null
+        public ImageSource Cover => GameCopy.CoverImage == null
             ? null
-            : new BitmapImage(new Uri(GameCopy.CoverImage.Path));
+            : new BitmapImage(new Uri(GameCopy.CoverImage));
 
         public IEnumerable<ScreenshotViewModel> Screenshots =>
-            GameCopy.Screenshots.Select(ScreenshotViewModel.FromImage).ToList();
+            GameCopy.Screenshots.Select(ScreenshotViewModel.FromPath).ToList();
 
         public IEnumerable<GameItemGroupViewModel> GameStats => gameStats.Value;
 

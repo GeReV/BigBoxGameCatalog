@@ -14,7 +14,7 @@ namespace Catalog.Wpf
 
             ViewModel = viewModel ?? new EditGameViewModel(Application.Current.Database());
 
-            Title = ViewModel.GameId == 0 ? "Add Game" : $"Edit Game: {ViewModel.GameTitle}";
+            Title = ViewModel.Game.IsNew ? "Add Game" : $"Edit Game: {ViewModel.GameTitle}";
         }
 
         public EditGameViewModel ViewModel

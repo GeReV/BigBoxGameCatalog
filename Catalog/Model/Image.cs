@@ -5,13 +5,16 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    public class Image : ILocalResource
+    public class Image : ILocalResource, IModel
     {
         public int ImageId { get; set; }
+
+        public virtual GameItem GameItem { get; set; }
         public string Path { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
+
+        public DateTime LastUpdated { get; set; }
 
         public Image()
         {
@@ -39,5 +42,7 @@ namespace Catalog.Model
         {
             return (Path != null ? Path.GetHashCode() : 0);
         }
+
+        public bool IsNew => ImageId == 0;
     }
 }

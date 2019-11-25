@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    public class Developer : IEquatable<Developer>
+    public class Developer : IEquatable<Developer>, IModel
     {
         public int DeveloperId { get; set; }
 
@@ -18,10 +18,13 @@ namespace Catalog.Model
 
 //        public List<GameCopy> Games { get; set; } = new List<GameCopy>();
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
 
-        public List<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+        public DateTime LastUpdated { get; set; }
+
+        public virtual ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+
+        public bool IsNew => DeveloperId == 0;
 
         public bool Equals(Developer other)
         {

@@ -35,6 +35,13 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
+        public static ScreenshotViewModel FromPath(string path) =>
+            new ScreenshotViewModel
+            {
+                Url = path,
+                ThumbnailUrl = path
+            };
+
         public static ScreenshotViewModel FromImage(Image image) =>
             new ScreenshotViewModel
             {

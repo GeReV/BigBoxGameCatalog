@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 
 namespace Catalog.Model
 {
-    public class GameCopy
+    public class GameCopy : IModel
     {
         public int GameCopyId { get; set; }
 
-        [Required]
-        public string Title { get; set; }
+        [Required] public string Title { get; set; }
 
         public bool Sealed { get; set; }
 
@@ -18,11 +18,11 @@ namespace Catalog.Model
 
         public string MobyGamesSlug { get; set; }
 
-        public List<Developer> Developers { get; set; } = new List<Developer>();
+        public virtual Publisher Publisher { get; set; }
 
-        public List<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+        public virtual ICollection<Developer> Developers { get; set; }
 
-        public Publisher Publisher { get; set; }
+        public virtual ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
 
         public DateTime ReleaseDate { get; set; }
 
@@ -32,13 +32,16 @@ namespace Catalog.Model
 
         public List<string> Links { get; set; } = new List<string>();
 
-        public Image CoverImage { get; set; }
+        public string CoverImage { get; set; }
 
-        public List<Image> Screenshots { get; set; } = new List<Image>();
+        public List<string> Screenshots { get; set; } = new List<string>();
 
-        public List<GameItem> Items { get; set; } = new List<GameItem>();
+        public virtual ICollection<GameItem> Items { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime DateCreated { get; set; }
+
+        public DateTime LastUpdated { get; set; }
+
+        public bool IsNew => GameCopyId == 0;
     }
 }
