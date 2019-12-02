@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using System.Linq;
 
 namespace Catalog.Model
 {
@@ -20,9 +22,10 @@ namespace Catalog.Model
 
         public virtual Publisher Publisher { get; set; }
 
-        public virtual ICollection<Developer> Developers { get; set; }
 
         public virtual ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+
+        public IEnumerable<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer);
 
         public DateTime ReleaseDate { get; set; }
 

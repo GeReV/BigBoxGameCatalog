@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
 
 namespace Catalog.Model
@@ -16,13 +17,15 @@ namespace Catalog.Model
         public string Name { get; set; }
         public List<string> Links { get; set; } = new List<string>();
 
-//        public List<GameCopy> Games { get; set; } = new List<GameCopy>();
 
         public DateTime DateCreated { get; set; }
 
         public DateTime LastUpdated { get; set; }
 
+
         public virtual ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+
+        public IEnumerable<GameCopy> Games => GameCopyDevelopers.Select(gcd => gcd.Game);
 
         public bool IsNew => DeveloperId == 0;
 

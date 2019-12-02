@@ -6,18 +6,37 @@ namespace Catalog.Wpf.Forms.Controls
 {
     public partial class AddRemoveButtons : UserControl
     {
+        public static readonly DependencyProperty ShowAddButtonProperty = DependencyProperty.Register(
+            nameof(ShowAddButton), typeof(bool), typeof(AddRemoveButtons), new PropertyMetadata(true));
+
+        public static readonly DependencyProperty ShowRemoveButtonProperty = DependencyProperty.Register(
+            nameof(ShowRemoveButton), typeof(bool), typeof(AddRemoveButtons), new PropertyMetadata(true));
+
+        public bool ShowRemoveButton
+        {
+            get => (bool) GetValue(ShowRemoveButtonProperty);
+            set => SetValue(ShowRemoveButtonProperty, value);
+        }
+
         public static readonly DependencyProperty AddCommandProperty = DependencyProperty.Register(
-            "AddCommand", typeof(ICommand), typeof(AddRemoveButtons), new PropertyMetadata(default(ICommand)));
+            nameof(AddCommand), typeof(ICommand), typeof(AddRemoveButtons), new PropertyMetadata(default(ICommand)));
 
         public static readonly DependencyProperty AddCommandParameterProperty = DependencyProperty.Register(
-            "AddCommandParameter", typeof(object), typeof(AddRemoveButtons), new PropertyMetadata(default(object)));
+            nameof(AddCommandParameter), typeof(object), typeof(AddRemoveButtons),
+            new PropertyMetadata(default(object)));
 
         public static readonly DependencyProperty RemoveCommandProperty = DependencyProperty.Register(
-            "RemoveCommand", typeof(ICommand), typeof(AddRemoveButtons), new PropertyMetadata(default(ICommand)));
+            nameof(RemoveCommand), typeof(ICommand), typeof(AddRemoveButtons), new PropertyMetadata(default(ICommand)));
 
         public static readonly DependencyProperty RemoveCommandParameterProperty = DependencyProperty.Register(
-            "RemoveCommandParameter", typeof(object), typeof(AddRemoveButtons), new PropertyMetadata(default(object)));
+            nameof(RemoveCommandParameter), typeof(object), typeof(AddRemoveButtons),
+            new PropertyMetadata(default(object)));
 
+        public bool ShowAddButton
+        {
+            get => (bool) GetValue(ShowAddButtonProperty);
+            set => SetValue(ShowAddButtonProperty, value);
+        }
 
         public ICommand AddCommand
         {

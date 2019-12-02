@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Input;
 using Catalog.Wpf.ViewModel;
 using Application = System.Windows.Application;
 using Window = System.Windows.Window;
@@ -52,6 +53,14 @@ namespace Catalog.Wpf
         private void AddItemMenu_OnClick(object sender, RoutedEventArgs e)
         {
             AddItemButton.IsOpen = false;
+        }
+
+        private void Screenshots_OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                CommandExecutor.Execute(ViewModel.RemoveScreenshotCommand, Screenshots.SelectedItems);
+            }
         }
     }
 }

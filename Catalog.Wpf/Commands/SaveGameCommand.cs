@@ -50,7 +50,7 @@ namespace Catalog.Wpf.Commands
                 "screenshots"
             );
 
-            var selectedScreenshots = editGameViewModel.GameSelectedScreenshots;
+            var selectedScreenshots = editGameViewModel.GameScreenshots;
 
             var screenshotsToDownload = selectedScreenshots
                 .Where(ss => !new Uri(ss.Url).IsFile)
@@ -106,7 +106,13 @@ namespace Catalog.Wpf.Commands
             gameCopy.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
             gameCopy.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
             gameCopy.Publisher = editGameViewModel.GamePublisher;
-            gameCopy.Developers = editGameViewModel.GameDevelopers.Distinct().ToList();
+            gameCopy.GameCopyDevelopers = editGameViewModel.GameDevelopers.Distinct()
+                .Select(dev => new GameCopyDeveloper
+                {
+                    Developer = dev,
+                    Game = gameCopy
+                })
+                .ToList();
             gameCopy.Items = editGameViewModel.GameItems.Select(item => item.BuildItem()).ToList();
             gameCopy.Links = editGameViewModel.GameLinks.Distinct().ToList();
             gameCopy.Notes = editGameViewModel.GameNotes;

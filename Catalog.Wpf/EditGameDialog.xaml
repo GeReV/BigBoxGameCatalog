@@ -14,7 +14,7 @@
         xmlns:globalization="clr-namespace:System.Globalization;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Add Game"
-        Height="850"
+        Height="875"
         Width="800"
         Name="Window"
         d:DataContext="{d:DesignInstance viewModel:EditGameViewModel}"
@@ -176,27 +176,30 @@
                             </StackPanel>
                         </c:FormField>
                         <c:FormField LabelContent="Screenshots">
-                            <ListBox Name="Screenshots"
-                                     SelectionMode="Multiple"
-                                     ItemsSource="{Binding GameScreenshots}"
-                                     Height="120"
-                                     ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                                <interactions:Interaction.Behaviors>
-                                    <behaviors:ListBoxSelectionBehavior
-                                        SelectedItems="{Binding DataContext.GameSelectedScreenshots, ElementName=Screenshots}" />
-                                </interactions:Interaction.Behaviors>
-                                <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <VirtualizingStackPanel IsItemsHost="True"
-                                                                Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ListBox.ItemsPanel>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="viewModel:ScreenshotViewModel">
-                                        <Image Source="{Binding ThumbnailSource}" />
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                            <StackPanel Orientation="Vertical">
+                                <ListBox Name="Screenshots"
+                                         SelectionMode="Extended"
+                                         ItemsSource="{Binding GameScreenshots}"
+                                         Height="120"
+                                         KeyUp="Screenshots_OnKeyUp"
+                                         ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel IsItemsHost="True"
+                                                                    Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="viewModel:ScreenshotViewModel">
+                                            <Image Source="{Binding ThumbnailSource}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <c:AddRemoveButtons x:Name="AddRemoveScreenshots"
+                                                    ShowAddButton="False"
+                                                    RemoveCommand="{Binding RemoveScreenshotCommand}"
+                                                    RemoveCommandParameter="{Binding ElementName=Screenshots, Path=SelectedItems}" />
+                            </StackPanel>
                         </c:FormField>
                     </StackPanel>
                 </TabItem>

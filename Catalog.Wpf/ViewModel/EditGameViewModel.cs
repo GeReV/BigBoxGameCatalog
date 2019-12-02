@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -29,7 +30,6 @@ namespace Catalog.Wpf.ViewModel
         private ItemViewModel currentGameItem;
         private string developerSearchTerm;
         private ObservableCollection<CultureInfo> gameLanguages;
-        private ObservableCollection<ScreenshotViewModel> gameSelectedScreenshots;
         private ObservableCollection<Developer> gameDevelopers;
         private ObservableCollection<Platform> gamePlatforms;
         private ObservableCollection<string> gameLinks;
@@ -43,6 +43,7 @@ namespace Catalog.Wpf.ViewModel
         private ICommand addItemCommand;
         private ICommand removeItemCommand;
         private ICommand selectCoverImageCommand;
+        private ICommand removeScreenshotCommand;
         private IAsyncCommand searchMobyGamesCommand;
         private IAsyncCommand saveGameCommand;
         private IAsyncCommand searchMobyGamesCoverCommand;
@@ -73,7 +74,6 @@ namespace Catalog.Wpf.ViewModel
             GameLinks = new ObservableCollection<string>();
             GameDevelopers = new ObservableCollection<Developer>();
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
-            GameSelectedScreenshots = new ObservableCollection<ScreenshotViewModel>();
             GameLanguages = new ObservableCollection<CultureInfo> {CultureInfo.GetCultureInfo("en")};
             GamePlatforms = new ObservableCollection<Platform>();
 
@@ -338,17 +338,6 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<ScreenshotViewModel> GameSelectedScreenshots
-        {
-            get => gameSelectedScreenshots;
-            set
-            {
-                if (Equals(value, gameSelectedScreenshots)) return;
-                gameSelectedScreenshots = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ObservableCollection<Publisher> Publishers { get; }
         public ObservableCollection<Developer> Developers { get; }
         public ListCollectionView FilteredDevelopers { get; }
@@ -404,6 +393,21 @@ namespace Catalog.Wpf.ViewModel
         public ICommand SelectCoverImageCommand =>
             selectCoverImageCommand ??= new SelectCoverImageCommand(this);
 
+        public ICommand RemoveScreenshotCommand => removeScreenshotCommand ??= new DelegateCommand(param =>
+        {
+            if (!(param is IList selectedItems))
+            {
+                return;
+            }
+
+            var items = selectedItems.Cast<ScreenshotViewModel>().ToList();
+
+            foreach (var selectedItem in items)
+            {
+                GameScreenshots.Remove(selectedItem);
+            }
+        });
+
         public static EditGameViewModel FromGameCopy(GameCopy gameCopy, CatalogContext database)
         {
             var screenshots =
@@ -426,7 +430,6 @@ namespace Catalog.Wpf.ViewModel
                         gameCopy.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang))),
                 GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem)),
                 GameScreenshots = screenshots,
-                GameSelectedScreenshots = screenshots,
                 GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromPath(gameCopy.CoverImage)
             };
         }

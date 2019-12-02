@@ -17,6 +17,7 @@
             <Style TargetType="ListBoxItem">
                 <EventSetter Event="MouseDoubleClick"
                              Handler="OnGameDoubleClick" />
+                <Setter Property="VerticalContentAlignment" Value="Top" />
                 <Setter Property="ToolTip"
                         Value="{Binding Title}" />
                 <Setter Property="Tag"
@@ -58,6 +59,7 @@
                                                    Margin="0,5,0,0"
                                                    HorizontalAlignment="Center"
                                                    TextWrapping="WrapWithOverflow"
+                                                   TextAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                     <controls:GameStats GameItemGroups="{Binding GameStats, Delay=50}"
                                         HorizontalAlignment="Center" />

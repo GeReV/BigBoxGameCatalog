@@ -21,6 +21,7 @@
             </Style>
         </StackPanel.Resources>
         <xctk:IconButton Name="AddButton"
+                         Visibility="{Binding ElementName=AddRemoveButtonsControl, Path=ShowAddButton, Converter={StaticResource BooleanToVisibilityConverter}}"
                          ToolTip="Add"
                          Margin="0,0,5,0"
                          Click="AddButton_OnClick"
@@ -31,6 +32,7 @@
             </xctk:IconButton.Icon>
         </xctk:IconButton>
         <xctk:IconButton Name="RemoveButton"
+                         Visibility="{Binding ElementName=AddRemoveButtonsControl, Path=ShowRemoveButton, Converter={StaticResource BooleanToVisibilityConverter}}"
                          ToolTip="Remove"
                          Click="RemoveButton_OnClick"
                          Command="{Binding ElementName=AddRemoveButtonsControl, Path=RemoveCommand}"
