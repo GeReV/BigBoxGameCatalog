@@ -117,7 +117,8 @@ namespace Catalog.Wpf.Commands
                     .GetGameScreenshots(gameEntry.Slug)
             );
 
-            var listItems = screenshotEntries.Take(20).ToList();
+            // TODO: Get this from config.
+            var listItems = screenshotEntries.Take(10).ToList();
 
             var images = listItems.Select(item => new ScreenshotViewModel
             {
