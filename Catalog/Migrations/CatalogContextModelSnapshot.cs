@@ -305,7 +305,7 @@ namespace Catalog.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Color")
-                        .HasColumnName("color_argb")
+                        .HasColumnName("ColorArgb")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DateCreated")

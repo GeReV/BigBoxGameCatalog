@@ -135,7 +135,7 @@ namespace Catalog
 
             tagBuilder.HasIndex(v => v.Name).IsUnique();
             tagBuilder.Property(v => v.Color)
-                .HasColumnName("color_argb")
+                .HasColumnName("ColorArgb")
                 .HasConversion(
                     c => c.ToArgb(),
                     argb => Color.FromArgb(argb)
