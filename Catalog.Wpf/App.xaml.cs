@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using Catalog.Scrapers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf
 {
@@ -39,6 +40,7 @@ namespace Catalog.Wpf
         {
             var context = new CatalogContext(Path.Combine(homeDirectory, "database.sqlite"));
 
+            context.Database.Migrate();
             context.Database.EnsureCreated();
 
             return context;
