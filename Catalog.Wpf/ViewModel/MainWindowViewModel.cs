@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.Comparers;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,8 @@ namespace Catalog.Wpf.ViewModel
 
         public MainWindowViewModel()
         {
+            Tags = new ObservableCollection<Tag>(Application.Current.Database().Tags);
+
             RefreshGames = new DelegateCommand(_ => RefreshGamesCollection());
 
             RefreshGamesCollection();
@@ -58,6 +61,8 @@ namespace Catalog.Wpf.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public ObservableCollection<Tag> Tags { get; set; }
 
         public string SearchTerm
         {

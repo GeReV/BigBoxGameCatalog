@@ -6,10 +6,14 @@
              xmlns:local="clr-namespace:Catalog.Wpf.Forms"
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+             xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
+    <UserControl.Resources>
+        <CollectionViewSource x:Key="Tags" Source="{Binding Tags}" />
+    </UserControl.Resources>
     <ListBox ItemsSource="{Binding FilteredGames}"
              IsSynchronizedWithCurrentItem="True"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -38,6 +42,15 @@
                                 <MenuItem.Icon>
                                     <Image Source="{StaticResource IconCross}" />
                                 </MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="Tags" DisplayMemberPath="Name">
+                                <MenuItem.ItemsSource>
+                                    <CompositeCollection>
+                                        <MenuItem Header="Create Label..." />
+                                        <CollectionContainer Collection="{Binding Source={StaticResource Tags}}" />
+                                    </CompositeCollection>
+                                </MenuItem.ItemsSource>
                             </MenuItem>
                         </ContextMenu>
                     </Setter.Value>
