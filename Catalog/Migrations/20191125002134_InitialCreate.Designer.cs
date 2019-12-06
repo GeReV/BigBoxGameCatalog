@@ -29,9 +29,6 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT")
                         .HasDefaultValueSql("DATETIME('now')");
 
-                    b.Property<int?>("GameCopyId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("LastUpdated")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("TEXT")
@@ -49,8 +46,6 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("DeveloperId");
-
-                    b.HasIndex("GameCopyId");
 
                     b.HasIndex("Name")
                         .IsUnique();

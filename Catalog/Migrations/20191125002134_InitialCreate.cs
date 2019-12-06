@@ -66,17 +66,10 @@ namespace Catalog.Migrations
                     Links = table.Column<string>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: false, defaultValueSql: "DATETIME('now')"),
                     LastUpdated = table.Column<DateTime>(nullable: false, defaultValueSql: "DATETIME('now')"),
-                    GameCopyId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Developers", x => x.DeveloperId);
-                    table.ForeignKey(
-                        name: "FK_Developers_Games_GameCopyId",
-                        column: x => x.GameCopyId,
-                        principalTable: "Games",
-                        principalColumn: "GameCopyId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -175,11 +168,6 @@ namespace Catalog.Migrations
                         principalColumn: "GameItemId",
                         onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Developers_GameCopyId",
-                table: "Developers",
-                column: "GameCopyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Developers_Name",
