@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Catalog.Model;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,8 @@ namespace Catalog
         public DbSet<Developer> Developers { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
 
+        public DbSet<Tag> Tags { get; set; }
+
         public CatalogContext() : this("database.sqlite")
         {
         }
@@ -52,7 +55,11 @@ namespace Catalog
 
             BuildGameItems(modelBuilder);
 
+            BuildTags(modelBuilder);
+
             BuildGameCopyDevelopers(modelBuilder);
+
+            BuildGameCopyTags(modelBuilder);
         }
 
         private static void BuildGames(ModelBuilder modelBuilder)
@@ -122,6 +129,21 @@ namespace Catalog
             ConfigureTimestamps(gameItemBuilder);
         }
 
+        private void BuildTags(ModelBuilder modelBuilder)
+        {
+            var tagBuilder = modelBuilder.Entity<Tag>();
+
+            tagBuilder.HasIndex(v => v.Name).IsUnique();
+            tagBuilder.Property(v => v.Color)
+                .HasColumnName("color_argb")
+                .HasConversion(
+                    c => c.ToArgb(),
+                    argb => Color.FromArgb(argb)
+                );
+
+            ConfigureTimestamps(tagBuilder);
+        }
+
         private static void BuildGameCopyDevelopers(ModelBuilder modelBuilder)
         {
             var gameCopyDeveloperBuilder = modelBuilder.Entity<GameCopyDeveloper>();
@@ -139,6 +161,25 @@ namespace Catalog
                 .HasForeignKey(gd => gd.GameCopyId);
 
             ConfigureTimestamps(gameCopyDeveloperBuilder);
+        }
+
+        private static void BuildGameCopyTags(ModelBuilder modelBuilder)
+        {
+            var gameCopyTagBuilder = modelBuilder.Entity<GameCopyTag>();
+
+            gameCopyTagBuilder.HasKey(t => new {t.GameCopyId, t.TagId});
+
+            gameCopyTagBuilder
+                .HasOne(gct => gct.Tag)
+                .WithMany(d => d.GameCopyTags)
+                .HasForeignKey(gd => gd.TagId);
+
+            gameCopyTagBuilder
+                .HasOne(gd => gd.Game)
+                .WithMany(g => g.GameCopyTags)
+                .HasForeignKey(gd => gd.GameCopyId);
+
+            ConfigureTimestamps(gameCopyTagBuilder);
         }
 
         private static void ConfigureTimestamps<T>(EntityTypeBuilder<T> builder) where T : class, ITimestamps

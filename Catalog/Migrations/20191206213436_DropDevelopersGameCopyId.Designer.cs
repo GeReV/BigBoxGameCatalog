@@ -3,14 +3,16 @@ using System;
 using Catalog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Catalog.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    partial class CatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20191206213436_DropDevelopersGameCopyId")]
+    partial class DropDevelopersGameCopyId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -168,31 +170,6 @@ namespace Catalog.Migrations
                     b.ToTable("GameCopyDeveloper");
                 });
 
-            modelBuilder.Entity("Catalog.Model.GameCopyTag", b =>
-                {
-                    b.Property<int>("GameCopyId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("DATETIME('now')");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("DATETIME('now')");
-
-                    b.HasKey("GameCopyId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("GameCopyTag");
-                });
-
             modelBuilder.Entity("Catalog.Model.GameItem", b =>
                 {
                     b.Property<int>("GameItemId")
@@ -298,38 +275,6 @@ namespace Catalog.Migrations
                     b.ToTable("Publishers");
                 });
 
-            modelBuilder.Entity("Catalog.Model.Tag", b =>
-                {
-                    b.Property<int>("TagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Color")
-                        .HasColumnName("color_argb")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("DATETIME('now')");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("DATETIME('now')");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("TagId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Tags");
-                });
-
             modelBuilder.Entity("Catalog.Model.File", b =>
                 {
                     b.HasOne("Catalog.Model.GameItem", "GameItem")
@@ -356,21 +301,6 @@ namespace Catalog.Migrations
                     b.HasOne("Catalog.Model.GameCopy", "Game")
                         .WithMany("GameCopyDevelopers")
                         .HasForeignKey("GameCopyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Catalog.Model.GameCopyTag", b =>
-                {
-                    b.HasOne("Catalog.Model.GameCopy", "Game")
-                        .WithMany("GameCopyTags")
-                        .HasForeignKey("GameCopyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Catalog.Model.Tag", "Tag")
-                        .WithMany("GameCopyTags")
-                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

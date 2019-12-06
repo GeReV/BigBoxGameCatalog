@@ -27,6 +27,10 @@ namespace Catalog.Model
 
         public IEnumerable<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer);
 
+        public virtual ICollection<GameCopyTag> GameCopyTags { get; set; }
+
+        public IEnumerable<Tag> Tags => GameCopyTags.Select(gct => gct.Tag);
+
         public DateTime ReleaseDate { get; set; }
 
         public List<string> TwoLetterIsoLanguageName { get; set; } = new List<string>();
