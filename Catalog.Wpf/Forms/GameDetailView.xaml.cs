@@ -21,7 +21,10 @@ namespace Catalog.Wpf.Forms
 
         protected virtual void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            GameDoubleClick?.Invoke(this, e);
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                GameDoubleClick?.Invoke(this, e);
+            }
         }
 
         private void ListViewHeader_OnClick(object sender, RoutedEventArgs e)
