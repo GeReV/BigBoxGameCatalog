@@ -44,6 +44,8 @@ namespace Catalog.Wpf.ViewModel
 
         public IEnumerable<Developer> Developers => GameCopy.Developers;
 
+        public IList<Tag> Tags => GameCopy.Tags;
+
         public string Notes => GameCopy.Notes;
 
         public ImageSource Cover => GameCopy.CoverImage == null

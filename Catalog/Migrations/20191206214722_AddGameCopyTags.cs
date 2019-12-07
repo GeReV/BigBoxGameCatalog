@@ -14,7 +14,7 @@ namespace Catalog.Migrations
                     TagId = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(nullable: false),
-                    ColorArgb = table.Column<int>(nullable: false),
+                    ColorArgb = table.Column<string>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false, defaultValueSql: "DATETIME('now')"),
                     LastUpdated = table.Column<DateTime>(nullable: false, defaultValueSql: "DATETIME('now')")
                 },

@@ -12,7 +12,8 @@
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
     <UserControl.Resources>
-        <CollectionViewSource x:Key="Tags" Source="{Binding Tags}" />
+        <CollectionViewSource x:Key="Tags"
+                              Source="{Binding Tags}" />
     </UserControl.Resources>
     <ListBox ItemsSource="{Binding FilteredGames}"
              IsSynchronizedWithCurrentItem="True"
@@ -21,7 +22,8 @@
             <Style TargetType="ListBoxItem">
                 <EventSetter Event="MouseDoubleClick"
                              Handler="OnGameDoubleClick" />
-                <Setter Property="VerticalContentAlignment" Value="Top" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Top" />
                 <Setter Property="ToolTip"
                         Value="{Binding Title}" />
                 <Setter Property="Tag"
@@ -44,7 +46,25 @@
                                 </MenuItem.Icon>
                             </MenuItem>
                             <Separator />
-                            <MenuItem Header="Tags" DisplayMemberPath="Name">
+                            <MenuItem Header="Tags"
+                                      DisplayMemberPath="Name">
+                                <MenuItem.Resources>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Command"
+                                                Value="{Binding PlacementTarget.Tag.ToggleGameTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <Setter Property="CommandParameter"
+                                                Value="{Binding}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}"
+                                                         Value="{x:Null}">
+                                                <Setter Property="Command"
+                                                        Value="{x:Null}" />
+                                                <Setter Property="CommandParameter"
+                                                        Value="{x:Null}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </MenuItem.Resources>
                                 <MenuItem.ItemsSource>
                                     <CompositeCollection>
                                         <MenuItem Header="Create Label..." />
@@ -76,6 +96,17 @@
                                                    TextTrimming="CharacterEllipsis" />
                     <controls:GameStats GameItemGroups="{Binding GameStats, Delay=50}"
                                         HorizontalAlignment="Center" />
+
+                    <WrapPanel FlowDirection="LeftToRight">
+                        <ItemsControl ItemsSource="{Binding Tags}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:Tag Text="{Binding Name}"
+                                                  Color="{Binding Color}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </WrapPanel>
                 </StackPanel>
             </DataTemplate>
         </ListBox.ItemTemplate>

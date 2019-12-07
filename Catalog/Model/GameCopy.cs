@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
@@ -29,7 +30,7 @@ namespace Catalog.Model
 
         public virtual ICollection<GameCopyTag> GameCopyTags { get; set; }
 
-        public IEnumerable<Tag> Tags => GameCopyTags.Select(gct => gct.Tag);
+        public IList<Tag> Tags => GameCopyTags.Select(gct => gct.Tag).ToImmutableList();
 
         public DateTime ReleaseDate { get; set; }
 

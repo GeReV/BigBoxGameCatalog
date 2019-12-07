@@ -306,9 +306,9 @@ namespace Catalog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Color")
+                    b.Property<string>("ColorArgb")
                         .HasColumnName("ColorArgb")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateCreated")
                         .ValueGeneratedOnAdd()

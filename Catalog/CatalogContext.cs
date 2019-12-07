@@ -134,12 +134,7 @@ namespace Catalog
             var tagBuilder = modelBuilder.Entity<Tag>();
 
             tagBuilder.HasIndex(v => v.Name).IsUnique();
-            tagBuilder.Property(v => v.Color)
-                .HasColumnName("ColorArgb")
-                .HasConversion(
-                    c => c.ToArgb(),
-                    argb => Color.FromArgb(argb)
-                );
+            tagBuilder.Property(v => v.ColorArgb);
 
             ConfigureTimestamps(tagBuilder);
         }

@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="Catalog.Wpf.Forms.Controls.Tag"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Catalog.Wpf.Forms.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="12"
+             d:DesignWidth="120">
+    <Border Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}"
+            CornerRadius="3"
+            DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Tag}}"
+            Padding="2">
+        <TextBlock Text="{Binding Text}" FontSize="10" />
+    </Border>
+</UserControl>
