@@ -54,6 +54,25 @@
                                                 Value="{Binding PlacementTarget.Tag.ToggleGameTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                         <Setter Property="CommandParameter"
                                                 Value="{Binding}" />
+                                        <Setter Property="IsChecked">
+                                            <Setter.Value>
+                                                <MultiBinding
+                                                    Converter="{StaticResource ListIncludesToBooleanConverter}"
+                                                    Mode="OneWay">
+                                                    <Binding />
+                                                    <Binding Path="PlacementTarget.Tag.FilteredGames/Tags"
+                                                             RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Icon">
+                                            <Setter.Value>
+                                                <Border Width="16"
+                                                        Height="16"
+                                                        CornerRadius="2"
+                                                        Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
+                                            </Setter.Value>
+                                        </Setter>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding}"
                                                          Value="{x:Null}">
