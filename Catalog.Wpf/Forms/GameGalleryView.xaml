@@ -31,6 +31,9 @@
                 <Setter Property="ContextMenu">
                     <Setter.Value>
                         <ContextMenu>
+                            <ContextMenu.Resources>
+                                <ResourceDictionary Source="/Forms/Controls/TagMenuItem.xaml" />
+                            </ContextMenu.Resources>
                             <MenuItem Header="Edit Game..."
                                       Command="{Binding PlacementTarget.Tag.EditGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                       CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
@@ -48,12 +51,21 @@
                             <Separator />
                             <MenuItem Header="Tags"
                                       DisplayMemberPath="Name">
+                                <MenuItem.ItemsSource>
+                                    <CompositeCollection>
+                                        <MenuItem Header="Create Label..." />
+                                        <CollectionContainer
+                                            Collection="{Binding Source={StaticResource Tags}}" />
+                                    </CompositeCollection>
+                                </MenuItem.ItemsSource>
                                 <MenuItem.Resources>
                                     <Style TargetType="MenuItem">
                                         <Setter Property="Command"
                                                 Value="{Binding PlacementTarget.Tag.ToggleGameTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                         <Setter Property="CommandParameter"
                                                 Value="{Binding}" />
+                                        <Setter Property="Background"
+                                                Value="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
                                         <Setter Property="IsChecked">
                                             <Setter.Value>
                                                 <MultiBinding
@@ -65,31 +77,15 @@
                                                 </MultiBinding>
                                             </Setter.Value>
                                         </Setter>
-                                        <Setter Property="Icon">
-                                            <Setter.Value>
-                                                <Border Width="16"
-                                                        Height="16"
-                                                        CornerRadius="2"
-                                                        Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
-                                            </Setter.Value>
-                                        </Setter>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding}"
-                                                         Value="{x:Null}">
-                                                <Setter Property="Command"
-                                                        Value="{x:Null}" />
-                                                <Setter Property="CommandParameter"
-                                                        Value="{x:Null}" />
-                                            </DataTrigger>
+                                            <Trigger Property="Role"
+                                                     Value="SubmenuItem">
+                                                <Setter Property="Template"
+                                                        Value="{DynamicResource TagsMenuItemTemplate}" />
+                                            </Trigger>
                                         </Style.Triggers>
                                     </Style>
                                 </MenuItem.Resources>
-                                <MenuItem.ItemsSource>
-                                    <CompositeCollection>
-                                        <MenuItem Header="Create Label..." />
-                                        <CollectionContainer Collection="{Binding Source={StaticResource Tags}}" />
-                                    </CompositeCollection>
-                                </MenuItem.ItemsSource>
                             </MenuItem>
                         </ContextMenu>
                     </Setter.Value>

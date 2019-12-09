@@ -1,0 +1,121 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Menu.Static.Foreground"
+                     Color="#FF212121" />
+    <SolidColorBrush x:Key="Menu.Disabled.Foreground"
+                     Color="#FF707070" />
+    <SolidColorBrush x:Key="MenuItem.Selected.Background"
+                     Color="#3D26A0DA" />
+    <SolidColorBrush x:Key="MenuItem.Selected.Border"
+                     Color="#FF26A0DA" />
+    <SolidColorBrush x:Key="MenuItem.Highlight.Background"
+                     Color="#3D26A0DA" />
+    <SolidColorBrush x:Key="MenuItem.Highlight.Border"
+                     Color="#FF26A0DA" />
+    <SolidColorBrush x:Key="MenuItem.Highlight.Disabled.Background"
+                     Color="#0A000000" />
+    <SolidColorBrush x:Key="MenuItem.Highlight.Disabled.Border"
+                     Color="#21000000" />
+    <Geometry x:Key="Checkmark">F1 M 10.0,1.2 L 4.7,9.1 L 4.5,9.1 L 0,5.2 L 1.3,3.5 L 4.3,6.1L 8.3,0 L 10.0,1.2 Z</Geometry>
+    <ControlTemplate x:Key="TagsMenuItemTemplate"
+                     TargetType="{x:Type MenuItem}">
+        <Border x:Name="templateRoot"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                Height="22"
+                SnapsToDevicePixels="True">
+            <Grid Margin="-1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="22"
+                                      SharedSizeGroup="MenuItemIconColumnGroup"
+                                      Width="Auto" />
+                    <ColumnDefinition Width="13" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition SharedSizeGroup="MenuItemIGTColumnGroup"
+                                      Width="Auto" />
+                    <ColumnDefinition Width="20" />
+                </Grid.ColumnDefinitions>
+                <Border x:Name="GlyphPanel"
+                        Background="{TemplateBinding Background}"
+                        BorderThickness="0"
+                        ClipToBounds="False"
+                        CornerRadius="3"
+                        HorizontalAlignment="Center"
+                        Height="16"
+                        Margin="3"
+                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                        VerticalAlignment="Center"
+                        Width="16">
+                    <Path x:Name="Glyph"
+                          Data="{StaticResource Checkmark}"
+                          FlowDirection="LeftToRight"
+                          Visibility="Hidden"
+                          Fill="{StaticResource Menu.Static.Foreground}"
+                          Height="11"
+                          Width="10" />
+                </Border>
+                <ContentPresenter x:Name="menuHeaderContainer"
+                                  ContentSource="Header"
+                                  Grid.Column="2"
+                                  HorizontalAlignment="Left"
+                                  Margin="{TemplateBinding Padding}"
+                                  RecognizesAccessKey="True"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                  VerticalAlignment="Center" />
+                <TextBlock x:Name="menuGestureText"
+                           Grid.Column="4"
+                           Margin="{TemplateBinding Padding}"
+                           Opacity="0.7"
+                           Text="{TemplateBinding InputGestureText}"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="CommandParameter"
+                     Value="{x:Null}">
+                <Setter Property="Visibility"
+                        TargetName="GlyphPanel"
+                        Value="Hidden" />
+            </Trigger>
+            <Trigger Property="IsChecked"
+                     Value="True">
+                <Setter Property="Visibility"
+                        TargetName="Glyph"
+                        Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsHighlighted"
+                     Value="True">
+                <Setter Property="Background"
+                        TargetName="templateRoot"
+                        Value="{StaticResource MenuItem.Highlight.Background}" />
+                <Setter Property="BorderBrush"
+                        TargetName="templateRoot"
+                        Value="{StaticResource MenuItem.Highlight.Border}" />
+            </Trigger>
+            <Trigger Property="IsEnabled"
+                     Value="False">
+                <Setter Property="TextElement.Foreground"
+                        TargetName="templateRoot"
+                        Value="{StaticResource Menu.Disabled.Foreground}" />
+                <Setter Property="Fill"
+                        TargetName="Glyph"
+                        Value="{StaticResource Menu.Disabled.Foreground}" />
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsHighlighted"
+                               Value="True" />
+                    <Condition Property="IsEnabled"
+                               Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background"
+                        TargetName="templateRoot"
+                        Value="{StaticResource MenuItem.Highlight.Disabled.Background}" />
+                <Setter Property="BorderBrush"
+                        TargetName="templateRoot"
+                        Value="{StaticResource MenuItem.Highlight.Disabled.Border}" />
+            </MultiTrigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+</ResourceDictionary>
