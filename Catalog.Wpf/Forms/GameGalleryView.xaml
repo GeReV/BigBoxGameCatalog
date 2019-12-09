@@ -12,8 +12,11 @@
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
     <UserControl.Resources>
-        <CollectionViewSource x:Key="Tags"
-                              Source="{Binding Tags}" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Forms/Controls/GameCopyContextMenu.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
     <ListBox ItemsSource="{Binding FilteredGames}"
              IsSynchronizedWithCurrentItem="True"
@@ -28,68 +31,8 @@
                         Value="{Binding Title}" />
                 <Setter Property="Tag"
                         Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                <Setter Property="ContextMenu">
-                    <Setter.Value>
-                        <ContextMenu>
-                            <ContextMenu.Resources>
-                                <ResourceDictionary Source="/Forms/Controls/TagMenuItem.xaml" />
-                            </ContextMenu.Resources>
-                            <MenuItem Header="Edit Game..."
-                                      Command="{Binding PlacementTarget.Tag.EditGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                      CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                <MenuItem.Icon>
-                                    <Image Source="{StaticResource IconPencil}" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Delete Game..."
-                                      Command="{Binding PlacementTarget.Tag.DeleteGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                      CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                <MenuItem.Icon>
-                                    <Image Source="{StaticResource IconCross}" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <Separator />
-                            <MenuItem Header="Tags"
-                                      DisplayMemberPath="Name">
-                                <MenuItem.ItemsSource>
-                                    <CompositeCollection>
-                                        <MenuItem Header="Create Label..." />
-                                        <CollectionContainer
-                                            Collection="{Binding Source={StaticResource Tags}}" />
-                                    </CompositeCollection>
-                                </MenuItem.ItemsSource>
-                                <MenuItem.Resources>
-                                    <Style TargetType="MenuItem">
-                                        <Setter Property="Command"
-                                                Value="{Binding PlacementTarget.Tag.ToggleGameTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                                        <Setter Property="CommandParameter"
-                                                Value="{Binding}" />
-                                        <Setter Property="Background"
-                                                Value="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
-                                        <Setter Property="IsChecked">
-                                            <Setter.Value>
-                                                <MultiBinding
-                                                    Converter="{StaticResource ListIncludesToBooleanConverter}"
-                                                    Mode="OneWay">
-                                                    <Binding />
-                                                    <Binding Path="PlacementTarget.Tag.FilteredGames/Tags"
-                                                             RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
-                                                </MultiBinding>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="Role"
-                                                     Value="SubmenuItem">
-                                                <Setter Property="Template"
-                                                        Value="{DynamicResource TagsMenuItemTemplate}" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </MenuItem.Resources>
-                            </MenuItem>
-                        </ContextMenu>
-                    </Setter.Value>
-                </Setter>
+                <Setter Property="ContextMenu"
+                        Value="{DynamicResource GameCopyContextMenu}" />
             </Style>
         </ListBox.ItemContainerStyle>
         <ListBox.ItemsPanel>
