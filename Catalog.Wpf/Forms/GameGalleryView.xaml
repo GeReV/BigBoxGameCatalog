@@ -55,16 +55,22 @@
                     <controls:GameStats GameItemGroups="{Binding GameStats, Delay=50}"
                                         HorizontalAlignment="Center" />
 
-                    <WrapPanel FlowDirection="LeftToRight">
-                        <ItemsControl ItemsSource="{Binding Tags}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:Tag Text="{Binding Name}"
-                                                  Color="{Binding Color}" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </WrapPanel>
+                    <ItemsControl ItemsSource="{Binding Tags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel FlowDirection="LeftToRight"
+                                           HorizontalAlignment="Center"
+                                           IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:Tag Text="{Binding Name}"
+                                              Color="{Binding Color}"
+                                              Margin="0,0,3,3" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </DataTemplate>
         </ListBox.ItemTemplate>
