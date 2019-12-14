@@ -14,7 +14,7 @@
         xmlns:globalization="clr-namespace:System.Globalization;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Add Game"
-        Height="875"
+        SizeToContent="Height"
         Width="800"
         Name="Window"
         d:DataContext="{d:DesignInstance viewModel:EditGameViewModel}"

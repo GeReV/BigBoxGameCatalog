@@ -4,12 +4,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:Catalog.Wpf"
+        xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         mc:Ignorable="d"
-        Title="EditLabelWindow"
+        Title="Create Label"
         Name="EditLabel"
-        Height="100"
-        Width="280"
-        MouseLeftButtonDown="EditLabelWindow_OnMouseLeftButtonDown">
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        MouseLeftButtonDown="EditLabelWindow_OnMouseLeftButtonDown"
+        d:DataContext="{d:DesignInstance viewModel:TagViewModel}">
     <DockPanel DataContext="{Binding ViewModel, ElementName=EditLabel}">
         <StackPanel DockPanel.Dock="Bottom"
                     Orientation="Horizontal"
@@ -18,11 +20,13 @@
             <Button IsDefault="True"
                     Width="50"
                     Height="24"
-                    Margin="0,0,4,0" Click="OKButton_OnClick">
+                    Margin="0,0,4,0"
+                    Click="OKButton_OnClick">
                 OK
             </Button>
             <Button Width="50"
-                    Height="24" Click="CancelButton_OnClick">
+                    Height="24"
+                    Click="CancelButton_OnClick">
                 Cancel
             </Button>
         </StackPanel>
@@ -35,18 +39,20 @@
             </Grid.ColumnDefinitions>
 
             <TextBox Text="{Binding Title}"
-                     VerticalContentAlignment="Center" />
+                     VerticalContentAlignment="Center"
+                     MinWidth="240" />
             <Button Name="ColorPicker"
                     Grid.Column="1"
                     Margin="4,0,0,0"
                     Padding="4,0,4,0"
-                    Click="ColorPicker_OnClick" SnapsToDevicePixels="True">
+                    Click="ColorPicker_OnClick"
+                    SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal">
                     <Border BorderThickness="1"
                             BorderBrush="#FF444444"
                             Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}"
                             Width="16"
-                            Height="16"/>
+                            Height="16" />
                     <Path Fill="#FF444444"
                           Margin="2,0,0,0"
                           HorizontalAlignment="Center"
