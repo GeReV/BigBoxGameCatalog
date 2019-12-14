@@ -68,6 +68,14 @@
         <Content Include="Resources\prohibition.png">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <None Remove="Resources\tag-plus.png" />
+        <Content Include="Resources\tag-plus.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Remove="Resources\tag.png" />
+        <Content Include="Resources\tag.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>

@@ -58,6 +58,10 @@
                          UriSource="pack://application:,,,/Resources/plus.png" />
             <BitmapImage x:Key="IconProhibition"
                          UriSource="pack://application:,,,/Resources/prohibition.png" />
+            <BitmapImage x:Key="IconTag"
+                         UriSource="pack://application:,,,/Resources/tag.png" />
+            <BitmapImage x:Key="IconTagPlus"
+                         UriSource="pack://application:,,,/Resources/tag-plus.png" />
 
             <converters:DictionaryValueConverter x:Key="ItemTypeIconConverter"
                                                  KeyType="model:ItemType">
