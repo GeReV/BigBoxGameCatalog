@@ -51,12 +51,20 @@
                             <Setter Property="Template"
                                     Value="{DynamicResource TagsMenuItemTemplate}" />
                         </Trigger>
+                        <Trigger Property="IsCheckable"
+                                 Value="False">
+                            <Setter Property="Command"
+                                    Value="{Binding PlacementTarget.Tag.AddTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Setter Property="CommandParameter"
+                                    Value="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                        </Trigger>
                     </Style.Triggers>
                 </Style>
             </MenuItem.Resources>
             <MenuItem.ItemsSource>
                 <CompositeCollection>
-                    <MenuItem Header="Create Label..." />
+                    <MenuItem Header="Create Tag..."
+                              IsCheckable="False" />
                     <CollectionContainer Collection="{Binding Source={StaticResource Tags}}" />
                 </CompositeCollection>
             </MenuItem.ItemsSource>

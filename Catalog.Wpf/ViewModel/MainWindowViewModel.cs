@@ -15,6 +15,7 @@ namespace Catalog.Wpf.ViewModel
 {
     public class MainWindowViewModel : NotifyPropertyChangedBase
     {
+        private ObservableCollection<Tag> tags;
         private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
         private string searchTerm;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
@@ -63,7 +64,16 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<Tag> Tags { get; set; }
+        public ObservableCollection<Tag> Tags
+        {
+            get => tags;
+            set
+            {
+                if (Equals(value, tags)) return;
+                tags = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string SearchTerm
         {
@@ -97,6 +107,37 @@ namespace Catalog.Wpf.ViewModel
             toggleGameTagCommand ??= new ToggleTagCommand(Application.Current.Database(), this);
 
         public ICommand ChangeViewModeCommand => new DelegateCommand(mode => { ViewMode = (MainWindowViewMode) mode; });
+
+        public ICommand AddTagCommand => new DelegateCommand((param) =>
+        {
+            if (!(param is GameViewModel gameViewModel))
+            {
+                return;
+            }
+
+            var addTagWindow = new EditTagWindow();
+
+            if (addTagWindow.ShowDialog() != true)
+            {
+                return;
+            }
+
+            var db = Application.Current.Database();
+
+            db.Tags.Add(addTagWindow.ResultTag);
+
+            gameViewModel.GameCopy.GameCopyTags.Add(new GameCopyTag
+            {
+                Game = gameViewModel.GameCopy,
+                Tag = addTagWindow.ResultTag
+            });
+
+            db.SaveChanges();
+
+            Tags = new ObservableCollection<Tag>(db.Tags);
+
+            RefreshGamesCollection();
+        });
 
         public void RefreshGamesCollection()
         {
