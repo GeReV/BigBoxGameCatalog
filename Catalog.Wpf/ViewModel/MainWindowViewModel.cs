@@ -25,7 +25,7 @@ namespace Catalog.Wpf.ViewModel
 
         public MainWindowViewModel()
         {
-            Tags = new ObservableCollection<Tag>(Application.Current.Database().Tags);
+            RefreshTags();
 
             RefreshGames = new DelegateCommand(_ => RefreshGamesCollection());
 
@@ -134,7 +134,7 @@ namespace Catalog.Wpf.ViewModel
 
             db.SaveChanges();
 
-            Tags = new ObservableCollection<Tag>(db.Tags);
+            RefreshTags();
 
             RefreshGamesCollection();
         });
@@ -153,6 +153,11 @@ namespace Catalog.Wpf.ViewModel
             {
                 Games.Add(game);
             }
+        }
+
+        private void RefreshTags()
+        {
+            Tags = new ObservableCollection<Tag>(Application.Current.Database().Tags.OrderBy(t => t.Name));
         }
 
         private void RefreshFilteredGames(object sender, PropertyChangedEventArgs e)

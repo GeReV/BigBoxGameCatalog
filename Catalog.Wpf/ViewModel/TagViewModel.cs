@@ -10,7 +10,6 @@ namespace Catalog.Wpf.ViewModel
 
         private string title;
         private Color color;
-        private readonly IEnumerable<Color> colors;
         private bool colorPickerIsOpen;
 
         public TagViewModel()
@@ -31,7 +30,7 @@ namespace Catalog.Wpf.ViewModel
                 }
             }
 
-            colors = list;
+            Colors = list;
         }
 
         public string Title
@@ -56,7 +55,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public IEnumerable<Color> Colors => colors;
+        public IEnumerable<Color> Colors { get; }
 
         public bool ColorPickerIsOpen
         {
