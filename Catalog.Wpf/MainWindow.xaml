@@ -7,6 +7,7 @@
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
         xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
+        xmlns:wpf="clr-namespace:Catalog.Wpf"
         mc:Ignorable="d"
         Title="Big Box Game Catalog"
         Name="Main"
@@ -30,6 +31,70 @@
                     </StackPanel>
                 </Button>
                 <Separator />
+                <controls:DropDownButton
+                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=wpf:MainWindow}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{StaticResource IconTag}" />
+                        <Path Fill="#FF444444"
+                              Margin="2,0,0,0"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Data="M 0 0 L 4 4 L 8 0 Z" />
+                    </StackPanel>
+                    <controls:DropDownButton.Menu>
+                        <ContextMenu DisplayMemberPath="Name">
+                            <ContextMenu.Resources>
+                                <ResourceDictionary>
+                                    <ResourceDictionary.MergedDictionaries>
+                                        <ResourceDictionary Source="/Forms/Controls/TagMenuItem.xaml" />
+                                    </ResourceDictionary.MergedDictionaries>
+                                    <CollectionViewSource x:Key="Tags"
+                                                          Source="{Binding Tags}" />
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Command"
+                                                Value="{Binding PlacementTarget.DataContext.ToggleGameTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <Setter Property="CommandParameter"
+                                                Value="{Binding}" />
+                                        <Setter Property="Background"
+                                                Value="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
+                                        <Setter Property="IsChecked">
+                                            <Setter.Value>
+                                                <MultiBinding
+                                                    Converter="{StaticResource ListIncludesToBooleanConverter}"
+                                                    Mode="OneWay">
+                                                    <Binding />
+                                                    <Binding Path="PlacementTarget.DataContext.FilteredGames/Tags"
+                                                             RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Template"
+                                                Value="{DynamicResource TagsMenuItemTemplate}" />
+                                        <Style.Triggers>
+                                            <Trigger Property="Tag"
+                                                     Value="Create">
+                                                <Setter Property="Command"
+                                                        Value="{Binding PlacementTarget.DataContext.CreateTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ResourceDictionary>
+                            </ContextMenu.Resources>
+                            <ContextMenu.ItemsSource>
+                                <CompositeCollection>
+                                    <MenuItem Header="Create Tag..."
+                                              Tag="Create">
+                                        <MenuItem.Icon>
+                                            <Image Source="{StaticResource IconTagPlus}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator />
+                                    <CollectionContainer Collection="{Binding Source={StaticResource Tags}}" />
+                                </CompositeCollection>
+                            </ContextMenu.ItemsSource>
+                        </ContextMenu>
+                    </controls:DropDownButton.Menu>
+                </controls:DropDownButton>
                 <controls:DropDownButton>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{Binding ViewMode.IconSource}" />

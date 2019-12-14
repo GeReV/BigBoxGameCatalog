@@ -15,11 +15,13 @@ namespace Catalog.Wpf
 
         public Tag ResultTag { get; private set; } = null;
 
-        public EditTagWindow()
+        public EditTagWindow(Tag tag = null)
         {
-            ViewModel = new TagViewModel();
+            ViewModel = new TagViewModel(tag);
 
             InitializeComponent();
+
+            Title = ViewModel.Tag.IsNew ? "Add Tag" : $"Edit Tag: {ViewModel.Title}";
         }
 
         private void ColorPicker_OnClick(object sender, RoutedEventArgs e)
@@ -35,11 +37,8 @@ namespace Catalog.Wpf
         private void OKButton_OnClick(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
-            ResultTag = new Tag
-            {
-                Color = ViewModel.Color,
-                Name = ViewModel.Title
-            };
+
+            ResultTag = ViewModel.Tag;
 
             Close();
         }

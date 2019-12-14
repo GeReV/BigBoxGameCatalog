@@ -142,6 +142,27 @@ namespace Catalog.Wpf.ViewModel
             RefreshGamesCollection();
         });
 
+        public ICommand CreateTagCommand => new DelegateCommand(_ =>
+        {
+            var addTagWindow = new EditTagWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (addTagWindow.ShowDialog() != true)
+            {
+                return;
+            }
+
+            var db = Application.Current.Database();
+
+            db.Tags.Add(addTagWindow.ResultTag);
+
+            db.SaveChanges();
+
+            RefreshTags();
+        });
+
         public void RefreshGamesCollection()
         {
             var db = Application.Current.Database();

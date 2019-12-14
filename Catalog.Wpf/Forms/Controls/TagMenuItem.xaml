@@ -36,15 +36,25 @@
                                       Width="Auto" />
                     <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
+                <ContentPresenter x:Name="Icon"
+                                  ContentSource="Icon"
+                                  Width="16"
+                                  Height="16"
+                                  Margin="3"
+                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                  VerticalAlignment="Center"
+                                  />
                 <Border x:Name="GlyphPanel"
                         Background="{TemplateBinding Background}"
                         BorderThickness="0"
                         ClipToBounds="False"
                         CornerRadius="3"
+                        Grid.Column="0"
                         HorizontalAlignment="Center"
                         Height="16"
                         Margin="3"
                         SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                        Visibility="Hidden"
                         VerticalAlignment="Center"
                         Width="16">
                     <Path x:Name="Glyph"
@@ -83,6 +93,10 @@
                 <Setter Property="Visibility"
                         TargetName="Glyph"
                         Value="Visible" />
+            </Trigger>
+            <Trigger Property="Icon" Value="{x:Null}">
+                <Setter Property="Visibility" TargetName="Icon" Value="Hidden" />
+                <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible" />
             </Trigger>
             <Trigger Property="IsHighlighted"
                      Value="True">

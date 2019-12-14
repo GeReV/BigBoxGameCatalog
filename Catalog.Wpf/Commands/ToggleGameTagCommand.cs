@@ -16,6 +16,11 @@ namespace Catalog.Wpf.Commands
             this.viewModel = viewModel;
         }
 
+        public override bool CanExecute(object parameter)
+        {
+            return viewModel.FilteredGames.CurrentItem != null;
+        }
+
         public override void Execute(object parameter)
         {
             if (!(parameter is Tag tag))

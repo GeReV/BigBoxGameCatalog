@@ -1,19 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Input;
+using Catalog.Model;
 
 namespace Catalog.Wpf.ViewModel
 {
     public class TagViewModel : NotifyPropertyChangedBase
     {
+        private readonly Tag tag;
         private const int DIVISIONS = 6;
 
         private string title;
         private Color color;
         private bool colorPickerIsOpen;
 
-        public TagViewModel()
+        public TagViewModel(Tag tag)
         {
+            this.tag = tag ?? new Tag();
+
+            Title = Tag.Name;
+            Color = Tag.Color;
+
             var list = new List<Color>();
 
             for (var i = 0; i < 3; i++)
@@ -33,6 +40,8 @@ namespace Catalog.Wpf.ViewModel
             Colors = list;
         }
 
+        public Tag Tag => tag;
+
         public string Title
         {
             get => title;
@@ -40,6 +49,7 @@ namespace Catalog.Wpf.ViewModel
             {
                 if (value == title) return;
                 title = value;
+                tag.Name = value;
                 OnPropertyChanged();
             }
         }
@@ -51,6 +61,7 @@ namespace Catalog.Wpf.ViewModel
             {
                 if (value.Equals(color)) return;
                 color = value;
+                tag.Color = value;
                 OnPropertyChanged();
             }
         }
