@@ -23,7 +23,10 @@ namespace Catalog.Wpf.Commands
 
             var covers = await Task.Run(() => scraper.GetCoverArt(editGameViewModel.GameMobyGamesSlug));
 
-            var selectionDialog = new CoverSelectionDialog(covers);
+            var selectionDialog = new CoverSelectionDialog(covers)
+            {
+                Owner = editGameViewModel.ParentWindow
+            };
 
             if (selectionDialog.ShowDialog() == true)
             {

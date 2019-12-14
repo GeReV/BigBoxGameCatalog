@@ -115,7 +115,10 @@ namespace Catalog.Wpf.ViewModel
                 return;
             }
 
-            var addTagWindow = new EditTagWindow();
+            var addTagWindow = new EditTagWindow
+            {
+                Owner = Application.Current.MainWindow
+            };
 
             if (addTagWindow.ShowDialog() != true)
             {

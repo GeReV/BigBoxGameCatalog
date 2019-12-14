@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -20,6 +21,7 @@ namespace Catalog.Wpf.ViewModel
     public sealed class EditGameViewModel : NotifyPropertyChangedBase
     {
         private readonly CatalogContext database;
+
         private string gameTitle;
         private string gameMobyGamesSlug;
         private string gameNotes;
@@ -29,13 +31,27 @@ namespace Catalog.Wpf.ViewModel
         private ViewStatus viewStatus = ViewStatus.Idle;
         private ItemViewModel currentGameItem;
         private string developerSearchTerm;
-        private ObservableCollection<CultureInfo> gameLanguages;
-        private ObservableCollection<Developer> gameDevelopers;
-        private ObservableCollection<Platform> gamePlatforms;
-        private ObservableCollection<string> gameLinks;
-        private ObservableCollection<ItemViewModel> gameItems;
+
+        private ObservableCollection<CultureInfo> gameLanguages = new ObservableCollection<CultureInfo>
+            {CultureInfo.GetCultureInfo("en")};
+
+        private ObservableCollection<Developer> gameDevelopers = new ObservableCollection<Developer>();
+        private ObservableCollection<Platform> gamePlatforms = new ObservableCollection<Platform>();
+        private ObservableCollection<string> gameLinks = new ObservableCollection<string>();
+
+        private ObservableCollection<ItemViewModel> gameItems = new ObservableCollection<ItemViewModel>
+        {
+            new ItemViewModel
+            {
+                ItemType = Model.ItemTypes.BigBox
+            }
+        };
+
         private ScreenshotViewModel gameCoverImage;
-        private ObservableCollection<ScreenshotViewModel> gameScreenshots;
+
+        private ObservableCollection<ScreenshotViewModel> gameScreenshots =
+            new ObservableCollection<ScreenshotViewModel>();
+
         private string languageSearchTerm;
         private bool gameSealed;
         private ImageSource coverImageSource;
@@ -56,26 +72,15 @@ namespace Catalog.Wpf.ViewModel
             DownloadingScreenshots,
         }
 
-        public EditGameViewModel(CatalogContext database)
+        public EditGameViewModel(CatalogContext database, EditGameDialog parentWindow, GameCopy gameCopy = null)
         {
             this.database = database;
+            ParentWindow = parentWindow;
 
             Publishers = new ObservableCollection<Publisher>(database.Publishers);
             Developers = new ObservableCollection<Developer>(database.Developers);
 
-            Game = new GameCopy();
-            GameItems = new ObservableCollection<ItemViewModel>
-            {
-                new ItemViewModel
-                {
-                    ItemType = Model.ItemTypes.BigBox
-                }
-            };
-            GameLinks = new ObservableCollection<string>();
-            GameDevelopers = new ObservableCollection<Developer>();
-            GameScreenshots = new ObservableCollection<ScreenshotViewModel>();
-            GameLanguages = new ObservableCollection<CultureInfo> {CultureInfo.GetCultureInfo("en")};
-            GamePlatforms = new ObservableCollection<Platform>();
+            InitializeData(gameCopy);
 
             FilteredDevelopers = new ListCollectionView(Developers)
             {
@@ -111,6 +116,31 @@ namespace Catalog.Wpf.ViewModel
             PropertyChanged += RefreshFilteredDevelopers;
         }
 
+        private void InitializeData(GameCopy gameCopy)
+        {
+            if (gameCopy == null)
+            {
+                return;
+            }
+
+            Game = gameCopy;
+            GameTitle = gameCopy.Title;
+            GameSealed = gameCopy.Sealed;
+            GameMobyGamesSlug = gameCopy.MobyGamesSlug;
+            GameNotes = gameCopy.Notes;
+            GamePublisher = gameCopy.Publisher;
+            GameDevelopers = new ObservableCollection<Developer>(gameCopy.Developers.Distinct());
+            GameLinks = new ObservableCollection<string>(gameCopy.Links.Distinct());
+            GamePlatforms = new ObservableCollection<Platform>(gameCopy.Platforms.Distinct());
+            GameLanguages =
+                new ObservableCollection<CultureInfo>(
+                    gameCopy.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang)));
+            GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem));
+            GameScreenshots = new ObservableCollection<ScreenshotViewModel>(
+                gameCopy.Screenshots.Select(ScreenshotViewModel.FromPath));
+            GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromPath(gameCopy.CoverImage);
+        }
+
         private void RefreshFilteredDevelopers(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(DeveloperSearchTerm) || e.PropertyName == nameof(Developers) ||
@@ -128,7 +158,9 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public GameCopy Game { get; private set; }
+        public Window ParentWindow { get; private set; }
+
+        public GameCopy Game { get; private set; } = new GameCopy();
 
         public string GameTitle
         {
@@ -407,31 +439,5 @@ namespace Catalog.Wpf.ViewModel
                 GameScreenshots.Remove(selectedItem);
             }
         });
-
-        public static EditGameViewModel FromGameCopy(GameCopy gameCopy, CatalogContext database)
-        {
-            var screenshots =
-                new ObservableCollection<ScreenshotViewModel>(
-                    gameCopy.Screenshots.Select(ScreenshotViewModel.FromPath));
-
-            return new EditGameViewModel(database)
-            {
-                Game = gameCopy,
-                GameTitle = gameCopy.Title,
-                GameSealed = gameCopy.Sealed,
-                GameMobyGamesSlug = gameCopy.MobyGamesSlug,
-                GameNotes = gameCopy.Notes,
-                GamePublisher = gameCopy.Publisher,
-                GameDevelopers = new ObservableCollection<Developer>(gameCopy.Developers.Distinct()),
-                GameLinks = new ObservableCollection<string>(gameCopy.Links.Distinct()),
-                GamePlatforms = new ObservableCollection<Platform>(gameCopy.Platforms.Distinct()),
-                GameLanguages =
-                    new ObservableCollection<CultureInfo>(
-                        gameCopy.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang))),
-                GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem)),
-                GameScreenshots = screenshots,
-                GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromPath(gameCopy.CoverImage)
-            };
-        }
     }
 }

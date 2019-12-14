@@ -28,9 +28,12 @@ namespace Catalog.Wpf.Commands
                 .Collection(v => v.Items)
                 .Load();
 
-            var viewModel = EditGameViewModel.FromGameCopy(game.GameCopy, db);
+            var editGameDialog = new EditGameDialog(db, game.GameCopy)
+            {
+                Owner = Application.Current.MainWindow
+            };
 
-            if (new EditGameDialog(viewModel).ShowDialog() == true)
+            if (editGameDialog.ShowDialog() == true)
             {
                 mainWindowViewModel.RefreshGamesCollection();
             }

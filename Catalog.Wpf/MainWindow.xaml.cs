@@ -17,7 +17,12 @@ namespace Catalog.Wpf
 
         private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (new EditGameDialog().ShowDialog() == true)
+            var editGameDialog = new EditGameDialog(Application.Current.Database())
+            {
+                Owner = this
+            };
+
+            if (editGameDialog.ShowDialog() == true)
             {
                 CommandExecutor.Execute(ViewModel.RefreshGames);
             }

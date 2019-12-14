@@ -9,11 +9,11 @@ namespace Catalog.Wpf
 {
     public partial class EditGameDialog : Window
     {
-        public EditGameDialog(EditGameViewModel viewModel = null)
+        public EditGameDialog(CatalogContext db, GameCopy gameCopy = null)
         {
             InitializeComponent();
 
-            ViewModel = viewModel ?? new EditGameViewModel(Application.Current.Database());
+            ViewModel = new EditGameViewModel(Application.Current.Database(), this, gameCopy);
 
             Title = ViewModel.Game.IsNew ? "Add Game" : $"Edit Game: {ViewModel.GameTitle}";
         }

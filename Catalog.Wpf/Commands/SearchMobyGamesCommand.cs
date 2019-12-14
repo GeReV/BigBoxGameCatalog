@@ -36,7 +36,10 @@ namespace Catalog.Wpf.Commands
 
             var entries = await Task.Run(() => scraper.Search(term));
 
-            var disambiguationDialog = new GameDisambiguationDialog(entries);
+            var disambiguationDialog = new GameDisambiguationDialog(entries)
+            {
+                Owner = editGameViewModel.ParentWindow
+            };
 
             if (disambiguationDialog.ShowDialog() != true)
             {
