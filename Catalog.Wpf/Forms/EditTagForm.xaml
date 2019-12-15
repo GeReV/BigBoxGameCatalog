@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:Catalog.Wpf.Forms"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
+             xmlns:wpf="clr-namespace:Catalog.Wpf"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
@@ -20,65 +22,9 @@
         <TextBox Text="{Binding Title}"
                  VerticalContentAlignment="Center" />
 
-        <xctk:DropDownButton Grid.Column="1"
-                             Margin="4,0,0,0"
-                             Padding="4,0,4,0"
-                             SnapsToDevicePixels="True">
-            <Border BorderThickness="1"
-                    BorderBrush="#FF444444"
-                    Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}"
-                    Width="16"
-                    Height="16" />
-            <xctk:DropDownButton.DropDownContent>
-                <ItemsControl ItemsSource="{Binding Colors}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel ItemWidth="24"
-                                       ItemHeight="24"
-                                       Width="144"
-                                       IsItemsHost="True" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Command="{Binding GameTag.SetColor, RelativeSource={RelativeSource AncestorType=local:EditTagForm}}"
-                                    CommandParameter="{Binding}"
-                                    Margin="1"
-                                    SnapsToDevicePixels="True">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <ControlTemplate.Resources>
-                                            <SolidColorBrush x:Key="Button.MouseOver.Border"
-                                                             Color="#FF3C7FB1" />
-                                            <SolidColorBrush x:Key="Button.Pressed.Border"
-                                                             Color="#FF2C628B" />
-                                        </ControlTemplate.Resources>
-                                        <Border x:Name="border"
-                                                Background="{Binding Converter={StaticResource ColorToBrushConverter}}"
-                                                BorderThickness="1"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                SnapsToDevicePixels="True" />
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver"
-                                                     Value="true">
-                                                <Setter Property="BorderBrush"
-                                                        TargetName="border"
-                                                        Value="{StaticResource Button.MouseOver.Border}" />
-                                            </Trigger>
-                                            <Trigger Property="IsPressed"
-                                                     Value="true">
-                                                <Setter Property="BorderBrush"
-                                                        TargetName="border"
-                                                        Value="{StaticResource Button.Pressed.Border}" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </xctk:DropDownButton.DropDownContent>
-        </xctk:DropDownButton>
+        <controls:ColorPicker Grid.Column="1"
+                              Colors="{Binding Colors}"
+                              Color="{Binding Color}"
+                              SelectCommand="{Binding SetColor}" />
     </Grid>
 </UserControl>

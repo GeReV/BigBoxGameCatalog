@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Input;
 using Catalog.Model;
@@ -8,7 +9,6 @@ namespace Catalog.Wpf.ViewModel
     public class TagViewModel : NotifyPropertyChangedBase
     {
         private readonly Tag tag;
-        private const int DIVISIONS = 6;
 
         private string title;
         private Color color;
@@ -19,24 +19,6 @@ namespace Catalog.Wpf.ViewModel
 
             Title = Tag.Name;
             Color = Tag.Color;
-
-            var list = new List<Color>();
-
-            for (var i = 0; i < 3; i++)
-            {
-                for (var j = 0; j < DIVISIONS; j++)
-                {
-                    var c = new Cubehelix(
-                        j * (360 / DIVISIONS),
-                        1f,
-                        0.75f - 0.25f * i
-                    ).ToColor();
-
-                    list.Add(c);
-                }
-            }
-
-            Colors = list;
         }
 
         public Tag Tag => tag;
@@ -65,11 +47,8 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public IEnumerable<Color> Colors { get; }
+        public ObservableCollection<Color> Colors => new ObservableCollection<Color>(TagColors.All);
 
-        public ICommand SetColor => new DelegateCommand(param =>
-        {
-            Color = (Color) param;
-        });
+        public ICommand SetColor => new DelegateCommand(param => { Color = (Color) param; });
     }
 }
