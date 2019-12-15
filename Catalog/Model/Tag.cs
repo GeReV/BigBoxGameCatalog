@@ -30,6 +30,7 @@ namespace Catalog.Model
 
         public IEnumerable<GameCopy> Games => GameCopyTags.Select(gct => gct.Game);
 
+        public int Id => TagId;
         public bool IsNew => TagId == 0;
     }
 }

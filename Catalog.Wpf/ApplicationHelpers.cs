@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using Catalog.Scrapers;
 
 namespace Catalog.Wpf
@@ -9,7 +10,7 @@ namespace Catalog.Wpf
             application.Properties[nameof(HomeDirectory)].ToString();
 
         public static CatalogContext Database(this Application application) =>
-            application.Properties[nameof(Database)] as CatalogContext;
+            new CatalogContext(Path.Combine(application.HomeDirectory(), "database.sqlite"));
 
         public static IWebClient ScraperWebClient(this Application application) =>
             (IWebClient) application.Properties[nameof(ScraperWebClient)];

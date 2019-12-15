@@ -43,6 +43,7 @@ namespace Catalog.Model
             return (Path != null ? Path.GetHashCode() : 0);
         }
 
+        public int Id => ImageId;
         public bool IsNew => ImageId == 0;
     }
 }

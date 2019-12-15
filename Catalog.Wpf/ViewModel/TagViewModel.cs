@@ -12,7 +12,6 @@ namespace Catalog.Wpf.ViewModel
 
         private string title;
         private Color color;
-        private bool colorPickerIsOpen;
 
         public TagViewModel(Tag tag)
         {
@@ -68,21 +67,9 @@ namespace Catalog.Wpf.ViewModel
 
         public IEnumerable<Color> Colors { get; }
 
-        public bool ColorPickerIsOpen
-        {
-            get => colorPickerIsOpen;
-            set
-            {
-                if (value == colorPickerIsOpen) return;
-                colorPickerIsOpen = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ICommand SetColor => new DelegateCommand(param =>
         {
             Color = (Color) param;
-            ColorPickerIsOpen = false;
         });
     }
 }

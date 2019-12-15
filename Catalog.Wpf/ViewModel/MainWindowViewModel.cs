@@ -17,41 +17,35 @@ namespace Catalog.Wpf.ViewModel
     {
         private ObservableCollection<Tag> tags;
         private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
+        private ListCollectionView filteredGames;
         private string searchTerm;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
         private ICommand editGameCommand;
         private ICommand deleteGameCommand;
         private ICommand toggleGameTagCommand;
+        private ICommand refreshGames;
 
         public MainWindowViewModel()
         {
             RefreshTags();
 
-            RefreshGames = new DelegateCommand(_ => RefreshGamesCollection());
-
             RefreshGamesCollection();
-
-            FilteredGames = new ListCollectionView(Games)
-            {
-                CustomSort = new GameComparer(),
-                Filter = obj =>
-                {
-                    if (obj is GameViewModel game)
-                    {
-                        return game.Title.IndexOf(SearchTerm ?? string.Empty,
-                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
-                    }
-
-                    return false;
-                }
-            };
 
             PropertyChanged += RefreshFilteredGames;
         }
 
-        public ListCollectionView FilteredGames { get; }
+        public ListCollectionView FilteredGames
+        {
+            get => filteredGames;
+            set
+            {
+                if (Equals(value, filteredGames)) return;
+                filteredGames = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public ICommand RefreshGames { get; }
+        public ICommand RefreshGames => refreshGames ??= new DelegateCommand(_ => RefreshGamesCollection());
 
         public ObservableCollection<GameViewModel> Games
         {
@@ -104,7 +98,7 @@ namespace Catalog.Wpf.ViewModel
             deleteGameCommand ??= new DeleteGameCommand(this);
 
         public ICommand ToggleGameTagCommand =>
-            toggleGameTagCommand ??= new ToggleTagCommand(Application.Current.Database(), this);
+            toggleGameTagCommand ??= new ToggleTagCommand(this);
 
         public ICommand ChangeViewModeCommand => new DelegateCommand(mode => { ViewMode = (MainWindowViewMode) mode; });
 
@@ -125,9 +119,9 @@ namespace Catalog.Wpf.ViewModel
                 return;
             }
 
-            var db = Application.Current.Database();
+            using var database = Application.Current.Database();
 
-            db.Tags.Add(addTagWindow.ResultTag);
+            database.Tags.Add(addTagWindow.ResultTag);
 
             gameViewModel.GameCopy.GameCopyTags.Add(new GameCopyTag
             {
@@ -135,7 +129,7 @@ namespace Catalog.Wpf.ViewModel
                 Tag = addTagWindow.ResultTag
             });
 
-            db.SaveChanges();
+            database.SaveChanges();
 
             RefreshTags();
 
@@ -154,34 +148,68 @@ namespace Catalog.Wpf.ViewModel
                 return;
             }
 
-            var db = Application.Current.Database();
+            using var database = Application.Current.Database();
 
-            db.Tags.Add(addTagWindow.ResultTag);
+            database.Tags.Add(addTagWindow.ResultTag);
 
-            db.SaveChanges();
+            database.SaveChanges();
 
             RefreshTags();
         });
 
+        public ICommand ManageTagsCommand => new DelegateCommand(_ =>
+        {
+            var manageTagsWindow = new ManageTagsWindow()
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (manageTagsWindow.ShowDialog() != true)
+            {
+                return;
+            }
+
+            RefreshTags();
+
+            RefreshGamesCollection();
+        });
+
         public void RefreshGamesCollection()
         {
-            var db = Application.Current.Database();
+            using var database = Application.Current.Database();
 
-            var updatedGames = db.Games
+            var updatedGames = database.Games
                 .Include(g => g.Items)
+                .Include(g => g.GameCopyDevelopers)
+                .ThenInclude(gcd => gcd.Developer)
+                .Include(g => g.Publisher)
+                .Include(g => g.GameCopyTags)
+                .ThenInclude(t => t.Tag)
                 .Select(gc => new GameViewModel(gc));
 
-            Games.Clear();
+            Games = new ObservableCollection<GameViewModel>(updatedGames);
 
-            foreach (var game in updatedGames)
+            FilteredGames = new ListCollectionView(Games)
             {
-                Games.Add(game);
-            }
+                CustomSort = new GameComparer(),
+                Filter = obj =>
+                {
+                    if (obj is GameViewModel game)
+                    {
+                        return game.Title.IndexOf(SearchTerm ?? string.Empty,
+                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
+                    }
+
+                    return false;
+                }
+            };
         }
 
         private void RefreshTags()
         {
-            Tags = new ObservableCollection<Tag>(Application.Current.Database().Tags.OrderBy(t => t.Name));
+            using var database = Application.Current.Database();
+
+            Tags = new ObservableCollection<Tag>(database.Tags.OrderBy(t => t.Name));
         }
 
         private void RefreshFilteredGames(object sender, PropertyChangedEventArgs e)

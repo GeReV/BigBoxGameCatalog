@@ -27,6 +27,7 @@ namespace Catalog.Model
 
         public IEnumerable<GameCopy> Games => GameCopyDevelopers.Select(gcd => gcd.Game);
 
+        public int Id => DeveloperId;
         public bool IsNew => DeveloperId == 0;
 
         public bool Equals(Developer other)

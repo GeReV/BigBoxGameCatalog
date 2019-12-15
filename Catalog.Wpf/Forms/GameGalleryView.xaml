@@ -20,6 +20,7 @@
     </UserControl.Resources>
     <ListBox ItemsSource="{Binding FilteredGames}"
              IsSynchronizedWithCurrentItem="True"
+             SelectionMode="Extended"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">

@@ -76,6 +76,11 @@
                                                 <Setter Property="Command"
                                                         Value="{Binding PlacementTarget.DataContext.CreateTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                                             </Trigger>
+                                            <Trigger Property="Tag"
+                                                     Value="Manage">
+                                                <Setter Property="Command"
+                                                        Value="{Binding PlacementTarget.DataContext.ManageTagsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                            </Trigger>
                                         </Style.Triggers>
                                     </Style>
                                 </ResourceDictionary>
@@ -88,6 +93,8 @@
                                             <Image Source="{StaticResource IconTagPlus}" />
                                         </MenuItem.Icon>
                                     </MenuItem>
+                                    <MenuItem Header="Manage Tags..."
+                                              Tag="Manage" />
                                     <Separator />
                                     <CollectionContainer Collection="{Binding Source={StaticResource Tags}}" />
                                 </CompositeCollection>

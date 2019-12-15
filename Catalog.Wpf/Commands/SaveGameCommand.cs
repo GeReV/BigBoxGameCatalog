@@ -32,9 +32,9 @@ namespace Catalog.Wpf.Commands
 
         private static async Task InsertGame(GameCopy game)
         {
-            var db = Application.Current.Database();
+            await using var db = Application.Current.Database();
 
-            using var transaction = await db.Database.BeginTransactionAsync();
+            await using var transaction = await db.Database.BeginTransactionAsync();
 
             db.Update(game);
             await db.SaveChangesAsync();

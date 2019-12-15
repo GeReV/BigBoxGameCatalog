@@ -7,12 +7,10 @@ namespace Catalog.Wpf.Commands
 {
     public class ToggleTagCommand : CommandBase
     {
-        private readonly CatalogContext context;
         private readonly MainWindowViewModel viewModel;
 
-        public ToggleTagCommand(CatalogContext context, MainWindowViewModel viewModel)
+        public ToggleTagCommand(MainWindowViewModel viewModel)
         {
-            this.context = context;
             this.viewModel = viewModel;
         }
 
@@ -27,8 +25,12 @@ namespace Catalog.Wpf.Commands
             {
                 return;
             }
+            
+            var originalGame = ((GameViewModel) viewModel.FilteredGames.CurrentItem).GameCopy;
 
-            var game = ((GameViewModel) viewModel.FilteredGames.CurrentItem).GameCopy;
+            using var db = Application.Current.Database();
+
+            var game = db.Games.Find(originalGame.GameCopyId);
 
             var gameCopyTag = game.GameCopyTags.FirstOrDefault(gct => gct.TagId == tag.TagId);
 
@@ -45,7 +47,7 @@ namespace Catalog.Wpf.Commands
                 game.GameCopyTags.Remove(gameCopyTag);
             }
 
-            context.SaveChanges();
+            db.SaveChanges();
 
             // TODO: Refresh just the relevant game.
             viewModel.RefreshGamesCollection();

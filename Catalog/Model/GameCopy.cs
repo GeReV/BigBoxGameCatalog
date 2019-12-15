@@ -23,14 +23,16 @@ namespace Catalog.Model
 
         public virtual Publisher Publisher { get; set; }
 
-
         public virtual ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
 
         public IEnumerable<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer);
 
         public virtual ICollection<GameCopyTag> GameCopyTags { get; set; }
 
-        public IList<Tag> Tags => GameCopyTags.Select(gct => gct.Tag).ToImmutableList();
+        public IList<Tag> Tags => GameCopyTags
+            .Select(gct => gct.Tag)
+            .OrderBy(tag => tag.Name)
+            .ToImmutableList();
 
         public DateTime ReleaseDate { get; set; }
 
@@ -50,6 +52,7 @@ namespace Catalog.Model
 
         public DateTime LastUpdated { get; set; }
 
+        public int Id => GameCopyId;
         public bool IsNew => GameCopyId == 0;
     }
 }

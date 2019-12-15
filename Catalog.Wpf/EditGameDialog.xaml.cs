@@ -13,11 +13,11 @@ namespace Catalog.Wpf
 {
     public partial class EditGameDialog : Window
     {
-        public EditGameDialog(CatalogContext db, GameCopy gameCopy = null)
+        public EditGameDialog(GameCopy gameCopy = null)
         {
             InitializeComponent();
 
-            ViewModel = new EditGameViewModel(Application.Current.Database(), this, gameCopy);
+            ViewModel = new EditGameViewModel(this, gameCopy);
 
             Title = ViewModel.Game.IsNew ? "Add Game" : $"Edit Game: {ViewModel.GameTitle}";
         }

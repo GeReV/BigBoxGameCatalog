@@ -35,7 +35,9 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            Application.Current.Database().Remove(game.GameCopy);
+            using var database = Application.Current.Database();
+
+            database.Remove(game.GameCopy);
 
             mainWindowViewModel.RefreshGamesCollection();
         }

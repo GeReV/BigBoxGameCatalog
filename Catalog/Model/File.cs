@@ -35,6 +35,7 @@ namespace Catalog.Model
             return (Path != null ? Path.GetHashCode() : 0);
         }
 
+        public int Id => FileId;
         public bool IsNew => FileId == 0;
     }
 }

@@ -8,16 +8,18 @@ namespace Catalog.Wpf
     {
         public MainWindow()
         {
-            InitializeComponent();
+            ViewModel = new MainWindowViewModel();
 
             DataContext = ViewModel;
+
+            InitializeComponent();
         }
 
-        public MainWindowViewModel ViewModel { get; } = new MainWindowViewModel();
+        public MainWindowViewModel ViewModel { get; }
 
         private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var editGameDialog = new EditGameDialog(Application.Current.Database())
+            var editGameDialog = new EditGameDialog()
             {
                 Owner = this
             };

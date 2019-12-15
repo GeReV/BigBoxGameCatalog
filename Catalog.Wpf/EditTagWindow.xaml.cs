@@ -24,17 +24,7 @@ namespace Catalog.Wpf
             Title = ViewModel.Tag.IsNew ? "Add Tag" : $"Edit Tag: {ViewModel.Title}";
         }
 
-        private void ColorPicker_OnClick(object sender, RoutedEventArgs e)
-        {
-            ViewModel.ColorPickerIsOpen = !ViewModel.ColorPickerIsOpen;
-        }
-
-        private void EditLabelWindow_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            ViewModel.ColorPickerIsOpen = false;
-        }
-
-        private void OKButton_OnClick(object sender, RoutedEventArgs e)
+        private void OkButton_OnClick(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
 

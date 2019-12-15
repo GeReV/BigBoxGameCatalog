@@ -19,6 +19,7 @@ namespace Catalog.Model
 
         public DateTime LastUpdated { get; set; }
 
+        public int Id => PublisherId;
         public bool IsNew => PublisherId == 0;
 
         public override string ToString()

@@ -5,23 +5,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:Catalog.Wpf"
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+        xmlns:forms="clr-namespace:Catalog.Wpf.Forms"
         mc:Ignorable="d"
         Title="Create Label"
         Name="EditLabel"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
-        MouseLeftButtonDown="EditLabelWindow_OnMouseLeftButtonDown"
+        MinWidth="280"
         d:DataContext="{d:DesignInstance viewModel:TagViewModel}">
-    <DockPanel DataContext="{Binding ViewModel, ElementName=EditLabel}">
+    <DockPanel DataContext="{Binding ViewModel, ElementName=EditLabel}"
+               Margin="4">
         <StackPanel DockPanel.Dock="Bottom"
                     Orientation="Horizontal"
-                    Margin="4,0,4,4"
                     HorizontalAlignment="Right">
             <Button IsDefault="True"
                     Width="50"
                     Height="24"
                     Margin="0,0,4,0"
-                    Click="OKButton_OnClick">
+                    Click="OkButton_OnClick">
                 OK
             </Button>
             <Button Width="50"
@@ -31,94 +32,7 @@
             </Button>
         </StackPanel>
 
-        <Grid Height="24"
-              Margin="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <TextBox Text="{Binding Title}"
-                     VerticalContentAlignment="Center"
-                     MinWidth="240" />
-            <Button Name="ColorPicker"
-                    Grid.Column="1"
-                    Margin="4,0,0,0"
-                    Padding="4,0,4,0"
-                    Click="ColorPicker_OnClick"
-                    SnapsToDevicePixels="True">
-                <StackPanel Orientation="Horizontal">
-                    <Border BorderThickness="1"
-                            BorderBrush="#FF444444"
-                            Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}"
-                            Width="16"
-                            Height="16" />
-                    <Path Fill="#FF444444"
-                          Margin="2,0,0,0"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          Data="M 0 0 L 4 4 L 8 0 Z" />
-                </StackPanel>
-            </Button>
-            <Popup Grid.Column="1"
-                   Name="ColorPickerPopup"
-                   PlacementTarget="{Binding ElementName=ColorPicker}"
-                   Placement="Bottom"
-                   IsOpen="{Binding ColorPickerIsOpen}">
-                <Border Background="{x:Static SystemColors.ControlBrush}"
-                        BorderThickness="1"
-                        BorderBrush="{x:Static SystemColors.ControlDarkDarkBrush}"
-                        Padding="1">
-                    <ItemsControl ItemsSource="{Binding Colors}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel ItemWidth="24"
-                                           ItemHeight="24"
-                                           Width="144"
-                                           IsItemsHost="True" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding ViewModel.SetColor, ElementName=EditLabel}"
-                                        CommandParameter="{Binding}"
-                                        Margin="1"
-                                        SnapsToDevicePixels="True">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <ControlTemplate.Resources>
-                                                <SolidColorBrush x:Key="Button.MouseOver.Border"
-                                                                 Color="#FF3C7FB1" />
-                                                <SolidColorBrush x:Key="Button.Pressed.Border"
-                                                                 Color="#FF2C628B" />
-                                            </ControlTemplate.Resources>
-                                            <Border x:Name="border"
-                                                    Background="{Binding Converter={StaticResource ColorToBrushConverter}}"
-                                                    BorderThickness="1"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    SnapsToDevicePixels="True" />
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver"
-                                                         Value="true">
-                                                    <Setter Property="BorderBrush"
-                                                            TargetName="border"
-                                                            Value="{StaticResource Button.MouseOver.Border}" />
-                                                </Trigger>
-                                                <Trigger Property="IsPressed"
-                                                         Value="true">
-                                                    <Setter Property="BorderBrush"
-                                                            TargetName="border"
-                                                            Value="{StaticResource Button.Pressed.Border}" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Border>
-            </Popup>
-        </Grid>
+        <forms:EditTagControl Tag="{Binding}"
+                              Margin="0,0,0,4" />
     </DockPanel>
 </Window>

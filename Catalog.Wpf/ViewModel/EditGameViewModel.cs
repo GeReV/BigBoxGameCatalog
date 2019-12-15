@@ -20,8 +20,6 @@ namespace Catalog.Wpf.ViewModel
 {
     public sealed class EditGameViewModel : NotifyPropertyChangedBase
     {
-        private readonly CatalogContext database;
-
         private string gameTitle;
         private string gameMobyGamesSlug;
         private string gameNotes;
@@ -72,10 +70,11 @@ namespace Catalog.Wpf.ViewModel
             DownloadingScreenshots,
         }
 
-        public EditGameViewModel(CatalogContext database, EditGameDialog parentWindow, GameCopy gameCopy = null)
+        public EditGameViewModel(EditGameDialog parentWindow, GameCopy gameCopy = null)
         {
-            this.database = database;
             ParentWindow = parentWindow;
+
+            using var database = Application.Current.Database();
 
             Publishers = new ObservableCollection<Publisher>(database.Publishers);
             Developers = new ObservableCollection<Developer>(database.Developers);

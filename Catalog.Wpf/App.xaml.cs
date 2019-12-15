@@ -17,8 +17,9 @@ namespace Catalog.Wpf
             var homeDirectory = EnsureHomeDirectory();
 
             Current.Properties.Add(nameof(ApplicationHelpers.HomeDirectory), homeDirectory);
-            Current.Properties.Add(nameof(ApplicationHelpers.Database), InitializeDatabase(homeDirectory));
             Current.Properties.Add(nameof(ApplicationHelpers.ScraperWebClient), new CachingWebClient());
+
+            InitializeDatabase(homeDirectory);
         }
 
         private static string EnsureHomeDirectory()
@@ -36,14 +37,12 @@ namespace Catalog.Wpf
             return homeDirectory;
         }
 
-        private static CatalogContext InitializeDatabase(string homeDirectory)
+        private void InitializeDatabase(string homeDirectory)
         {
-            var context = new CatalogContext(Path.Combine(homeDirectory, "database.sqlite"));
+            var context = Current.Database();
 
             context.Database.Migrate();
             context.Database.EnsureCreated();
-
-            return context;
         }
 
         protected override void OnExit(ExitEventArgs e)

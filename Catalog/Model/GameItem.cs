@@ -36,6 +36,7 @@ namespace Catalog.Model
         [NotMapped]
         public IEnumerable<object> Children => Scans.Concat<object>(Files);
 
+        public int Id => GameItemId;
         public bool IsNew => GameItemId == 0;
     }
 }

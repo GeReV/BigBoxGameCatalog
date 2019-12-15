@@ -22,13 +22,13 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            var db = Application.Current.Database();
+            using var db = Application.Current.Database();
 
             db.Entry(game.GameCopy)
                 .Collection(v => v.Items)
                 .Load();
 
-            var editGameDialog = new EditGameDialog(db, game.GameCopy)
+            var editGameDialog = new EditGameDialog(game.GameCopy)
             {
                 Owner = Application.Current.MainWindow
             };
