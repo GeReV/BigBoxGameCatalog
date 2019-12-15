@@ -32,7 +32,7 @@
             </Button>
         </StackPanel>
 
-        <forms:EditTagControl Tag="{Binding}"
+        <forms:EditTagForm GameTag="{Binding}"
                               Margin="0,0,0,4" />
     </DockPanel>
 </Window>
