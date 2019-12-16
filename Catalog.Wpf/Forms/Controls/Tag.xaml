@@ -11,6 +11,8 @@
             CornerRadius="3"
             DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Tag}}"
             Padding="2">
-        <TextBlock Text="{Binding Text}" FontSize="10" />
+        <TextBlock Text="{Binding Text}"
+                   Foreground="{Binding TextColor, Converter={StaticResource ColorToBrushConverter}}"
+                   FontSize="10" />
     </Border>
 </UserControl>
