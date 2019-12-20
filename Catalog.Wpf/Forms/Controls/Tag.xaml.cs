@@ -23,9 +23,8 @@ namespace Catalog.Wpf.Forms.Controls
         private static object ColorCoerceValueCallback(DependencyObject d, object basevalue)
         {
             var color = (Color) basevalue;
-            var luminance = (0.299f * color.R + 0.587f * color.G + 0.114f * color.B) / 255f;
 
-            d.SetValue(TextColorProperty, luminance > 0.5 ? Color.Black : Color.White);
+            d.SetValue(TextColorProperty, color.GetLuminance() > 0.5 ? Color.Black : Color.White);
 
             return color.ToArgb() == 0 ? Color.DarkGray : color;
         }
