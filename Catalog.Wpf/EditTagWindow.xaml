@@ -12,6 +12,7 @@
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
         MinWidth="280"
+        Style="{DynamicResource GlobalWindow}"
         d:DataContext="{d:DesignInstance viewModel:TagViewModel}">
     <DockPanel DataContext="{Binding ViewModel, ElementName=EditLabel}"
                Margin="4">

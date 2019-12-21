@@ -10,7 +10,8 @@
         Title="Manage Tags"
         ResizeMode="NoResize"
         Height="450"
-        Width="300">
+        Width="300"
+        Style="{DynamicResource GlobalWindow}">
     <DockPanel Margin="5">
         <StackPanel Orientation="Vertical"
                     DockPanel.Dock="Right" Margin="4,0,0,0">
