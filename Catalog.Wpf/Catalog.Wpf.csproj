@@ -16,6 +16,7 @@
         <AssemblyName>BBGC</AssemblyName>
         <Title>Big Box Game Catalog</Title>
         <Copyright>Copyright © 2019</Copyright>
+        <PublishTrimmed>true</PublishTrimmed>
     </PropertyGroup>
 
     <ItemGroup>
