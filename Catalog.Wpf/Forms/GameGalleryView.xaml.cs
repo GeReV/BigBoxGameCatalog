@@ -7,8 +7,16 @@ using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf.Forms
 {
-    public partial class GameGalleryView : UserControl
+    public partial class GameGalleryView : UserControl, IGameView
     {
+        public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
+            nameof(GameContextMenu), typeof(ContextMenu), typeof(GameGalleryView), new PropertyMetadata(default(ContextMenu)));
+
+        public ContextMenu GameContextMenu
+        {
+            get => (ContextMenu) GetValue(GameContextMenuProperty);
+            set => SetValue(GameContextMenuProperty, value);
+        }
         public GameGalleryView()
         {
             InitializeComponent();

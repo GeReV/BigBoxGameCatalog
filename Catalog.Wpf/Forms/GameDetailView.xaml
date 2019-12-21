@@ -7,6 +7,7 @@
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
              xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
+             Name="GameDetailViewControl"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
@@ -15,20 +16,28 @@
               ItemsSource="{Binding FilteredGames}"
               IsSynchronizedWithCurrentItem="True"
               behaviors:GridViewColumnResize.Enabled="True">
-        <ListView.Resources>
+        <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
+                <Setter Property="ContextMenu"
+                        Value="{Binding GameContextMenu, ElementName=GameDetailViewControl}" />
+                <Setter Property="ToolTip"
+                        Value="{Binding Title}" />
+                <Setter Property="Tag"
+                        Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
                 <EventSetter Event="MouseDoubleClick"
                              Handler="OnGameDoubleClick" />
             </Style>
-            <Style TargetType="GridViewColumnHeader">
-                <Setter Property="HorizontalContentAlignment"
-                        Value="Left" />
-                <EventSetter Event="Click"
-                             Handler="ListViewHeader_OnClick" />
-            </Style>
-        </ListView.Resources>
+        </ListView.ItemContainerStyle>
         <ListView.View>
             <GridView AllowsColumnReorder="False">
+                <GridView.ColumnHeaderContainerStyle>
+                    <Style TargetType="GridViewColumnHeader">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Left" />
+                        <EventSetter Event="Click"
+                                     Handler="ListViewHeader_OnClick" />
+                    </Style>
+                </GridView.ColumnHeaderContainerStyle>
                 <GridViewColumn behaviors:GridViewColumnResize.Width="4*">
                     <GridViewColumn.Header>
                         <GridViewColumnHeader Tag="Title">Game</GridViewColumnHeader>

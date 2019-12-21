@@ -7,10 +7,19 @@ using System.Windows.Input;
 
 namespace Catalog.Wpf.Forms
 {
-    public partial class GameDetailView : UserControl
+    public partial class GameDetailView : UserControl, IGameView
     {
         private GridViewColumnHeader listViewSortCol;
         private SortAdorner listViewSortAdorner;
+
+        public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
+            nameof(GameContextMenu), typeof(ContextMenu), typeof(GameDetailView), new PropertyMetadata(default(ContextMenu)));
+
+        public ContextMenu GameContextMenu
+        {
+            get => (ContextMenu) GetValue(GameContextMenuProperty);
+            set => SetValue(GameContextMenuProperty, value);
+        }
 
         public GameDetailView()
         {

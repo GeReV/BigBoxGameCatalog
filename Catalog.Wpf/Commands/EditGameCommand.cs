@@ -24,7 +24,7 @@ namespace Catalog.Wpf.Commands
 
             using var db = Application.Current.Database();
 
-            db.Entry(game.GameCopy)
+            db.Attach(game.GameCopy)
                 .Collection(v => v.Items)
                 .Load();
 

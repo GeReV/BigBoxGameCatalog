@@ -7,25 +7,17 @@
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
              xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+             Name="GameGalleryViewControl"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Forms/Controls/GameCopyContextMenu.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <ListBox ItemsSource="{Binding FilteredGames}"
              IsSynchronizedWithCurrentItem="True"
              SelectionMode="Extended"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
-                <EventSetter Event="MouseDoubleClick"
-                             Handler="OnGameDoubleClick" />
                 <Setter Property="VerticalContentAlignment"
                         Value="Top" />
                 <Setter Property="ToolTip"
@@ -33,7 +25,9 @@
                 <Setter Property="Tag"
                         Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                 <Setter Property="ContextMenu"
-                        Value="{DynamicResource GameCopyContextMenu}" />
+                        Value="{Binding GameContextMenu, ElementName=GameGalleryViewControl}" />
+                <EventSetter Event="MouseDoubleClick"
+                             Handler="OnGameDoubleClick" />
             </Style>
         </ListBox.ItemContainerStyle>
         <ListBox.ItemsPanel>

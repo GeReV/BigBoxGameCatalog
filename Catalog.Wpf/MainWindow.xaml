@@ -177,14 +177,21 @@
             </Grid.ColumnDefinitions>
             <DockPanel>
                 <DockPanel.Resources>
-                    <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.GalleryMode}"
-                                  DataType="viewModel:MainWindowViewModel">
-                        <forms:GameGalleryView GameDoubleClick="GameGalleryView_OnGameDoubleClick" />
-                    </DataTemplate>
-                    <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.DetailsMode}"
-                                  DataType="viewModel:MainWindowViewModel">
-                        <forms:GameDetailView GameDoubleClick="GameGalleryView_OnGameDoubleClick" />
-                    </DataTemplate>
+                    <ResourceDictionary>
+                        <ResourceDictionary.MergedDictionaries>
+                            <ResourceDictionary Source="/Forms/Controls/GameCopyContextMenu.xaml" />
+                        </ResourceDictionary.MergedDictionaries>
+                        <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.GalleryMode}"
+                                      DataType="viewModel:MainWindowViewModel">
+                            <forms:GameGalleryView GameDoubleClick="GameGalleryView_OnGameDoubleClick"
+                                                   GameContextMenu="{DynamicResource GameCopyContextMenu}" />
+                        </DataTemplate>
+                        <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.DetailsMode}"
+                                      DataType="viewModel:MainWindowViewModel">
+                            <forms:GameDetailView GameDoubleClick="GameGalleryView_OnGameDoubleClick"
+                                                  GameContextMenu="{DynamicResource GameCopyContextMenu}" />
+                        </DataTemplate>
+                    </ResourceDictionary>
                 </DockPanel.Resources>
                 <xctk:WatermarkTextBox Name="Search"
                                        DockPanel.Dock="Top"
