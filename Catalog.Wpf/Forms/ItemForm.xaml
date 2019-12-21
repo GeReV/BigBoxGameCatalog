@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
-             xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
+             xmlns:model="clr-namespace:Catalog.Model;assembly=BBGC.Core"
              Name="ItemFormControl"
              mc:Ignorable="d"
              d:DesignHeight="300"

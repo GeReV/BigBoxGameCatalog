@@ -6,7 +6,6 @@
              xmlns:local="clr-namespace:Catalog.Wpf.Forms"
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
-             xmlns:model="clr-namespace:Catalog.Model;assembly=Catalog"
              Name="GameGalleryViewControl"
              mc:Ignorable="d"
              d:DesignHeight="300"

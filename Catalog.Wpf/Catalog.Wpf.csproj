@@ -6,6 +6,16 @@
         <UseWPF>true</UseWPF>
         <Nullable>warnings</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <PackageId>BigBoxGameCatalog.Wpf</PackageId>
+        <PackageVersion>0.1.0</PackageVersion>
+        <Authors>Amir Grozki</Authors>
+        <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
+        <Company />
+        <Product>Big Box Game Catalog</Product>
+        <AssemblyName>BBGC</AssemblyName>
+        <Title>Big Box Game Catalog</Title>
+        <Copyright>Copyright © 2019</Copyright>
     </PropertyGroup>
 
     <ItemGroup>
