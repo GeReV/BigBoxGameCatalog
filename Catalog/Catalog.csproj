@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	
+
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>Catalog</RootNamespace>
@@ -14,22 +14,22 @@
     <Authors>Amir Grozki</Authors>
     <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
+    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.12" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.17" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
-    <PackageReference Include="LiteDB" Version="4.1.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.0.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Folder Include="Migrations" />
   </ItemGroup>
-  
+
 </Project>
