@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using Catalog.Wpf.ViewModel;
 
@@ -19,12 +17,7 @@ namespace Catalog.Wpf
 
         private void ResetTags()
         {
-            DataContext =
-                new ObservableCollection<TagViewModel>(
-                    database
-                        .Tags
-                        .Select(tag => new TagViewModel(tag))
-                );
+            DataContext = new ManageTagsViewModel(database);
         }
 
         protected override void OnClosed(EventArgs e)

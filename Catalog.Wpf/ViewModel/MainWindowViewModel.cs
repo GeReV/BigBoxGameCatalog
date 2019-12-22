@@ -172,15 +172,12 @@ namespace Catalog.Wpf.ViewModel
 
         public ICommand ManageTagsCommand => new DelegateCommand(_ =>
         {
-            var manageTagsWindow = new ManageTagsWindow()
+            var manageTagsWindow = new ManageTagsWindow
             {
                 Owner = Application.Current.MainWindow
             };
 
-            if (manageTagsWindow.ShowDialog() != true)
-            {
-                return;
-            }
+            manageTagsWindow.ShowDialog();
 
             RefreshTags();
 

@@ -11,7 +11,8 @@
         ResizeMode="NoResize"
         Height="450"
         Width="300"
-        Style="{DynamicResource GlobalWindow}">
+        Style="{DynamicResource GlobalWindow}"
+        d:DataContext="{d:DesignInstance viewModel:ManageTagsViewModel}">
     <DockPanel Margin="5">
         <StackPanel Orientation="Vertical"
                     DockPanel.Dock="Right" Margin="4,0,0,0">
@@ -23,8 +24,15 @@
             </Button>
             <Button Width="50"
                     Height="24"
+                    Margin="0,0,0,4"
                     Click="CancelButton_OnClick">
                 Cancel
+            </Button>
+            <Button Width="50"
+                    Height="24"
+                    Command="{Binding DeleteTagCommand}"
+                    CommandParameter="{Binding Tags/}">
+                Delete
             </Button>
         </StackPanel>
         <Grid>
@@ -33,10 +41,10 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <forms:EditTagForm GameTag="{Binding /}"
+            <forms:EditTagForm GameTag="{Binding Tags/}"
                                   Margin="0,0,0,4" />
 
-            <ListBox ItemsSource="{Binding}"
+            <ListBox ItemsSource="{Binding Tags}"
                      IsSynchronizedWithCurrentItem="True"
                      Grid.Row="1">
                 <ListBox.ItemTemplate>
