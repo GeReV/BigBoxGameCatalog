@@ -7,6 +7,7 @@
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
              xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              Name="GameDetailViewControl"
              mc:Ignorable="d"
              d:DesignHeight="300"
@@ -16,6 +17,9 @@
               ItemsSource="{Binding FilteredGames}"
               IsSynchronizedWithCurrentItem="True"
               behaviors:GridViewColumnResize.Enabled="True">
+        <b:Interaction.Behaviors>
+            <behaviors:ListViewSelectionBehavior SelectedItems="{Binding SelectedGames}" />
+        </b:Interaction.Behaviors>
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Setter Property="ContextMenu"

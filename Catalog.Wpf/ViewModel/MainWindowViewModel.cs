@@ -200,6 +200,11 @@ namespace Catalog.Wpf.ViewModel
                 .ThenInclude(t => t.Tag)
                 .Select(gc => new GameViewModel(gc));
 
+            // var selectedItems = SelectedGames
+            //     .Cast<GameViewModel>()
+            //     .Select(game => game.GameCopy.GameCopyId)
+            //     .ToList();
+
             Games = new ObservableCollection<GameViewModel>(updatedGames);
 
             FilteredGames = new ListCollectionView(Games)
@@ -216,6 +221,11 @@ namespace Catalog.Wpf.ViewModel
                     return false;
                 }
             };
+
+            // TODO: Figure out how to get command to not lock after an update.
+            // SelectedGames = new ArrayList(Games
+            //     .Where(game => selectedItems.Contains(game.GameCopy.GameCopyId))
+            //     .ToList());
         }
 
         private void RefreshTags()

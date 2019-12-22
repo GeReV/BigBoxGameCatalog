@@ -18,7 +18,7 @@
              SelectionMode="Extended"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
         <b:Interaction.Behaviors>
-            <behaviors:ListBoxSelectionBehavior SelectedItems="{Binding SelectedGames, Mode=OneWayToSource}" />
+            <behaviors:ListBoxSelectionBehavior SelectedItems="{Binding SelectedGames}" />
         </b:Interaction.Behaviors>
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">

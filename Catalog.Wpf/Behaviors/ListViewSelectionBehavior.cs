@@ -10,11 +10,11 @@ namespace Catalog.Wpf.Behaviors
     /// <summary>
     /// Taken from: https://tyrrrz.me/blog/wpf-listbox-selecteditems-twoway-binding
     /// </summary>
-    public class ListBoxSelectionBehavior : Behavior<ListBox>
+    public class ListViewSelectionBehavior : Behavior<ListView>
     {
         public static readonly DependencyProperty SelectedItemsProperty =
             DependencyProperty.Register(nameof(SelectedItems), typeof(IList),
-                typeof(ListBoxSelectionBehavior),
+                typeof(ListViewSelectionBehavior),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     OnSelectedItemsChanged));
 
@@ -23,7 +23,7 @@ namespace Catalog.Wpf.Behaviors
 
         private static void OnSelectedItemsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            var behavior = (ListBoxSelectionBehavior) sender;
+            var behavior = (ListViewSelectionBehavior) sender;
 
             if (behavior.modelHandled)
             {
@@ -59,16 +59,14 @@ namespace Catalog.Wpf.Behaviors
             if (SelectedItems != null)
             {
                 foreach (var item in SelectedItems)
-                {
                     AssociatedObject.SelectedItems.Add(item);
-                }
             }
 
             viewHandled = false;
         }
 
         // Propagate selected items from view to model
-        private void OnListBoxSelectionChanged(object sender, SelectionChangedEventArgs args)
+        private void OnListViewSelectionChanged(object sender, SelectionChangedEventArgs args)
         {
             if (viewHandled)
             {
@@ -84,7 +82,7 @@ namespace Catalog.Wpf.Behaviors
         }
 
         // Re-select items when the set of items changes
-        private void OnListBoxItemsChanged(object sender, NotifyCollectionChangedEventArgs args)
+        private void OnListViewItemsChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             if (viewHandled)
             {
@@ -103,8 +101,8 @@ namespace Catalog.Wpf.Behaviors
         {
             base.OnAttached();
 
-            AssociatedObject.SelectionChanged += OnListBoxSelectionChanged;
-            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged += OnListBoxItemsChanged;
+            AssociatedObject.SelectionChanged += OnListViewSelectionChanged;
+            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged += OnListViewItemsChanged;
         }
 
         /// <inheritdoc />
@@ -117,9 +115,9 @@ namespace Catalog.Wpf.Behaviors
                 return;
             }
 
-            AssociatedObject.SelectionChanged -= OnListBoxSelectionChanged;
+            AssociatedObject.SelectionChanged -= OnListViewSelectionChanged;
 
-            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged -= OnListBoxItemsChanged;
+            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged -= OnListViewItemsChanged;
         }
     }
 }
