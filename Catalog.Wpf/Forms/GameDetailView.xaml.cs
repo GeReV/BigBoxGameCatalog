@@ -54,7 +54,7 @@ namespace Catalog.Wpf.Forms
             {
                 AdornerLayer.GetAdornerLayer(listViewSortCol)?.Remove(listViewSortAdorner);
 
-                GamesListView.Items.SortDescriptions.Clear();
+                GamesList.Items.SortDescriptions.Clear();
             }
 
             var newDir = ListSortDirection.Ascending;
@@ -69,7 +69,7 @@ namespace Catalog.Wpf.Forms
 
             AdornerLayer.GetAdornerLayer(listViewSortCol)?.Add(listViewSortAdorner);
 
-            GamesListView.Items.SortDescriptions.Add(new SortDescription(sortBy, newDir));
+            GamesList.Items.SortDescriptions.Add(new SortDescription(sortBy, newDir));
         }
     }
 }

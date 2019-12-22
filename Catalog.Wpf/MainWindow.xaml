@@ -53,8 +53,15 @@
                                     <Style TargetType="MenuItem">
                                         <Setter Property="Command"
                                                 Value="{Binding PlacementTarget.DataContext.ToggleGameTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                                        <Setter Property="CommandParameter"
-                                                Value="{Binding}" />
+                                        <Setter Property="CommandParameter">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{StaticResource ArrayConverter}">
+                                                    <Binding />
+                                                    <Binding Path="PlacementTarget.DataContext.SelectedGames"
+                                                             RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Setter Property="Background"
                                                 Value="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
                                         <Setter Property="IsChecked">
@@ -199,7 +206,8 @@
                                        Watermark="Search..."
                                        KeepWatermarkOnGotFocus="True"
                                        Margin="0,0,0,5" />
-                <ContentControl Content="{Binding}">
+                <ContentControl Content="{Binding}"
+                                Name="GamesView">
                     <ContentControl.Style>
                         <Style TargetType="{x:Type ContentControl}">
                             <Setter Property="ContentTemplate"

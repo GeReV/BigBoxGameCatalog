@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:Catalog.Wpf.Forms"
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
+             xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              Name="GameGalleryViewControl"
              mc:Ignorable="d"
              d:DesignHeight="300"
@@ -15,6 +17,9 @@
              IsSynchronizedWithCurrentItem="True"
              SelectionMode="Extended"
              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <b:Interaction.Behaviors>
+            <behaviors:ListBoxSelectionBehavior SelectedItems="{Binding SelectedGames, Mode=OneWayToSource}" />
+        </b:Interaction.Behaviors>
         <ListBox.ItemContainerStyle>
             <Style TargetType="ListBoxItem">
                 <Setter Property="VerticalContentAlignment"

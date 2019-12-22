@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Xaml.Behaviors;
@@ -11,41 +12,30 @@ namespace Catalog.Wpf.Behaviors
     /// </summary>
     public class ListBoxSelectionBehavior : Behavior<ListBox>
     {
+        public static readonly DependencyProperty SelectedItemsProperty =
+            DependencyProperty.Register(nameof(SelectedItems), typeof(IList),
+                typeof(ListBoxSelectionBehavior),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    OnSelectedItemsChanged));
+
+        private bool viewHandled;
         private bool modelHandled;
 
-        public static readonly DependencyProperty SelectedItemsProperty =
-            DependencyProperty.Register(
-                nameof(SelectedItems),
-                typeof(IList),
-                typeof(ListBoxSelectionBehavior),
-                new FrameworkPropertyMetadata(
-                    null,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    PropertyChangedCallback
-                )
-            );
-
-        private static void PropertyChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        private static void OnSelectedItemsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            void Handler(object s, NotifyCollectionChangedEventArgs e) => SelectedItemsChanged(sender, e);
+            var behavior = (ListBoxSelectionBehavior) sender;
+            if (behavior.modelHandled) return;
 
-            if (args.OldValue is INotifyCollectionChanged oldCollection)
-            {
-                oldCollection.CollectionChanged -= Handler;
-            }
-
-            if (args.NewValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += Handler;
-            }
-
-            if (args.NewValue == null)
-            {
+            if (behavior.AssociatedObject == null)
                 return;
-            }
 
-            ResetSelectedItems(sender, (IEnumerable)args.NewValue);
+            behavior.modelHandled = true;
+
+            behavior.SelectItems();
+
+            behavior.modelHandled = false;
         }
+
 
         public IList SelectedItems
         {
@@ -53,93 +43,52 @@ namespace Catalog.Wpf.Behaviors
             set => SetValue(SelectedItemsProperty, value);
         }
 
-        private static void ResetSelectedItems(object sender, IEnumerable items)
+        // Propagate selected items from model to view
+        private void SelectItems()
         {
-            if (!(sender is ListBoxSelectionBehavior behavior))
+            viewHandled = true;
+
+            AssociatedObject.SelectedItems.Clear();
+
+            if (SelectedItems != null)
             {
-                return;
+                foreach (var item in SelectedItems)
+                    AssociatedObject.SelectedItems.Add(item);
             }
 
-            var listViewBase = behavior.AssociatedObject;
-
-            var listSelectedItems = listViewBase.SelectedItems;
-
-            listSelectedItems.Clear();
-
-            foreach (var item in items)
-            {
-                listSelectedItems.Add(item);
-            }
-        }
-
-        private static void SelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (!(sender is ListBoxSelectionBehavior behavior))
-            {
-                return;
-            }
-
-            var listViewBase = behavior.AssociatedObject;
-
-            var listSelectedItems = listViewBase.SelectedItems;
-
-            if (e.OldItems != null)
-            {
-                foreach (var item in e.OldItems)
-                {
-                    if (listSelectedItems.Contains(item))
-                    {
-                        listSelectedItems.Remove(item);
-                    }
-                }
-            }
-
-            if (e.NewItems != null)
-            {
-                foreach (var item in e.NewItems)
-                {
-                    if (!listSelectedItems.Contains(item))
-                    {
-                        listSelectedItems.Add(item);
-                    }
-                }
-            }
+            viewHandled = false;
         }
 
         // Propagate selected items from view to model
-        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void OnListBoxSelectionChanged(object sender, SelectionChangedEventArgs args)
         {
-            if (modelHandled)
+            if (viewHandled)
             {
                 return;
             }
 
-            modelHandled = true;
-
-            foreach (var item in e.RemovedItems)
+            if (AssociatedObject.Items.SourceCollection == null)
             {
-                if (SelectedItems.Contains(item))
-                {
-                    SelectedItems.Remove(item);
-                }
+                return;
             }
 
-            foreach (var item in e.AddedItems)
-            {
-                if (!SelectedItems.Contains(item))
-                {
-                    SelectedItems.Add(item);
-                }
-            }
+            SelectedItems = AssociatedObject.SelectedItems.Cast<object>().ToArray();
+        }
 
-            modelHandled = false;
+        // Re-select items when the set of items changes
+        private void OnListBoxItemsChanged(object sender, NotifyCollectionChangedEventArgs args)
+        {
+            if (viewHandled) return;
+            if (AssociatedObject.Items.SourceCollection == null) return;
+            SelectItems();
         }
 
         protected override void OnAttached()
         {
             base.OnAttached();
 
-            AssociatedObject.SelectionChanged += OnSelectionChanged;
+            AssociatedObject.SelectionChanged += OnListBoxSelectionChanged;
+            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged += OnListBoxItemsChanged;
         }
 
         /// <inheritdoc />
@@ -147,7 +96,14 @@ namespace Catalog.Wpf.Behaviors
         {
             base.OnDetaching();
 
-            AssociatedObject.SelectionChanged += OnSelectionChanged;
+            if (AssociatedObject == null)
+            {
+                return;
+            }
+
+            AssociatedObject.SelectionChanged -= OnListBoxSelectionChanged;
+
+            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged -= OnListBoxItemsChanged;
         }
     }
 }

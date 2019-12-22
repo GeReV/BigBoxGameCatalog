@@ -31,8 +31,15 @@
                 <Style TargetType="MenuItem">
                     <Setter Property="Command"
                             Value="{Binding PlacementTarget.Tag.ToggleGameTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                    <Setter Property="CommandParameter"
-                            Value="{Binding}" />
+                    <Setter Property="CommandParameter">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource ArrayConverter}">
+                                <Binding />
+                                <Binding Path="PlacementTarget.Tag.SelectedGames"
+                                         RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
                     <Setter Property="Background"
                             Value="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
                     <Setter Property="IsChecked">
@@ -63,7 +70,8 @@
             </MenuItem.Resources>
             <MenuItem.ItemsSource>
                 <CompositeCollection>
-                    <MenuItem Header="Create Tag..." Tag="Create">
+                    <MenuItem Header="Create Tag..."
+                              Tag="Create">
                         <MenuItem.Icon>
                             <Image Source="{StaticResource IconTagPlus}" />
                         </MenuItem.Icon>

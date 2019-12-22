@@ -12,7 +12,7 @@
              d:DesignHeight="300"
              d:DesignWidth="300"
              d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
-    <ListView Name="GamesListView"
+    <ListView Name="GamesList"
               ItemsSource="{Binding FilteredGames}"
               IsSynchronizedWithCurrentItem="True"
               behaviors:GridViewColumnResize.Enabled="True">

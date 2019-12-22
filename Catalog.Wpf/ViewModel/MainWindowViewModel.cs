@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace Catalog.Wpf.ViewModel
     {
         private ObservableCollection<Tag> tags;
         private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
+        private IList selectedGames = new ArrayList();
         private ListCollectionView filteredGames;
         private string searchTerm;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
@@ -45,7 +47,16 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ICommand RefreshGames => refreshGames ??= new DelegateCommand(_ => RefreshGamesCollection());
+        public IList SelectedGames
+        {
+            get => selectedGames;
+            set
+            {
+                if (Equals(value, selectedGames)) return;
+                selectedGames = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ObservableCollection<GameViewModel> Games
         {
@@ -90,6 +101,8 @@ namespace Catalog.Wpf.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public ICommand RefreshGames => refreshGames ??= new DelegateCommand(_ => RefreshGamesCollection());
 
         public ICommand EditGameCommand =>
             editGameCommand ??= new EditGameCommand(this);
