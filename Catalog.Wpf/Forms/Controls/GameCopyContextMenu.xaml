@@ -47,7 +47,9 @@
                             <MultiBinding Converter="{StaticResource ListIncludesToBooleanConverter}"
                                           Mode="OneWay">
                                 <Binding />
-                                <Binding Path="PlacementTarget.Tag.FilteredGames/Tags"
+                                <Binding Path="PlacementTarget.Tag.SelectedGames"
+                                         Converter="{StaticResource PropertyPathConverter}"
+                                         ConverterParameter="Tags"
                                          RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
                             </MultiBinding>
                         </Setter.Value>

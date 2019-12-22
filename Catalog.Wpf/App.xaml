@@ -24,6 +24,7 @@
             <converters:ListIncludesToBooleanConverter x:Key="ListIncludesToBooleanConverter" />
             <converters:ArrayConverter x:Key="ArrayConverter" />
             <converters:ValueConverterGroup x:Key="ValueConverterGroup" />
+            <converters:PropertyPathConverter x:Key="PropertyPathConverter" />
 
             <Style x:Key="GlobalWindow"
                    TargetType="{x:Type Window}">

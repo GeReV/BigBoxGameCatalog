@@ -70,7 +70,9 @@
                                                     Converter="{StaticResource ListIncludesToBooleanConverter}"
                                                     Mode="OneWay">
                                                     <Binding />
-                                                    <Binding Path="PlacementTarget.DataContext.FilteredGames/Tags"
+                                                    <Binding Path="PlacementTarget.DataContext.SelectedGames"
+                                                             Converter="{StaticResource PropertyPathConverter}"
+                                                             ConverterParameter="Tags"
                                                              RelativeSource="{RelativeSource AncestorType=ContextMenu}" />
                                                 </MultiBinding>
                                             </Setter.Value>

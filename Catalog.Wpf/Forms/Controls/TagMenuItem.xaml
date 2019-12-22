@@ -74,13 +74,6 @@
                           Visibility="Hidden"
                           Height="11"
                           Width="10">
-                        <Path.Resources>
-                            <converters:ValueConverterGroup x:Key="LuminanceGreaterThanHalfConverter">
-                                <converters:BrushToColorConverter />
-                                <converters:ColorToLuminanceConverter />
-                                <converters:GreaterThanConverter />
-                            </converters:ValueConverterGroup>
-                        </Path.Resources>
                         <Path.Style>
                             <Style TargetType="Path">
                                 <Setter Property="Fill"
