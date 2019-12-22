@@ -17,7 +17,18 @@
                      Color="#0A000000" />
     <SolidColorBrush x:Key="MenuItem.Highlight.Disabled.Border"
                      Color="#21000000" />
+    <SolidColorBrush x:Key="UnsetColor"
+                     Color="#00000000" />
+
     <Geometry x:Key="Checkmark">F1 M 10.0,1.2 L 4.7,9.1 L 4.5,9.1 L 0,5.2 L 1.3,3.5 L 4.3,6.1L 8.3,0 L 10.0,1.2 Z</Geometry>
+
+
+    <converters:ValueConverterGroup x:Key="LuminanceGreaterThanHalfConverter">
+        <converters:BrushToColorConverter />
+        <converters:ColorToLuminanceConverter />
+        <converters:GreaterThanConverter />
+    </converters:ValueConverterGroup>
+
     <ControlTemplate x:Key="TagsMenuItemTemplate"
                      TargetType="{x:Type MenuItem}">
         <Border x:Name="templateRoot"
@@ -43,8 +54,7 @@
                                   Height="16"
                                   Margin="3"
                                   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                  VerticalAlignment="Center"
-                                  />
+                                  VerticalAlignment="Center" />
                 <Border x:Name="GlyphPanel"
                         Background="{TemplateBinding Background}"
                         BorderThickness="0"
@@ -73,11 +83,19 @@
                         </Path.Resources>
                         <Path.Style>
                             <Style TargetType="Path">
-                                <Setter Property="Fill" Value="{StaticResource Menu.Static.Foreground}" />
+                                <Setter Property="Fill"
+                                        Value="{StaticResource Menu.Static.Foreground}" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Background, ElementName=GlyphPanel, Converter={StaticResource LuminanceGreaterThanHalfConverter}, ConverterParameter=0.5}"
-                                                 Value="False">
-                                        <Setter Property="Fill" Value="White" />
+                                    <DataTrigger
+                                        Binding="{Binding Background, ElementName=GlyphPanel, Converter={StaticResource LuminanceGreaterThanHalfConverter}, ConverterParameter=0.5}"
+                                        Value="False">
+                                        <Setter Property="Fill"
+                                                Value="White" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Background, ElementName=GlyphPanel}"
+                                                 Value="{StaticResource UnsetColor}">
+                                        <Setter Property="Fill"
+                                                Value="{StaticResource Menu.Static.Foreground}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -113,9 +131,14 @@
                         TargetName="Glyph"
                         Value="Visible" />
             </Trigger>
-            <Trigger Property="Icon" Value="{x:Null}">
-                <Setter Property="Visibility" TargetName="Icon" Value="Hidden" />
-                <Setter Property="Visibility" TargetName="GlyphPanel" Value="Visible" />
+            <Trigger Property="Icon"
+                     Value="{x:Null}">
+                <Setter Property="Visibility"
+                        TargetName="Icon"
+                        Value="Hidden" />
+                <Setter Property="Visibility"
+                        TargetName="GlyphPanel"
+                        Value="Visible" />
             </Trigger>
             <Trigger Property="IsHighlighted"
                      Value="True">
