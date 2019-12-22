@@ -11,7 +11,8 @@
              d:DesignWidth="300"
              Name="EditTag"
              d:DataContext="{d:DesignInstance viewModel:TagViewModel}">
-    <Grid Height="24">
+    <Grid Height="24"
+          DataContext="{Binding GameTag, RelativeSource={RelativeSource AncestorType=local:EditTagForm}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
