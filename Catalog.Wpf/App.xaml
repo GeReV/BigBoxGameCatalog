@@ -18,8 +18,12 @@
             <converters:NullConverter x:Key="NullConverter" />
             <converters:FilenameTrimConverter x:Key="FilenameTrimConverter" />
             <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+            <converters:BrushToColorConverter x:Key="BrushToColorConverter" />
+            <converters:GreaterThanConverter x:Key="GreaterThanConverter" />
+            <converters:ColorToLuminanceConverter x:Key="ColorToLuminanceConverter" />
             <converters:ListIncludesToBooleanConverter x:Key="ListIncludesToBooleanConverter" />
             <converters:ArrayConverter x:Key="ArrayConverter" />
+            <converters:ValueConverterGroup x:Key="ValueConverterGroup" />
 
             <Style x:Key="GlobalWindow"
                    TargetType="{x:Type Window}">

@@ -3,21 +3,18 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
-using Color = System.Drawing.Color;
 
 namespace Catalog.Wpf.Converters
 {
     public class ColorToBrushConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (!(value is Color color))
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            value switch
             {
-                return DependencyProperty.UnsetValue;
-            }
-
-            return new SolidColorBrush(System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B));
-        }
+                Color color => new SolidColorBrush(color),
+                System.Drawing.Color color => new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B)),
+                _ => DependencyProperty.UnsetValue,
+            };
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
