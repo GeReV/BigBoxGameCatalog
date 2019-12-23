@@ -43,12 +43,27 @@
             <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
                 <StackPanel Margin="5"
                             Width="100">
-                    <Image Source="{Binding Cover}" />
+                    <Border>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cover}"
+                                                 Value="{x:Null}">
+                                        <Setter Property="Background"
+                                                Value="LightGray" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <Image Name="CoverImage"
+                               Source="{Binding Cover}"
+                               Height="120" />
+                    </Border>
                     <controls:HighlightedTextBlock Text="{Binding Title}"
                                                    HighlightedText="{Binding ViewModel.SearchTerm, ElementName=Main}"
                                                    Margin="0,5,0,0"
                                                    HorizontalAlignment="Center"
-                                                   TextWrapping="WrapWithOverflow"
+                                                   TextWrapping="NoWrap"
                                                    TextAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
                     <controls:GameStats GameItemGroups="{Binding GameStats, Delay=50}"
