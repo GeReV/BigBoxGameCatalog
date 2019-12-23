@@ -30,7 +30,7 @@ namespace Catalog.Wpf.Commands
 
             if (selectionDialog.ShowDialog() == true)
             {
-                editGameViewModel.GameCoverImage = new ScreenshotViewModel(selectionDialog.SelectedResult.Url, selectionDialog.SelectedResult.Thumbnail);
+                editGameViewModel.GameCoverImage = new ScreenshotViewModel(selectionDialog.SelectedResult.Thumbnail, selectionDialog.SelectedResult.Url);
             }
         }
     }

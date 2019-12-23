@@ -179,7 +179,7 @@ namespace Catalog.Scrapers.MobyGames
         {
             var doc = webClient.Load(url).DocumentNode;
 
-            var container = doc.SelectSingleNodeByClass("screenshot") ?? doc.SelectSingleNodeByClass("promoImage");
+            var container = doc.SelectSingleNodeByClassContains("screenshot") ?? doc.SelectSingleNodeByClass("promoImage");
 
             var src = container
                 ?.SelectSingleNode(".//img")

@@ -23,7 +23,7 @@ namespace Catalog.Wpf.ViewModel
         private string? gameTitle;
         private string? gameMobyGamesSlug;
         private string? gameNotes;
-        private DateTime? gameReleaseDate;
+        private DateTime gameReleaseDate;
         private Publisher? gamePublisher;
         private int saveProgress;
         private ViewStatus viewStatus = ViewStatus.Idle;
@@ -276,7 +276,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public DateTime? GameReleaseDate
+        public DateTime GameReleaseDate
         {
             get => gameReleaseDate;
             set

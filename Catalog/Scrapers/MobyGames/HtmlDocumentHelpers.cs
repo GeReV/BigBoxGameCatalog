@@ -13,6 +13,12 @@ namespace Catalog.Scrapers.MobyGames
             return $"{tag ?? "*"}[@class='{className}']";
         }
 
+        private static string classContainsSelector(string className, string tag = null)
+        {
+            // Source: https://devhints.io/xpath
+            return $"{tag ?? "*"}[contains(concat(' ',normalize-space(@class),' '),' {className} ')]";
+        }
+
         public static HtmlNodeCollection SelectNodesByClass(this HtmlNode node, string className, string tag = null)
         {
             return node.SelectNodes(".//" + classSelector(className, tag));
@@ -21,6 +27,11 @@ namespace Catalog.Scrapers.MobyGames
         public static HtmlNode SelectSingleNodeByClass(this HtmlNode node, string className, string tag = null)
         {
             return node.SelectSingleNode(".//" + classSelector(className, tag));
+        }
+
+        public static HtmlNode SelectSingleNodeByClassContains(this HtmlNode node, string className, string tag = null)
+        {
+            return node.SelectSingleNode(".//" + classContainsSelector(className, tag));
         }
 
         public static HtmlNode SelectSingleNodeById(this HtmlNode node, string id)

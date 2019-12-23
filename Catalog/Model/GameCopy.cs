@@ -34,7 +34,7 @@ namespace Catalog.Model
             .OrderBy(tag => tag.Name)
             .ToImmutableList();
 
-        public DateTime? ReleaseDate { get; set; }
+        public DateTime ReleaseDate { get; set; }
 
         public List<string> TwoLetterIsoLanguageName { get; set; } = new List<string>();
 

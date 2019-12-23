@@ -124,7 +124,7 @@ namespace Catalog.Wpf.Commands
             var listItems = screenshotEntries.Take(10).ToList();
 
             var images = listItems
-                .Select(item => new ScreenshotViewModel(item.Url, item.Thumbnail));
+                .Select(item => new ScreenshotViewModel(item.Thumbnail, item.Url));
 
             foreach (var image in images)
             {

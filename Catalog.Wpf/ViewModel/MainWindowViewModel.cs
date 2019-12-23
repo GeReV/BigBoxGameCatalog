@@ -19,7 +19,7 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<Tag> tags = new ObservableCollection<Tag>();
         private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
         private IList selectedGames = new ArrayList();
-        private ListCollectionView filteredGames;
+        private ListCollectionView? filteredGames;
         private string? searchTerm;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
         private ICommand? editGameCommand;
@@ -202,9 +202,9 @@ namespace Catalog.Wpf.ViewModel
             //     .Select(game => game.GameCopy.GameCopyId)
             //     .ToList();
 
-            games = new ObservableCollection<GameViewModel>(updatedGames);
+            Games = new ObservableCollection<GameViewModel>(updatedGames);
 
-            filteredGames = new ListCollectionView(Games)
+            FilteredGames = new ListCollectionView(Games)
             {
                 CustomSort = new GameComparer(),
                 Filter = obj =>
