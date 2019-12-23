@@ -70,7 +70,7 @@ namespace Catalog.Wpf.ViewModel
             DownloadingScreenshots,
         }
 
-        public EditGameViewModel(EditGameDialog parentWindow, GameCopy gameCopy = null)
+        public EditGameViewModel(Window parentWindow, GameCopy gameCopy = null)
         {
             ParentWindow = parentWindow;
 
@@ -157,7 +157,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public Window ParentWindow { get; private set; }
+        public Window ParentWindow { get; }
 
         public GameCopy Game { get; private set; } = new GameCopy();
 

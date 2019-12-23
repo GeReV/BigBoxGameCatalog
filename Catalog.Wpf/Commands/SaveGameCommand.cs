@@ -23,20 +23,25 @@ namespace Catalog.Wpf.Commands
         {
             editGameViewModel.Status = EditGameViewModel.ViewStatus.DownloadingScreenshots;
 
-            var gameTask = await BuildGame();
+            await using var database = Application.Current.Database();
 
-            await InsertGame(gameTask);
+            var gameCopy = editGameViewModel.Game;
+
+            database.Attach(gameCopy);
+
+            await UpdateGame(gameCopy);
+
+            await InsertGame(database, gameCopy);
 
             editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
         }
 
-        private static async Task InsertGame(GameCopy game)
+        private static async Task InsertGame(CatalogContext db, GameCopy game)
         {
-            await using var db = Application.Current.Database();
-
             await using var transaction = await db.Database.BeginTransactionAsync();
 
             db.Update(game);
+
             await db.SaveChangesAsync();
 
             await transaction.CommitAsync();
@@ -93,13 +98,11 @@ namespace Catalog.Wpf.Commands
             return url;
         }
 
-        private async Task<GameCopy> BuildGame()
+        private async Task UpdateGame(GameCopy gameCopy)
         {
             var screenshots = await DownloadScreenshots();
 
             var cover = await DownloadCoverArt();
-
-            var gameCopy = editGameViewModel.Game;
 
             gameCopy.Title = editGameViewModel.GameTitle;
             gameCopy.Sealed = editGameViewModel.GameSealed;
@@ -121,8 +124,6 @@ namespace Catalog.Wpf.Commands
             gameCopy.ReleaseDate = editGameViewModel.GameReleaseDate;
             gameCopy.CoverImage = cover;
             gameCopy.Screenshots = screenshots.Distinct().ToList();
-
-            return gameCopy;
         }
     }
 }
