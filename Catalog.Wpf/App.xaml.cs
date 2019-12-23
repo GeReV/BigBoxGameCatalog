@@ -17,7 +17,7 @@ namespace Catalog.Wpf
             var homeDirectory = EnsureHomeDirectory();
 
             Current.Properties.Add(nameof(ApplicationHelpers.HomeDirectory), homeDirectory);
-            Current.Properties.Add(nameof(ApplicationHelpers.ScraperWebClient), new CachingWebClient());
+            Current.Properties.Add(nameof(ApplicationHelpers.ScraperWebClient), new WebClient());
 
             InitializeDatabase(homeDirectory);
         }
