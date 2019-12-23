@@ -15,7 +15,7 @@ namespace Catalog.Wpf.Comparers
             this.selectedLanguagesGetter = selectedLanguagesGetter;
         }
 
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
             if (!(x is CultureInfo ciX))
             {

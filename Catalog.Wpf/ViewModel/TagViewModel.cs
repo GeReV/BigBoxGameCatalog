@@ -3,34 +3,33 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Input;
 using Catalog.Model;
+using Catalog.Wpf.Commands;
 
 namespace Catalog.Wpf.ViewModel
 {
     public class TagViewModel : NotifyPropertyChangedBase
     {
-        private readonly Tag tag;
-
-        private string title;
+        private string? title;
         private Color color;
 
         public TagViewModel(Tag tag)
         {
-            this.tag = tag ?? new Tag();
+            Tag = tag;
 
             Title = Tag.Name;
             Color = Tag.Color;
         }
 
-        public Tag Tag => tag;
+        public Tag Tag { get; }
 
-        public string Title
+        public string? Title
         {
             get => title;
             set
             {
                 if (value == title) return;
                 title = value;
-                tag.Name = value;
+                Tag.Name = value;
                 OnPropertyChanged();
             }
         }
@@ -42,7 +41,7 @@ namespace Catalog.Wpf.ViewModel
             {
                 if (value.Equals(color)) return;
                 color = value;
-                tag.Color = value;
+                Tag.Color = value;
                 OnPropertyChanged();
             }
         }

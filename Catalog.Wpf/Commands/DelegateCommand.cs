@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Commands
 {
     public class DelegateCommand : ICommand
     {
         private readonly Action<object> execute;
-        private readonly Predicate<object> canExecute;
+        private readonly Predicate<object>? canExecute;
 
-        public DelegateCommand(Action<object> execute, Predicate<object> canExecute = null)
+        public DelegateCommand(Action<object> execute, Predicate<object>? canExecute = null)
         {
             this.execute = execute;
             this.canExecute = canExecute;
@@ -21,6 +21,6 @@ namespace Catalog.Wpf
             execute(parameter);
         }
 
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler? CanExecuteChanged;
     }
 }

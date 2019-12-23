@@ -12,9 +12,9 @@ namespace Catalog.Wpf.Forms.Controls
             "HighlightedText", typeof(string), typeof(HighlightedTextBlock),
             (PropertyMetadata) new UIPropertyMetadata(new PropertyChangedCallback(OnHighlightChanged)));
 
-        public string HighlightedText
+        public string? HighlightedText
         {
-            get => (string) GetValue(HighlightedTextProperty);
+            get => (string?) GetValue(HighlightedTextProperty);
             set => SetValue(HighlightedTextProperty, value);
         }
 
@@ -28,12 +28,12 @@ namespace Catalog.Wpf.Forms.Controls
         {
             var textBlock = (TextBlock) d;
 
-            UpdateText(textBlock, (string) textBlock.GetValue(TextProperty), (string) e.NewValue);
+            UpdateText(textBlock, (string?) textBlock.GetValue(TextProperty), (string) e.NewValue);
         }
 
-        private static void UpdateText(TextBlock textBlock, string text, string highlight)
+        private static void UpdateText(TextBlock textBlock, string? text, string highlight)
         {
-            if (string.IsNullOrWhiteSpace(highlight))
+            if (string.IsNullOrWhiteSpace(highlight) || string.IsNullOrWhiteSpace(text))
             {
                 textBlock.Text = text;
 

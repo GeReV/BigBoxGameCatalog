@@ -5,11 +5,11 @@ namespace Catalog.Wpf.Forms
 {
     public partial class ItemForm : UserControl
     {
-        public event RoutedEventHandler AddScanClick;
-        public event RoutedEventHandler RemoveScanClick;
+        public event RoutedEventHandler? AddScanClick;
+        public event RoutedEventHandler? RemoveScanClick;
 
-        public event RoutedEventHandler AddFileClick;
-        public event RoutedEventHandler RemoveFileClick;
+        public event RoutedEventHandler? AddFileClick;
+        public event RoutedEventHandler? RemoveFileClick;
 
         public ItemForm()
         {

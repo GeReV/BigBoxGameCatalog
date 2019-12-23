@@ -12,7 +12,6 @@ namespace Catalog.Wpf
         public static CatalogContext Database(this Application application) =>
             new CatalogContext(Path.Combine(application.HomeDirectory(), "database.sqlite"));
 
-        public static IWebClient ScraperWebClient(this Application application) =>
-            (IWebClient) application.Properties[nameof(ScraperWebClient)];
+        public static IWebClient ScraperWebClient(this Application application) => (IWebClient) application.Properties[nameof(ScraperWebClient)];
     }
 }

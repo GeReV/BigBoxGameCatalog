@@ -5,19 +5,20 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
+using Microsoft.Extensions.DependencyModel;
 
 namespace Catalog.Wpf.Converters
 {
     public class PropertyPathConverter : IValueConverter
     {
-        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (parameter == null)
             {
-                return value;
+                return DependencyProperty.UnsetValue;
             }
 
-            var properties = parameter.ToString().Split('.', StringSplitOptions.RemoveEmptyEntries);
+            var properties = parameter.ToString()?.Split('.', StringSplitOptions.RemoveEmptyEntries) ?? new string[] {};
 
             if (value is IList list)
             {
@@ -39,7 +40,7 @@ namespace Catalog.Wpf.Converters
             throw new NotImplementedException();
         }
 
-        private static object TraversePath(object? value, IEnumerable<string> properties)
+        private static object? TraversePath(object? value, IEnumerable<string> properties)
         {
             var result = value;
 

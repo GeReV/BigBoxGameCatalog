@@ -22,7 +22,7 @@ namespace Catalog.Wpf.Forms
             InitializeComponent();
         }
 
-        public event EventHandler<EventArgs> GameDoubleClick;
+        public event EventHandler<EventArgs>? GameDoubleClick;
 
         protected virtual void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
         {

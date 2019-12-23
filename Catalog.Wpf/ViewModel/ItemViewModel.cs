@@ -12,26 +12,20 @@ namespace Catalog.Wpf.ViewModel
 {
     public class ItemViewModel : NotifyPropertyChangedBase
     {
-        private ItemType itemType;
+        private ItemType? itemType;
         private bool missing;
         private Condition? condition;
-        private string conditionDetails;
-        private string notes;
+        private string? conditionDetails;
+        private string? notes;
 
-        private ICommand addFileCommand;
-        private ICommand removeFileCommand;
-        private ICommand addScanCommand;
-        private ICommand removeScanCommand;
-        private ObservableCollection<ImageViewModel> scans;
-        private ObservableCollection<FileViewModel> files;
+        private ICommand? addFileCommand;
+        private ICommand? removeFileCommand;
+        private ICommand? addScanCommand;
+        private ICommand? removeScanCommand;
+        private ObservableCollection<ImageViewModel> scans = new ObservableCollection<ImageViewModel>();
+        private ObservableCollection<FileViewModel> files = new ObservableCollection<FileViewModel>();
 
-        public ItemViewModel()
-        {
-            Scans = new ObservableCollection<ImageViewModel>();
-            Files = new ObservableCollection<FileViewModel>();
-        }
-
-        public ItemType ItemType
+        public ItemType? ItemType
         {
             get => itemType;
             set
@@ -64,7 +58,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string ConditionDetails
+        public string? ConditionDetails
         {
             get => conditionDetails;
             set
@@ -75,7 +69,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string Notes
+        public string? Notes
         {
             get => notes;
             set

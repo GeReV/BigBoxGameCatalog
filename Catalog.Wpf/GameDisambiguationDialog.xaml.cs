@@ -19,12 +19,7 @@ namespace Catalog.Wpf
 
             DataContext = new GameDisambiguationViewModel
             {
-                Items = entries.Select(item => new GameDisambiguationViewModel.Item
-                {
-                    Name = item.Name,
-                    Releases = string.Join(", ", item.Releases),
-                    Result = item
-                })
+                Items = entries.Select(item => new GameDisambiguationViewModel.Item(item.Name, string.Join(", ", item.Releases), item))
             };
 
             ResultCount.Text = $"Found {entries.Count} results:";

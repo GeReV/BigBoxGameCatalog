@@ -13,7 +13,7 @@ namespace Catalog.Wpf.Converters
         /// Store the key type.
         /// Setting this property is needed if your key is an enum and
         /// </summary>
-        public Type KeyType { get; set; }
+        public Type? KeyType { get; set; }
 
         /// <summary>
         /// Store the key-value pairs for the conversion
@@ -25,7 +25,7 @@ namespace Catalog.Wpf.Converters
             Values = new Dictionary<object, object>();
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value == null)
             {
@@ -56,7 +56,7 @@ namespace Catalog.Wpf.Converters
             return DependencyProperty.UnsetValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             // no support for converting back
             return DependencyProperty.UnsetValue;

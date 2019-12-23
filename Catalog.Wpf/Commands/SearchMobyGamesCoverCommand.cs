@@ -14,10 +14,10 @@ namespace Catalog.Wpf.Commands
             this.editGameViewModel = editGameViewModel;
         }
 
-        protected override bool CanExecuteImpl(object parameter) =>
+        protected override bool CanExecuteImpl(object? parameter) =>
             !string.IsNullOrEmpty(editGameViewModel.GameMobyGamesSlug);
 
-        protected override async Task Perform(object parameter)
+        protected override async Task Perform(object? parameter)
         {
             var scraper = new Scraper(Application.Current.ScraperWebClient());
 
@@ -30,11 +30,7 @@ namespace Catalog.Wpf.Commands
 
             if (selectionDialog.ShowDialog() == true)
             {
-                editGameViewModel.GameCoverImage = new ScreenshotViewModel
-                {
-                    Url = selectionDialog.SelectedResult.Url,
-                    ThumbnailUrl = selectionDialog.SelectedResult.Thumbnail
-                };
+                editGameViewModel.GameCoverImage = new ScreenshotViewModel(selectionDialog.SelectedResult.Url, selectionDialog.SelectedResult.Thumbnail);
             }
         }
     }

@@ -20,7 +20,7 @@ namespace Catalog.Wpf.Commands
             this.editGameViewModel = editGameViewModel;
         }
 
-        protected override async Task Perform(object parameter)
+        protected override async Task Perform(object? parameter)
         {
             editGameViewModel.Status = EditGameViewModel.ViewStatus.DownloadingScreenshots;
 
@@ -78,7 +78,7 @@ namespace Catalog.Wpf.Commands
                 .OrderBy(s => s);
         }
 
-        private async Task<string> DownloadCoverArt()
+        private async Task<string?> DownloadCoverArt()
         {
             var gameDirectory =
                 Path.Combine(Application.Current.HomeDirectory(), editGameViewModel.GameMobyGamesSlug);

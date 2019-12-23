@@ -15,6 +15,8 @@ namespace Catalog.Wpf.ViewModel
 
         public GameViewModel()
         {
+            gameCopy = new GameCopy();
+
             gameStats = new ResettableLazy<IEnumerable<GameItemGroupViewModel>>(() =>
                 GameItemGrouping.GroupItems(GameCopy.Items));
         }
@@ -38,17 +40,17 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string Title => GameCopy.Title;
+        public string? Title => GameCopy.Title;
 
-        public Publisher Publisher => GameCopy.Publisher;
+        public Publisher? Publisher => GameCopy.Publisher;
 
         public IEnumerable<Developer> Developers => GameCopy.Developers;
 
         public IList<Tag> Tags => GameCopy.Tags;
 
-        public string Notes => GameCopy.Notes;
+        public string? Notes => GameCopy.Notes;
 
-        public ImageSource Cover => GameCopy.CoverImage == null
+        public ImageSource? Cover => GameCopy.CoverImage == null
             ? null
             : new BitmapImage(new Uri(GameCopy.CoverImage));
 

@@ -12,6 +12,12 @@ namespace Catalog.Wpf.ViewModel
 
         public ImageSource ThumbnailSource => new BitmapImage(new Uri(ThumbnailUrl));
 
+        public ScreenshotViewModel(string thumbnailUrl, string url)
+        {
+            this.thumbnailUrl = thumbnailUrl;
+            this.url = url;
+        }
+
         public string ThumbnailUrl
         {
             get => thumbnailUrl;
@@ -36,17 +42,9 @@ namespace Catalog.Wpf.ViewModel
         }
 
         public static ScreenshotViewModel FromPath(string path) =>
-            new ScreenshotViewModel
-            {
-                Url = path,
-                ThumbnailUrl = path
-            };
+            new ScreenshotViewModel(path, path);
 
         public static ScreenshotViewModel FromImage(Image image) =>
-            new ScreenshotViewModel
-            {
-                Url = image.Path,
-                ThumbnailUrl = image.Path
-            };
+            new ScreenshotViewModel(image.Path, image.Path);
     }
 }

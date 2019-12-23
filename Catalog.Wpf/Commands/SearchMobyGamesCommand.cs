@@ -22,10 +22,10 @@ namespace Catalog.Wpf.Commands
             this.editGameViewModel = editGameViewModel;
         }
 
-        protected override bool CanExecuteImpl(object parameter) =>
+        protected override bool CanExecuteImpl(object? parameter) =>
             !string.IsNullOrWhiteSpace(parameter as string ?? string.Empty);
 
-        protected override async Task Perform(object parameter)
+        protected override async Task Perform(object? parameter)
         {
             await SearchMobyGames(parameter as string ?? string.Empty);
         }
@@ -123,11 +123,8 @@ namespace Catalog.Wpf.Commands
             // TODO: Get this from config.
             var listItems = screenshotEntries.Take(10).ToList();
 
-            var images = listItems.Select(item => new ScreenshotViewModel
-            {
-                Url = item.Url,
-                ThumbnailUrl = item.Thumbnail,
-            });
+            var images = listItems
+                .Select(item => new ScreenshotViewModel(item.Url, item.Thumbnail));
 
             foreach (var image in images)
             {

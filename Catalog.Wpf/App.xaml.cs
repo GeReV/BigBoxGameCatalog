@@ -12,6 +12,8 @@ namespace Catalog.Wpf
     /// </summary>
     public partial class App
     {
+        private const string FALLBACK_DIRECTORY_NAME = "BBGC";
+
         public App()
         {
             var homeDirectory = EnsureHomeDirectory();
@@ -19,7 +21,7 @@ namespace Catalog.Wpf
             Current.Properties.Add(nameof(ApplicationHelpers.HomeDirectory), homeDirectory);
             Current.Properties.Add(nameof(ApplicationHelpers.ScraperWebClient), new WebClient());
 
-            InitializeDatabase(homeDirectory);
+            InitializeDatabase();
         }
 
         private static string EnsureHomeDirectory()
@@ -27,7 +29,7 @@ namespace Catalog.Wpf
             var settingsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
             var homeDirectory = Path.Combine(settingsDirectory,
-                Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>().Title);
+                Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? FALLBACK_DIRECTORY_NAME);
 
             if (!Directory.Exists(homeDirectory))
             {
@@ -37,7 +39,7 @@ namespace Catalog.Wpf
             return homeDirectory;
         }
 
-        private void InitializeDatabase(string homeDirectory)
+        private static void InitializeDatabase()
         {
             var context = Current.Database();
 

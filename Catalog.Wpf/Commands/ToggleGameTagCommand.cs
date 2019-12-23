@@ -17,14 +17,14 @@ namespace Catalog.Wpf.Commands
             this.viewModel = viewModel;
         }
 
-        protected override bool CanExecuteImpl(object parameter)
+        protected override bool CanExecuteImpl(object? parameter)
         {
             return parameter is object[] parameters &&
                    parameters[1] is object[] selectedItems &&
                    selectedItems.Any();
         }
 
-        protected override async Task Perform(object parameter)
+        protected override async Task Perform(object? parameter)
         {
             if (!(parameter is object[] parameters))
             {

@@ -18,13 +18,11 @@ namespace Catalog.Wpf
                     .Where(entry => entry.Covers.Any(cover => cover.Type == CoverArtEntry.CoverArtType.Front))
                     .Select(entry =>
                     {
-                        return new CoverSelectionViewModel.Item
-                        {
-                            Platform = entry.Platform,
-                            Country = entry.Country,
-                            FrontCover =
-                                entry.Covers.FirstOrDefault(cover => cover.Type == CoverArtEntry.CoverArtType.Front)
-                        };
+                        return new CoverSelectionViewModel.Item(
+                            entry.Platform,
+                            entry.Country,
+                            entry.Covers.FirstOrDefault(cover => cover.Type == CoverArtEntry.CoverArtType.Front)
+                        );
                     })
             };
 

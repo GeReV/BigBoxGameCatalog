@@ -67,8 +67,8 @@ namespace Catalog.Wpf.Forms.Controls
             InitializeComponent();
         }
 
-        public event RoutedEventHandler AddClick;
-        public event RoutedEventHandler RemoveClick;
+        public event RoutedEventHandler? AddClick;
+        public event RoutedEventHandler? RemoveClick;
 
         protected virtual void OnAddClick(RoutedEventArgs e)
         {

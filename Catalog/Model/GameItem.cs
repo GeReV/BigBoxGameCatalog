@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Catalog.Model
 {
@@ -20,9 +21,9 @@ namespace Catalog.Model
 
         public Condition? Condition { get; set; }
 
-        public string ConditionDetails { get; set; }
+        [CanBeNull] public string ConditionDetails { get; set; }
 
-        public string Notes { get; set; }
+        [CanBeNull] public string Notes { get; set; }
 
         public virtual ICollection<Image> Scans { get; set; }
 

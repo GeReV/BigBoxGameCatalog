@@ -8,14 +8,14 @@ namespace Catalog.Wpf.Commands
     {
         private bool isExecuting;
 
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
             return !isExecuting && CanExecuteImpl(parameter);
         }
 
-        protected virtual bool CanExecuteImpl(object parameter) => true;
+        protected virtual bool CanExecuteImpl(object? parameter) => true;
 
-        public async Task ExecuteAsync(object parameter)
+        public async Task ExecuteAsync(object? parameter)
         {
             if (CanExecute(parameter))
             {
@@ -33,7 +33,7 @@ namespace Catalog.Wpf.Commands
             RaiseCanExecuteChanged();
         }
 
-        protected abstract Task Perform(object parameter);
+        protected abstract Task Perform(object? parameter);
 
         public virtual event EventHandler CanExecuteChanged
         {

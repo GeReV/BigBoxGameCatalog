@@ -10,6 +10,12 @@ namespace Catalog.Wpf.ViewModel
         private string path;
         private ImageSource thumbnailSource;
 
+        public ImageViewModel(string path, ImageSource thumbnailSource)
+        {
+            this.path = path;
+            this.thumbnailSource = thumbnailSource;
+        }
+
         public string Path
         {
             get => path;
@@ -41,10 +47,6 @@ namespace Catalog.Wpf.ViewModel
         }
 
         public static ImageViewModel FromImage(Image image) =>
-            new ImageViewModel
-            {
-                Path = image.Path,
-                ThumbnailSource = new BitmapImage(new Uri(image.Path)),
-            };
+            new ImageViewModel(image.Path, new BitmapImage(new Uri(image.Path)));
     }
 }

@@ -33,11 +33,7 @@ namespace Catalog.Wpf.Commands
 
             foreach (var fileName in openFileDialog.FileNames)
             {
-                var imageSource = new ImageViewModel
-                {
-                    Path = fileName,
-                    ThumbnailSource = new BitmapImage(new Uri(fileName))
-                };
+                var imageSource = new ImageViewModel(fileName, new BitmapImage(new Uri(fileName)));
 
                 itemViewModel.Scans.Add(imageSource);
             }

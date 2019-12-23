@@ -5,6 +5,6 @@ namespace Catalog.Wpf.Commands
 {
     public interface IAsyncCommand : ICommand
     {
-        Task ExecuteAsync(object parameter);
+        Task ExecuteAsync(object? parameter);
     }
 }

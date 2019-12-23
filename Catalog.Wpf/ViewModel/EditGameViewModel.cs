@@ -20,15 +20,15 @@ namespace Catalog.Wpf.ViewModel
 {
     public sealed class EditGameViewModel : NotifyPropertyChangedBase
     {
-        private string gameTitle;
-        private string gameMobyGamesSlug;
-        private string gameNotes;
-        private DateTime gameReleaseDate;
-        private Publisher gamePublisher;
+        private string? gameTitle;
+        private string? gameMobyGamesSlug;
+        private string? gameNotes;
+        private DateTime? gameReleaseDate;
+        private Publisher? gamePublisher;
         private int saveProgress;
         private ViewStatus viewStatus = ViewStatus.Idle;
-        private ItemViewModel currentGameItem;
-        private string developerSearchTerm;
+        private ItemViewModel? currentGameItem;
+        private string? developerSearchTerm;
 
         private ObservableCollection<CultureInfo> gameLanguages = new ObservableCollection<CultureInfo>
             {CultureInfo.GetCultureInfo("en")};
@@ -45,22 +45,22 @@ namespace Catalog.Wpf.ViewModel
             }
         };
 
-        private ScreenshotViewModel gameCoverImage;
+        private ScreenshotViewModel? gameCoverImage;
 
         private ObservableCollection<ScreenshotViewModel> gameScreenshots =
             new ObservableCollection<ScreenshotViewModel>();
 
-        private string languageSearchTerm;
+        private string? languageSearchTerm;
         private bool gameSealed;
-        private ImageSource coverImageSource;
+        private ImageSource? coverImageSource;
 
-        private ICommand addItemCommand;
-        private ICommand removeItemCommand;
-        private ICommand selectCoverImageCommand;
-        private ICommand removeScreenshotCommand;
-        private IAsyncCommand searchMobyGamesCommand;
-        private IAsyncCommand saveGameCommand;
-        private IAsyncCommand searchMobyGamesCoverCommand;
+        private ICommand? addItemCommand;
+        private ICommand? removeItemCommand;
+        private ICommand? selectCoverImageCommand;
+        private ICommand? removeScreenshotCommand;
+        private IAsyncCommand? searchMobyGamesCommand;
+        private IAsyncCommand? saveGameCommand;
+        private IAsyncCommand? searchMobyGamesCoverCommand;
 
         public enum ViewStatus
         {
@@ -70,7 +70,7 @@ namespace Catalog.Wpf.ViewModel
             DownloadingScreenshots,
         }
 
-        public EditGameViewModel(Window parentWindow, GameCopy gameCopy = null)
+        public EditGameViewModel(Window parentWindow, GameCopy gameCopy)
         {
             ParentWindow = parentWindow;
 
@@ -115,7 +115,7 @@ namespace Catalog.Wpf.ViewModel
             PropertyChanged += RefreshFilteredDevelopers;
         }
 
-        private void InitializeData(GameCopy gameCopy)
+        private void InitializeData(GameCopy? gameCopy)
         {
             if (gameCopy == null)
             {
@@ -161,7 +161,7 @@ namespace Catalog.Wpf.ViewModel
 
         public GameCopy Game { get; private set; } = new GameCopy();
 
-        public string GameTitle
+        public string? GameTitle
         {
             get => gameTitle;
             set
@@ -183,7 +183,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string GameMobyGamesSlug
+        public string? GameMobyGamesSlug
         {
             get => gameMobyGamesSlug;
             set
@@ -194,7 +194,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string GameNotes
+        public string? GameNotes
         {
             get => gameNotes;
             set
@@ -216,7 +216,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ItemViewModel CurrentGameItem
+        public ItemViewModel? CurrentGameItem
         {
             get => currentGameItem;
             set
@@ -238,7 +238,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string LanguageSearchTerm
+        public string? LanguageSearchTerm
         {
             get => languageSearchTerm;
             set
@@ -276,7 +276,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public DateTime GameReleaseDate
+        public DateTime? GameReleaseDate
         {
             get => gameReleaseDate;
             set
@@ -287,7 +287,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public Publisher GamePublisher
+        public Publisher? GamePublisher
         {
             get => gamePublisher;
             set
@@ -298,7 +298,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string DeveloperSearchTerm
+        public string? DeveloperSearchTerm
         {
             get => developerSearchTerm;
             set
@@ -320,7 +320,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ScreenshotViewModel GameCoverImage
+        public ScreenshotViewModel? GameCoverImage
         {
             get => gameCoverImage;
             set
@@ -329,12 +329,12 @@ namespace Catalog.Wpf.ViewModel
                 gameCoverImage = value;
                 OnPropertyChanged();
 
-                coverImageSource = value.ThumbnailSource;
+                coverImageSource = value?.ThumbnailSource;
                 OnPropertyChanged(nameof(CoverImageSource));
             }
         }
 
-        public ImageSource CoverImageSource
+        public ImageSource? CoverImageSource
         {
             get => coverImageSource;
             set
@@ -348,11 +348,7 @@ namespace Catalog.Wpf.ViewModel
                     return;
                 }
 
-                gameCoverImage = new ScreenshotViewModel
-                {
-                    Url = bitmapImage.UriSource.ToString(),
-                    ThumbnailUrl = bitmapImage.UriSource.ToString(),
-                };
+                gameCoverImage = new ScreenshotViewModel(bitmapImage.UriSource.ToString(), bitmapImage.UriSource.ToString());
 
                 OnPropertyChanged(nameof(GameCoverImage));
             }

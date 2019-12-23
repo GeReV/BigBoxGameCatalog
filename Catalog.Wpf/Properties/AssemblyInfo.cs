@@ -6,11 +6,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Catalog")]
+[assembly: AssemblyTitle("BBGC")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Catalog")]
+[assembly: AssemblyProduct("Big Box Game Catalog")]
 [assembly: AssemblyCopyright("Copyright © Amir Grozki 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

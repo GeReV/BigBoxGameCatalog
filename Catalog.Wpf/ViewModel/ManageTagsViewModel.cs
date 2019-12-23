@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Catalog.Wpf.Commands;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -15,13 +16,13 @@ namespace Catalog.Wpf.ViewModel
         {
             this.database = database;
 
-            Tags = new ObservableCollection<TagViewModel>(
+            tags = new ObservableCollection<TagViewModel>(
                 database
                     .Tags
                     .Select(tag => new TagViewModel(tag))
             );
 
-            DeleteTagCommand  = new DelegateCommand(DeleteTag);
+            DeleteTagCommand = new DelegateCommand(DeleteTag);
         }
 
         public ObservableCollection<TagViewModel> Tags

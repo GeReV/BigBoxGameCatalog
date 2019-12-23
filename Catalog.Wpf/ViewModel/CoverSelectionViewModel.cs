@@ -7,11 +7,18 @@ namespace Catalog.Wpf.ViewModel
     {
         public class Item
         {
+            public Item(string platform, string country, CoverArtEntry frontCover)
+            {
+                Platform = platform;
+                Country = country;
+                FrontCover = frontCover;
+            }
+
             public string Platform { get; set; }
             public string Country { get; set; }
             public CoverArtEntry FrontCover { get; set; }
         }
 
-        public IEnumerable<Item> Items { get; set; }
+        public IEnumerable<Item> Items { get; set; } = new List<Item>();
     }
 }

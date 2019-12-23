@@ -16,16 +16,16 @@ namespace Catalog.Wpf.ViewModel
 {
     public class MainWindowViewModel : NotifyPropertyChangedBase
     {
-        private ObservableCollection<Tag> tags;
+        private ObservableCollection<Tag> tags = new ObservableCollection<Tag>();
         private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
         private IList selectedGames = new ArrayList();
         private ListCollectionView filteredGames;
-        private string searchTerm;
+        private string? searchTerm;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
-        private ICommand editGameCommand;
-        private ICommand deleteGameCommand;
-        private ICommand toggleGameTagCommand;
-        private ICommand refreshGames;
+        private ICommand? editGameCommand;
+        private ICommand? deleteGameCommand;
+        private ICommand? toggleGameTagCommand;
+        private ICommand? refreshGames;
 
         public MainWindowViewModel()
         {
@@ -80,7 +80,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string SearchTerm
+        public string? SearchTerm
         {
             get => searchTerm;
             set
@@ -202,16 +202,16 @@ namespace Catalog.Wpf.ViewModel
             //     .Select(game => game.GameCopy.GameCopyId)
             //     .ToList();
 
-            Games = new ObservableCollection<GameViewModel>(updatedGames);
+            games = new ObservableCollection<GameViewModel>(updatedGames);
 
-            FilteredGames = new ListCollectionView(Games)
+            filteredGames = new ListCollectionView(Games)
             {
                 CustomSort = new GameComparer(),
                 Filter = obj =>
                 {
                     if (obj is GameViewModel game)
                     {
-                        return game.Title.IndexOf(SearchTerm ?? string.Empty,
+                        return game.Title?.IndexOf(SearchTerm ?? string.Empty,
                                    StringComparison.InvariantCultureIgnoreCase) >= 0;
                     }
 

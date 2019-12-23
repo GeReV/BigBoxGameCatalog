@@ -26,9 +26,8 @@ namespace Catalog.Wpf
                         }
                         else
                         {
-                            groups.Add(key, new GameItemGroupViewModel
+                            groups.Add(key, new GameItemGroupViewModel(item.ItemType)
                             {
-                                ItemType = item.ItemType,
                                 Missing = item.Missing,
                                 Count = 1
                             });

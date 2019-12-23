@@ -9,8 +9,8 @@ namespace Catalog.Wpf.Forms
 {
     public partial class GameDetailView : UserControl, IGameView
     {
-        private GridViewColumnHeader listViewSortCol;
-        private SortAdorner listViewSortAdorner;
+        private GridViewColumnHeader? listViewSortCol;
+        private SortAdorner? listViewSortAdorner;
 
         public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
             nameof(GameContextMenu), typeof(ContextMenu), typeof(GameDetailView), new PropertyMetadata(default(ContextMenu)));
@@ -26,7 +26,7 @@ namespace Catalog.Wpf.Forms
             InitializeComponent();
         }
 
-        public event EventHandler<EventArgs> GameDoubleClick;
+        public event EventHandler<EventArgs>? GameDoubleClick;
 
         protected virtual void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -59,7 +59,7 @@ namespace Catalog.Wpf.Forms
 
             var newDir = ListSortDirection.Ascending;
 
-            if (listViewSortCol == column && listViewSortAdorner.Direction == newDir)
+            if (listViewSortCol == column && listViewSortAdorner?.Direction == newDir)
             {
                 newDir = ListSortDirection.Descending;
             }

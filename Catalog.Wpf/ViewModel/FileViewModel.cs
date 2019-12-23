@@ -11,8 +11,11 @@ namespace Catalog.Wpf.ViewModel
         private byte[] sha256Checksum;
         private int progress;
 
-        public FileViewModel(Progress<int> progress = null)
+        public FileViewModel(string path, byte[] sha256Checksum, Progress<int>? progress = null)
         {
+            this.path = path;
+            this.sha256Checksum = sha256Checksum;
+
             if (progress == null)
             {
                 return;
@@ -64,10 +67,6 @@ namespace Catalog.Wpf.ViewModel
         }
 
         public static FileViewModel FromFile(File file) =>
-            new FileViewModel
-            {
-                Path = file.Path,
-                Sha256Checksum = file.Sha256Checksum,
-            };
+            new FileViewModel(file.Path, file.Sha256Checksum);
     }
 }

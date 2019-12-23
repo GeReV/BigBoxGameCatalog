@@ -28,11 +28,7 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            editGameViewModel.GameCoverImage = new ScreenshotViewModel
-            {
-                Url = openFileDialog.FileName,
-                ThumbnailUrl = openFileDialog.FileName
-            };
+            editGameViewModel.GameCoverImage = new ScreenshotViewModel(openFileDialog.FileName, openFileDialog.FileName);
         }
     }
 }

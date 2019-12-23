@@ -8,7 +8,7 @@ namespace Catalog.Wpf.Comparers
 {
     public class GameItemGroupComparer : IComparer<GameItemGroupViewModel>, IComparer
     {
-        public int Compare(GameItemGroupViewModel x, GameItemGroupViewModel y)
+        public int Compare(GameItemGroupViewModel? x, GameItemGroupViewModel? y)
         {
             if (x == null)
             {
@@ -38,7 +38,7 @@ namespace Catalog.Wpf.Comparers
             return x.Count.CompareTo(y.Count);
         }
 
-        public int Compare(object x, object y) =>
-            Compare((GameItemGroupViewModel) x, (GameItemGroupViewModel) y);
+        public int Compare(object? x, object? y) =>
+            Compare((GameItemGroupViewModel?) x, (GameItemGroupViewModel?) y);
     }
 }

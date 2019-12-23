@@ -33,10 +33,7 @@ namespace Catalog.Wpf.Commands
 
                 var progress = new Progress<int>();
 
-                var file = new FileViewModel(progress)
-                {
-                    Path = fileName
-                };
+                var file = new FileViewModel(fileName, new byte[] {}, progress);
 
                 itemViewModel.Files.Add(file);
 

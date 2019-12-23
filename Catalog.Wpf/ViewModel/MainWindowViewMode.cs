@@ -9,23 +9,25 @@ namespace Catalog.Wpf.ViewModel
 {
     public class MainWindowViewMode
     {
-        public static MainWindowViewMode GalleryMode = new MainWindowViewMode
-        {
-            IconSource = (ImageSource) Application.Current.FindResource("IconApplicationIconLarge"),
-            Name = "Gallery View"
-        };
+        public static MainWindowViewMode GalleryMode =
+            new MainWindowViewMode((ImageSource) Application.Current.FindResource("IconApplicationIconLarge"),
+                "Gallery View");
 
-        public static MainWindowViewMode DetailsMode = new MainWindowViewMode
-        {
-            IconSource = (ImageSource) Application.Current.FindResource("IconApplicationDetail"),
-            Name = "Detail View"
-        };
+        public static MainWindowViewMode DetailsMode =
+            new MainWindowViewMode((ImageSource) Application.Current.FindResource("IconApplicationDetail"),
+                "Detail View");
 
         public static IEnumerable<MainWindowViewMode> Modes => typeof(MainWindowViewMode)
             .GetFields(BindingFlags.Static | BindingFlags.Public)
             .Where(fi => fi.FieldType == typeof(MainWindowViewMode))
             .Select(fi => fi.GetValue(null))
             .Cast<MainWindowViewMode>();
+
+        public MainWindowViewMode(ImageSource iconSource, string name)
+        {
+            IconSource = iconSource;
+            Name = name;
+        }
 
         public ImageSource IconSource { get; set; }
         public string Name { get; set; }

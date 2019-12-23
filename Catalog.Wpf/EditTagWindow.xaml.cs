@@ -13,11 +13,11 @@ namespace Catalog.Wpf
             set => DataContext = value;
         }
 
-        public Tag ResultTag { get; private set; } = null;
+        public Tag? ResultTag { get; private set; } = null;
 
-        public EditTagWindow(Tag tag = null)
+        public EditTagWindow(Tag? tag = null)
         {
-            ViewModel = new TagViewModel(tag);
+            ViewModel = new TagViewModel(tag ?? new Tag());
 
             InitializeComponent();
 

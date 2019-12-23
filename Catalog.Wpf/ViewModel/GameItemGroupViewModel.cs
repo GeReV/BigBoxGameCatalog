@@ -4,10 +4,14 @@ namespace Catalog.Wpf.ViewModel
 {
     public class GameItemGroupViewModel : NotifyPropertyChangedBase
     {
-        private int count;
-
         private ItemType itemType;
         private bool missing;
+        private int count;
+
+        public GameItemGroupViewModel(ItemType itemType)
+        {
+            this.itemType = itemType;
+        }
 
         public ItemType ItemType
         {
