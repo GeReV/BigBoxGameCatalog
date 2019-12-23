@@ -7,6 +7,7 @@ using System.Windows;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.ViewModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf.Commands
 {
@@ -36,7 +37,7 @@ namespace Catalog.Wpf.Commands
             editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
         }
 
-        private static async Task InsertGame(CatalogContext db, GameCopy game)
+        private static async Task InsertGame(DbContext db, GameCopy game)
         {
             await using var transaction = await db.Database.BeginTransactionAsync();
 
