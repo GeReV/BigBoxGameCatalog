@@ -20,12 +20,7 @@ namespace Catalog.Wpf.Forms.Controls
         public GameViewModel Game
         {
             get => (GameViewModel) GetValue(GameProperty);
-            set
-            {
-                SetValue(GameProperty, value);
-
-                DataContext = value;
-            }
+            set => SetValue(GameProperty, value);
         }
 
         private void FileItem_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
