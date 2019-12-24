@@ -19,7 +19,7 @@ namespace Catalog.Wpf
 
         private void AddGameButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var editGameDialog = new EditGameDialog()
+            var editGameDialog = new EditGameDialog
             {
                 Owner = this
             };

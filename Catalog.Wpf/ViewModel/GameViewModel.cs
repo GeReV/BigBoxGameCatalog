@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -50,9 +51,25 @@ namespace Catalog.Wpf.ViewModel
 
         public string? Notes => GameCopy.Notes;
 
-        public ImageSource? Cover => GameCopy.CoverImage == null
-            ? null
-            : new BitmapImage(new Uri(HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage)));
+        public ImageSource? Cover
+        {
+            get
+            {
+                if (GameCopy.CoverImage == null)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    return new BitmapImage(new Uri(HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage)));
+                }
+                catch (IOException)
+                {
+                    return null;
+                }
+            }
+        }
 
         public IEnumerable<ScreenshotViewModel> Screenshots =>
             GameCopy.Screenshots
