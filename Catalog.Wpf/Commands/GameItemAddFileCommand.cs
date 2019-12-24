@@ -40,7 +40,7 @@ namespace Catalog.Wpf.Commands
                 Checksum
                     .GenerateSha256Async(inputStream, progress)
                     .ContinueWith(
-                        (hashTask) =>
+                        hashTask =>
                         {
                             inputStream.Dispose();
 

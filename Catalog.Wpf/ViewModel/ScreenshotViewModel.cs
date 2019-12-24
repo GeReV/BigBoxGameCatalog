@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Image = Catalog.Model.Image;
@@ -10,7 +11,19 @@ namespace Catalog.Wpf.ViewModel
         private string thumbnailUrl;
         private string url;
 
-        public ImageSource ThumbnailSource => new BitmapImage(new Uri(ThumbnailUrl));
+        public ImageSource ThumbnailSource
+        {
+            get {
+                try
+                {
+                    return new BitmapImage(new Uri(ThumbnailUrl));
+                }
+                catch (IOException)
+                {
+                    return null;
+                }
+            }
+        }
 
         public ScreenshotViewModel(string thumbnailUrl, string url)
         {

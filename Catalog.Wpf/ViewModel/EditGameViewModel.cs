@@ -136,8 +136,11 @@ namespace Catalog.Wpf.ViewModel
                     gameCopy.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang)));
             GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem));
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>(
-                gameCopy.Screenshots.Select(ScreenshotViewModel.FromPath));
-            GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromPath(gameCopy.CoverImage);
+                gameCopy.Screenshots
+                    .Select(HomeDirectoryHelpers.ToAbsolutePath)
+                    .Select(ScreenshotViewModel.FromPath)
+            );
+            GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromPath(HomeDirectoryHelpers.ToAbsolutePath(gameCopy.CoverImage));
         }
 
         private void RefreshFilteredDevelopers(object sender, PropertyChangedEventArgs e)
@@ -348,7 +351,8 @@ namespace Catalog.Wpf.ViewModel
                     return;
                 }
 
-                gameCoverImage = new ScreenshotViewModel(bitmapImage.UriSource.ToString(), bitmapImage.UriSource.ToString());
+                gameCoverImage =
+                    new ScreenshotViewModel(bitmapImage.UriSource.ToString(), bitmapImage.UriSource.ToString());
 
                 OnPropertyChanged(nameof(GameCoverImage));
             }

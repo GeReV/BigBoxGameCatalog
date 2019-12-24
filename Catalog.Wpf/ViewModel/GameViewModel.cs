@@ -52,10 +52,13 @@ namespace Catalog.Wpf.ViewModel
 
         public ImageSource? Cover => GameCopy.CoverImage == null
             ? null
-            : new BitmapImage(new Uri(GameCopy.CoverImage));
+            : new BitmapImage(new Uri(HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage)));
 
         public IEnumerable<ScreenshotViewModel> Screenshots =>
-            GameCopy.Screenshots.Select(ScreenshotViewModel.FromPath).ToList();
+            GameCopy.Screenshots
+                .Select(HomeDirectoryHelpers.ToAbsolutePath)
+                .Select(ScreenshotViewModel.FromPath)
+                .ToList();
 
         public IEnumerable<GameItemGroupViewModel> GameStats => gameStats.Value;
 

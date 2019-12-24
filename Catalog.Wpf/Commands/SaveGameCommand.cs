@@ -30,14 +30,16 @@ namespace Catalog.Wpf.Commands
 
             database.Attach(gameCopy);
 
-            await UpdateGame(gameCopy);
+            SetGameData(gameCopy);
 
-            await InsertGame(database, gameCopy);
+            await PersistGame(database, gameCopy);
+
+            await DownloadGameAssets(database, gameCopy);
 
             editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
         }
 
-        private static async Task InsertGame(DbContext db, GameCopy game)
+        private static async Task PersistGame(DbContext db, GameCopy game)
         {
             await using var transaction = await db.Database.BeginTransactionAsync();
 
@@ -48,18 +50,43 @@ namespace Catalog.Wpf.Commands
             await transaction.CommitAsync();
         }
 
+        private async Task DownloadGameAssets(DbContext database, GameCopy gameCopy)
+        {
+            if (gameCopy.IsNew)
+            {
+                throw new ArgumentException("Provided GameCopy must be persisted before downloading game assets", nameof(gameCopy));
+            }
+
+            var screenshots = await DownloadScreenshots();
+
+            var cover = await DownloadCoverArt();
+
+            gameCopy.CoverImage = cover;
+            gameCopy.Screenshots = screenshots.Distinct().ToList();
+
+            await PersistGame(database, gameCopy);
+        }
+
+        private string BuildGamePath()
+        {
+            var directoryName = $"{editGameViewModel.Game.GameCopyId:D4}";
+
+            if (!string.IsNullOrWhiteSpace(editGameViewModel.GameMobyGamesSlug))
+            {
+                directoryName += $"-{editGameViewModel.GameMobyGamesSlug}";
+            }
+
+            return Path.Combine(Application.Current.HomeDirectory(), directoryName);
+        }
+
         private async Task<IEnumerable<string>> DownloadScreenshots()
         {
-            var destinationDirectory = Path.Combine(
-                Application.Current.HomeDirectory(),
-                editGameViewModel.GameMobyGamesSlug,
-                "screenshots"
-            );
+            var destinationDirectory = Path.Combine(BuildGamePath(), "screenshots");
 
             var selectedScreenshots = editGameViewModel.GameScreenshots;
 
             var screenshotsToDownload = selectedScreenshots
-                .Where(ss => !new Uri(ss.Url).IsFile)
+                .Where(ss => Uri.TryCreate(ss.Url, UriKind.Absolute, out var uri) && !uri.IsFile)
                 .ToList();
 
             var existingScreenshots = selectedScreenshots
@@ -74,14 +101,14 @@ namespace Catalog.Wpf.Commands
                 );
 
             return newScreenshots
+                .Select(HomeDirectoryHelpers.ToRelativePath)
                 .Concat(existingScreenshots)
                 .OrderBy(s => s);
         }
 
         private async Task<string?> DownloadCoverArt()
         {
-            var gameDirectory =
-                Path.Combine(Application.Current.HomeDirectory(), editGameViewModel.GameMobyGamesSlug);
+            var gameDirectory = BuildGamePath();
 
             if (editGameViewModel.GameCoverImage == null)
             {
@@ -90,21 +117,19 @@ namespace Catalog.Wpf.Commands
 
             var url = editGameViewModel.GameCoverImage.Url;
 
-            if (!new Uri(url).IsFile)
+            if (new Uri(url).IsFile)
             {
-                return await new ImageDownloader(Application.Current.ScraperWebClient())
-                    .DownloadCoverArt(gameDirectory, url);
+                return url;
             }
 
-            return url;
+            var path = await new ImageDownloader(Application.Current.ScraperWebClient())
+                .DownloadCoverArt(gameDirectory, url);
+
+            return HomeDirectoryHelpers.ToRelativePath(path);
         }
 
-        private async Task UpdateGame(GameCopy gameCopy)
+        private void SetGameData(GameCopy gameCopy)
         {
-            var screenshots = await DownloadScreenshots();
-
-            var cover = await DownloadCoverArt();
-
             gameCopy.Title = editGameViewModel.GameTitle;
             gameCopy.Sealed = editGameViewModel.GameSealed;
             gameCopy.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
@@ -123,8 +148,6 @@ namespace Catalog.Wpf.Commands
             gameCopy.TwoLetterIsoLanguageName =
                 editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList();
             gameCopy.ReleaseDate = editGameViewModel.GameReleaseDate;
-            gameCopy.CoverImage = cover;
-            gameCopy.Screenshots = screenshots.Distinct().ToList();
         }
     }
 }
