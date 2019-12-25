@@ -1,8 +1,12 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.ViewModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf.Forms.Controls
 {
@@ -10,7 +14,17 @@ namespace Catalog.Wpf.Forms.Controls
     {
         public static readonly DependencyProperty GameProperty = DependencyProperty.Register(nameof(Game),
             typeof(GameViewModel), typeof(GameInfoCard),
-            new FrameworkPropertyMetadata(default(GameViewModel)));
+            new FrameworkPropertyMetadata(default(GameViewModel), null, CoerceValueCallback));
+
+        private static object CoerceValueCallback(DependencyObject d, object basevalue)
+        {
+            if (basevalue is GameViewModel gameViewModel)
+            {
+                EnrichGame(gameViewModel.GameCopy);
+            }
+
+            return basevalue;
+        }
 
         public GameInfoCard()
         {
@@ -21,6 +35,30 @@ namespace Catalog.Wpf.Forms.Controls
         {
             get => (GameViewModel) GetValue(GameProperty);
             set => SetValue(GameProperty, value);
+        }
+
+        private static void EnrichGame(GameCopy game)
+        {
+                using var database = Application.Current.Database();
+
+                var entity = database.Attach(game);
+
+                entity
+                    .Reference(g => g.Publisher)
+                    .Load();
+
+                entity
+                    .Collection(g => g.GameCopyDevelopers)
+                    .Query()
+                    .Include(gcd => gcd.Developer)
+                    .Load();
+
+                entity
+                    .Collection(g => g.Items)
+                    .Query()
+                    .Include(item => item.Files)
+                    .Include(item => item.Scans)
+                    .Load();
         }
 
         private void FileItem_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)

@@ -190,9 +190,6 @@ namespace Catalog.Wpf.ViewModel
 
             var updatedGames = database.Games
                 .Include(g => g.Items)
-                .Include(g => g.GameCopyDevelopers)
-                .ThenInclude(gcd => gcd.Developer)
-                .Include(g => g.Publisher)
                 .Include(g => g.GameCopyTags)
                 .ThenInclude(t => t.Tag)
                 .Select(gc => new GameViewModel(gc));

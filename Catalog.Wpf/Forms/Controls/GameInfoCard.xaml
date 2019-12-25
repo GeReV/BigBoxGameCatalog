@@ -51,7 +51,7 @@
                 <TextBlock Text="{Binding Notes}" />
             </controls:FormField>
             <controls:FormField LabelContent="Items:">
-                <TreeView ItemsSource="{Binding GameCopy.Items}"
+                <TreeView ItemsSource="{Binding Items}"
                           Height="80"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <TreeView.Resources>

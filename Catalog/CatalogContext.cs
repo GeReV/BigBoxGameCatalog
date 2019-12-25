@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using Catalog.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Catalog
 {
@@ -42,7 +38,6 @@ namespace Catalog
 
         protected override void OnConfiguring(DbContextOptionsBuilder options) =>
             options
-                .UseLazyLoadingProxies()
                 .UseSqlite($"Data Source={databasePath}");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -80,6 +75,10 @@ namespace Catalog
                         .Select(Enum.Parse<Platform>)
                         .ToList()
             );
+
+            gameCopyBuilder.HasOne(v => v.Publisher)
+                .WithMany(p => p.Games)
+                .HasForeignKey(v => v.PublisherId);
 
             ConfigureTimestamps(gameCopyBuilder);
         }

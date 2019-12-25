@@ -9,7 +9,7 @@ namespace Catalog.Model
     {
         public int ImageId { get; set; }
 
-        public virtual GameItem GameItem { get; set; }
+        public GameItem GameItem { get; set; }
         public string Path { get; set; }
 
         public DateTime DateCreated { get; set; }

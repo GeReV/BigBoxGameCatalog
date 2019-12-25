@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using Castle.Core.Internal;
+using System.Linq;
 
 namespace Catalog.Wpf
 {
@@ -14,7 +14,7 @@ namespace Catalog.Wpf
         {
             get
             {
-                if (!all.IsNullOrEmpty())
+                if (!all.Any())
                 {
                     return all;
                 }

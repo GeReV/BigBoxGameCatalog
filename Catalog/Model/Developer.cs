@@ -23,7 +23,7 @@ namespace Catalog.Model
         public DateTime LastUpdated { get; set; }
 
 
-        public virtual ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
 
         public IEnumerable<GameCopy> Games => GameCopyDevelopers.Select(gcd => gcd.Game);
 

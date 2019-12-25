@@ -26,6 +26,9 @@ namespace Catalog.Wpf.Commands
 
             db.Attach(game.GameCopy)
                 .Collection(v => v.Items)
+                .Query()
+                .Include(item => item.Files)
+                .Include(item => item.Scans)
                 .Load();
 
             var editGameDialog = new EditGameDialog(game.GameCopy)

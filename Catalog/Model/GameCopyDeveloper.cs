@@ -5,10 +5,10 @@ namespace Catalog.Model
     public class GameCopyDeveloper : ITimestamps
     {
         public int GameCopyId { get; set; }
-        public virtual GameCopy Game { get; set; }
+        public GameCopy Game { get; set; }
 
         public int DeveloperId { get; set; }
-        public virtual Developer Developer { get; set; }
+        public Developer Developer { get; set; }
 
         public DateTime DateCreated { get; set; }
 

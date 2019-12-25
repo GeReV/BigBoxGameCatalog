@@ -51,6 +51,8 @@ namespace Catalog.Wpf.ViewModel
 
         public string? Notes => GameCopy.Notes;
 
+        public IEnumerable<GameItem> Items => GameCopy.Items;
+
         public ImageSource? Cover
         {
             get

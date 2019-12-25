@@ -21,13 +21,15 @@ namespace Catalog.Model
 
         public string MobyGamesSlug { get; set; }
 
-        public virtual Publisher Publisher { get; set; }
+        public int PublisherId { get; set; }
 
-        public virtual ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+        public Publisher Publisher { get; set; }
+
+        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
 
         public IEnumerable<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer);
 
-        public virtual ICollection<GameCopyTag> GameCopyTags { get; set; }
+        public ICollection<GameCopyTag> GameCopyTags { get; set; }
 
         public IList<Tag> Tags => GameCopyTags
             .Select(gct => gct.Tag)
@@ -46,7 +48,7 @@ namespace Catalog.Model
 
         public List<string> Screenshots { get; set; } = new List<string>();
 
-        public virtual ICollection<GameItem> Items { get; set; }
+        public ICollection<GameItem> Items { get; set; }
 
         public DateTime DateCreated { get; set; }
 

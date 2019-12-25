@@ -15,7 +15,7 @@ namespace Catalog.Model
 
         [Required] public ItemType ItemType { get; set; }
 
-        [Required] public virtual GameCopy Game { get; set; }
+        [Required] public GameCopy Game { get; set; }
 
         public bool Missing { get; set; }
 
@@ -25,9 +25,9 @@ namespace Catalog.Model
 
         [CanBeNull] public string Notes { get; set; }
 
-        public virtual ICollection<Image> Scans { get; set; }
+        public ICollection<Image> Scans { get; set; }
 
-        public virtual ICollection<File> Files { get; set; }
+        public ICollection<File> Files { get; set; }
 
         public DateTime DateCreated { get; set; }
 

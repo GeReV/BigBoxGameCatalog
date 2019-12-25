@@ -9,7 +9,7 @@ namespace Catalog.Model
     {
         public int FileId { get; set; }
 
-        public virtual GameItem GameItem { get; set; }
+        public GameItem GameItem { get; set; }
         public byte[] Sha256Checksum { get; set; }
         public string Path { get; set; }
 

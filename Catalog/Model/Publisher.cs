@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Catalog.Model
 {
@@ -13,7 +11,7 @@ namespace Catalog.Model
         [Required] public string Name { get; set; }
         public List<string> Links { get; set; } = new List<string>();
 
-        public virtual ICollection<GameCopy> Games { get; set; }
+        public ICollection<GameCopy> Games { get; set; }
 
         public DateTime DateCreated { get; set; }
 

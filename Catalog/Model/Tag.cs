@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,7 +25,7 @@ namespace Catalog.Model
         public DateTime DateCreated { get; set; }
         public DateTime LastUpdated { get; set; }
 
-        public virtual ICollection<GameCopyTag> GameCopyTags { get; set; }
+        public ICollection<GameCopyTag> GameCopyTags { get; set; }
 
         public IEnumerable<GameCopy> Games => GameCopyTags.Select(gct => gct.Game);
 
