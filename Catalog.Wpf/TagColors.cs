@@ -14,7 +14,7 @@ namespace Catalog.Wpf
         {
             get
             {
-                if (!all.Any())
+                if (all.Any())
                 {
                     return all;
                 }
