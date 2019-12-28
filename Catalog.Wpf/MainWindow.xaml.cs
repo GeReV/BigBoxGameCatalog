@@ -30,9 +30,11 @@ namespace Catalog.Wpf
             }
         }
 
-        private void GameGalleryView_OnGameDoubleClick(object sender, EventArgs e)
+        private void GameView_OnGameDoubleClick(object sender, EventArgs e)
         {
-            CommandExecutor.Execute(ViewModel.EditGameCommand, ViewModel.FilteredGames.CurrentItem);
+            var gameViewModel = (GameViewModel) ViewModel.FilteredGames.CurrentItem;
+
+            CommandExecutor.Execute(ViewModel.EditGameCommand, gameViewModel.GameCopy.GameCopyId);
         }
     }
 }

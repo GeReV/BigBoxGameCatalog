@@ -79,7 +79,10 @@ namespace Catalog.Wpf.ViewModel
             Publishers = new ObservableCollection<Publisher>(database.Publishers);
             Developers = new ObservableCollection<Developer>(database.Developers);
 
-            InitializeData(gameCopy);
+            if (!gameCopy.IsNew)
+            {
+                InitializeData(gameCopy);
+            }
 
             FilteredDevelopers = new ListCollectionView(Developers)
             {
@@ -115,13 +118,8 @@ namespace Catalog.Wpf.ViewModel
             PropertyChanged += RefreshFilteredDevelopers;
         }
 
-        private void InitializeData(GameCopy? gameCopy)
+        private void InitializeData(GameCopy gameCopy)
         {
-            if (gameCopy == null)
-            {
-                return;
-            }
-
             Game = gameCopy;
             GameTitle = gameCopy.Title;
             GameSealed = gameCopy.Sealed;

@@ -43,8 +43,6 @@ namespace Catalog.Wpf.Commands
         {
             await using var transaction = await db.Database.BeginTransactionAsync();
 
-            db.Update(game);
-
             await db.SaveChangesAsync();
 
             await transaction.CommitAsync();

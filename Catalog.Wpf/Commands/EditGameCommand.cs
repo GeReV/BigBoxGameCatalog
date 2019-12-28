@@ -17,28 +17,19 @@ namespace Catalog.Wpf.Commands
 
         public override void Execute(object parameter)
         {
-            if (!(parameter is GameViewModel game))
+            if (!(parameter is int gameId))
             {
                 return;
             }
 
-            using var db = Application.Current.Database();
-
-            db.Attach(game.GameCopy)
-                .Collection(v => v.Items)
-                .Query()
-                .Include(item => item.Files)
-                .Include(item => item.Scans)
-                .Load();
-
-            var editGameDialog = new EditGameDialog(game.GameCopy)
+            var editGameDialog = new EditGameDialog(gameId)
             {
                 Owner = Application.Current.MainWindow
             };
 
             if (editGameDialog.ShowDialog() == true)
             {
-                mainWindowViewModel.RefreshGamesCollection();
+                mainWindowViewModel.RefreshGame(gameId);
             }
         }
     }

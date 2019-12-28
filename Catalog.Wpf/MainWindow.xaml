@@ -192,12 +192,12 @@
                         </ResourceDictionary.MergedDictionaries>
                         <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.GalleryMode}"
                                       DataType="viewModel:MainWindowViewModel">
-                            <forms:GameGalleryView GameDoubleClick="GameGalleryView_OnGameDoubleClick"
+                            <forms:GameGalleryView GameDoubleClick="GameView_OnGameDoubleClick"
                                                    GameContextMenu="{DynamicResource GameCopyContextMenu}" />
                         </DataTemplate>
                         <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.DetailsMode}"
                                       DataType="viewModel:MainWindowViewModel">
-                            <forms:GameDetailView GameDoubleClick="GameGalleryView_OnGameDoubleClick"
+                            <forms:GameDetailView GameDoubleClick="GameView_OnGameDoubleClick"
                                                   GameContextMenu="{DynamicResource GameCopyContextMenu}" />
                         </DataTemplate>
                     </ResourceDictionary>

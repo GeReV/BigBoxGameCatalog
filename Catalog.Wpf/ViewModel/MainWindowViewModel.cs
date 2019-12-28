@@ -11,6 +11,7 @@ using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.Comparers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -146,7 +147,7 @@ namespace Catalog.Wpf.ViewModel
 
             RefreshTags();
 
-            RefreshGamesCollection();
+            RefreshGame(gameViewModel.GameCopy.GameCopyId);
         });
 
         public ICommand CreateTagCommand => new DelegateCommand(_ =>
@@ -184,14 +185,34 @@ namespace Catalog.Wpf.ViewModel
             RefreshGamesCollection();
         });
 
+        private static IEnumerable<GameCopy> LoadGames(CatalogContext database) =>
+            database.Games
+                .Include(g => g.Items)
+                .Include(g => g.GameCopyTags)
+                .ThenInclude(t => t.Tag);
+
+        public void RefreshGame(int gameCopyId)
+        {
+            using var database = Application.Current.Database();
+
+            var game = LoadGames(database)
+                .SingleOrDefault(g => g.GameCopyId == gameCopyId);
+
+            var existingGame = Games.FirstOrDefault(g => g.GameCopy.GameCopyId == gameCopyId);
+
+            if (existingGame != null)
+            {
+                Games.Remove(existingGame);
+            }
+
+            Games.Add(new GameViewModel(game));
+        }
+
         public void RefreshGamesCollection()
         {
             using var database = Application.Current.Database();
 
-            var updatedGames = database.Games
-                .Include(g => g.Items)
-                .Include(g => g.GameCopyTags)
-                .ThenInclude(t => t.Tag)
+            var updatedGames = LoadGames(database)
                 .Select(gc => new GameViewModel(gc));
 
             // var selectedItems = SelectedGames
