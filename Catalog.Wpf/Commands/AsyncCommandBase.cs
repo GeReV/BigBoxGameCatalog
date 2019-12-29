@@ -22,6 +22,9 @@ namespace Catalog.Wpf.Commands
                 try
                 {
                     isExecuting = true;
+
+                    RaiseCanExecuteChanged();
+
                     await Perform(parameter);
                 }
                 finally
