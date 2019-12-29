@@ -39,6 +39,8 @@ namespace Catalog.Wpf.Commands
 
             database.Remove(game.GameCopy);
 
+            database.SaveChanges();
+
             mainWindowViewModel.RefreshGamesCollection();
         }
     }
