@@ -21,13 +21,34 @@
                 <ToolBar.Resources>
                     <Style TargetType="controls:DropDownButton"
                            BasedOn="{StaticResource {x:Static ToolBar.ToggleButtonStyleKey}}" />
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsEnabled, RelativeSource={RelativeSource AncestorType=Button}}"
+                                Value="False">
+                                <Setter Property="Opacity"
+                                        Value="0.5" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
                 </ToolBar.Resources>
                 <Button Name="AddGameButton"
                         Click="AddGameButton_OnClick">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{StaticResource IconPlus}"
-                               Width="16" />
+                               Width="16"
+                               Margin="0,0,4,0" />
                         <TextBlock>Add Game</TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button Name="DeleteGameButton"
+                        Command="{Binding DeleteGameCommand}"
+                        CommandParameter="{Binding FilteredGames/}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{StaticResource IconCross}"
+                               Width="16"
+                               Margin="0,0,4,0" />
+                        <TextBlock>Delete Game</TextBlock>
                     </StackPanel>
                 </Button>
                 <Separator />

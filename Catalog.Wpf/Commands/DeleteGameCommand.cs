@@ -16,6 +16,11 @@ namespace Catalog.Wpf.Commands
             this.mainWindowViewModel = mainWindowViewModel;
         }
 
+        public override bool CanExecute(object parameter)
+        {
+            return parameter is GameViewModel;
+        }
+
         public override void Execute(object parameter)
         {
             if (!(parameter is GameViewModel game))
