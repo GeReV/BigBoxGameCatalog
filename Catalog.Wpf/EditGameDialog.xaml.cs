@@ -68,20 +68,6 @@ namespace Catalog.Wpf
             TitleTextbox.Focus();
         }
 
-        private async void OkButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (!ViewModel.SaveGameCommand.CanExecute(null))
-            {
-                return;
-            }
-
-            await ViewModel.SaveGameCommand.ExecuteAsync(null);
-
-            DialogResult = true;
-
-            Close();
-        }
-
         private void CancelButton_OnClick(object sender, RoutedEventArgs e)
         {
             DialogResult = false;

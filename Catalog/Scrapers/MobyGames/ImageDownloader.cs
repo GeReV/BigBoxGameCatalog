@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames.Model;
+using JetBrains.Annotations;
 using File = System.IO.File;
 
 namespace Catalog.Scrapers.MobyGames
@@ -22,7 +23,7 @@ namespace Catalog.Scrapers.MobyGames
         }
 
         public async Task<string[]> DownloadScreenshots(string screenshotDirectory, IEnumerable<string> downloadUrls,
-            IProgress<int> progress = null)
+            [CanBeNull] IProgress<int> progress = null)
         {
             var totalProgress = new AggregateProgress<int>(progressValues =>
             {

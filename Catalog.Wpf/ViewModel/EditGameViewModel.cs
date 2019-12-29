@@ -414,7 +414,30 @@ namespace Catalog.Wpf.ViewModel
         public IAsyncCommand SearchMobyGamesCommand =>
             searchMobyGamesCommand ??= new SearchMobyGamesCommand(this);
 
-        public IAsyncCommand SaveGameCommand => saveGameCommand ??= new SaveGameCommand(this);
+        public IAsyncCommand SaveGameCommand => saveGameCommand ??= new AsyncDelegateCommand(async _ =>
+        {
+            Status = ViewStatus.DownloadingScreenshots;
+
+            var gameCopy = Game;
+
+            SetGameData(gameCopy);
+
+            var args = new SaveGameCommand.SaveGameArguments(
+                gameCopy,
+                GameScreenshots,
+                GameCoverImage,
+                new Progress<int>(percentage => SaveProgress = percentage)
+            );
+
+            await CommandExecutor.Execute(new SaveGameCommand(), args);
+
+            Status = ViewStatus.Idle;
+
+            // TODO: Ideally this should be external to the viewmodel.
+            ParentWindow.DialogResult = true;
+
+            ParentWindow.Close();
+        });
 
         public IAsyncCommand SearchMobyGamesCoverCommand =>
             searchMobyGamesCoverCommand ??= new SearchMobyGamesCoverCommand(this);
@@ -436,5 +459,27 @@ namespace Catalog.Wpf.ViewModel
                 GameScreenshots.Remove(selectedItem);
             }
         });
+
+        private void SetGameData(GameCopy gameCopy)
+        {
+            gameCopy.Title = GameTitle;
+            gameCopy.Sealed = GameSealed;
+            gameCopy.MobyGamesSlug = GameMobyGamesSlug;
+            gameCopy.Platforms = GamePlatforms.Distinct().ToList();
+            gameCopy.Publisher = GamePublisher;
+            gameCopy.GameCopyDevelopers = GameDevelopers.Distinct()
+                .Select(dev => new GameCopyDeveloper
+                {
+                    Developer = dev,
+                    Game = gameCopy
+                })
+                .ToList();
+            gameCopy.Items = GameItems.Select(item => item.BuildItem()).ToList();
+            gameCopy.Links = GameLinks.Distinct().ToList();
+            gameCopy.Notes = GameNotes;
+            gameCopy.TwoLetterIsoLanguageName =
+                GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList();
+            gameCopy.ReleaseDate = GameReleaseDate;
+        }
     }
 }

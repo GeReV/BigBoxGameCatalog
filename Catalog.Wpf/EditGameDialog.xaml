@@ -58,7 +58,7 @@
             <Button Name="OkButton"
                     Padding="5"
                     Width="80"
-                    Click="OkButton_OnClick">
+                    Command="{Binding SaveGameCommand}">
                 OK
             </Button>
         </StackPanel>

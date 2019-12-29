@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,33 +14,55 @@ namespace Catalog.Wpf.Commands
 {
     public class SaveGameCommand : AsyncCommandBase
     {
-        private readonly EditGameViewModel editGameViewModel;
-
-        public SaveGameCommand(EditGameViewModel editGameViewModel)
+        public sealed class SaveGameArguments
         {
-            this.editGameViewModel = editGameViewModel;
+            public GameCopy Game { get; }
+            public ICollection<ScreenshotViewModel> GameScreenshots { get; }
+            public ScreenshotViewModel? GameCoverImage { get; }
+            public IProgress<int>? Progress { get; }
+
+            public SaveGameArguments(GameCopy game, ICollection<ScreenshotViewModel> gameScreenshots,
+                ScreenshotViewModel? gameCoverImage, IProgress<int>? progress = null)
+            {
+                Game = game;
+                GameScreenshots = gameScreenshots;
+                GameCoverImage = gameCoverImage;
+                Progress = progress;
+            }
         }
 
         protected override async Task Perform(object? parameter)
         {
-            editGameViewModel.Status = EditGameViewModel.ViewStatus.DownloadingScreenshots;
+            if (!(parameter is SaveGameArguments args))
+            {
+                return;
+            }
+
+            var game = args.Game;
 
             await using var database = Application.Current.Database();
 
-            var gameCopy = editGameViewModel.Game;
+            database.Attach(game);
 
-            database.Attach(gameCopy);
+            await PersistGame(database);
 
-            SetGameData(gameCopy);
+            var destinationDirectory = BuildGamePath(game);
 
-            await PersistGame(database, gameCopy);
+            var screenshots = await DownloadScreenshots(
+                Path.Combine(destinationDirectory, "screenshots"),
+                args.GameScreenshots,
+                args.Progress
+            );
 
-            await DownloadGameAssets(database, gameCopy);
+            var cover = await DownloadCoverArt(destinationDirectory, args.GameCoverImage);
 
-            editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
+            game.CoverImage = cover;
+            game.Screenshots = screenshots.Distinct().ToList();
+
+            await PersistGame(database);
         }
 
-        private static async Task PersistGame(DbContext db, GameCopy game)
+        private static async Task PersistGame(DbContext db)
         {
             await using var transaction = await db.Database.BeginTransactionAsync();
 
@@ -48,41 +71,21 @@ namespace Catalog.Wpf.Commands
             await transaction.CommitAsync();
         }
 
-        private async Task DownloadGameAssets(DbContext database, GameCopy gameCopy)
+        private static string BuildGamePath(GameCopy gameCopy)
         {
-            if (gameCopy.IsNew)
+            var directoryName = $"{gameCopy.GameCopyId:D4}";
+
+            if (!string.IsNullOrWhiteSpace(gameCopy.MobyGamesSlug))
             {
-                throw new ArgumentException("Provided GameCopy must be persisted before downloading game assets", nameof(gameCopy));
-            }
-
-            var screenshots = await DownloadScreenshots();
-
-            var cover = await DownloadCoverArt();
-
-            gameCopy.CoverImage = cover;
-            gameCopy.Screenshots = screenshots.Distinct().ToList();
-
-            await PersistGame(database, gameCopy);
-        }
-
-        private string BuildGamePath()
-        {
-            var directoryName = $"{editGameViewModel.Game.GameCopyId:D4}";
-
-            if (!string.IsNullOrWhiteSpace(editGameViewModel.GameMobyGamesSlug))
-            {
-                directoryName += $"-{editGameViewModel.GameMobyGamesSlug}";
+                directoryName += $"-{gameCopy.MobyGamesSlug}";
             }
 
             return Path.Combine(Application.Current.HomeDirectory(), directoryName);
         }
 
-        private async Task<IEnumerable<string>> DownloadScreenshots()
+        private static async Task<IEnumerable<string>> DownloadScreenshots(string destinationDirectory,
+            ICollection<ScreenshotViewModel> selectedScreenshots, IProgress<int> progress = null)
         {
-            var destinationDirectory = Path.Combine(BuildGamePath(), "screenshots");
-
-            var selectedScreenshots = editGameViewModel.GameScreenshots;
-
             var screenshotsToDownload = selectedScreenshots
                 .Where(ss => Uri.TryCreate(ss.Url, UriKind.Absolute, out var uri) && !uri.IsFile)
                 .ToList();
@@ -95,7 +98,7 @@ namespace Catalog.Wpf.Commands
                 .DownloadScreenshots(
                     destinationDirectory,
                     screenshotsToDownload.Select(ss => ss.Url),
-                    new Progress<int>(percentage => editGameViewModel.SaveProgress = percentage)
+                    progress
                 );
 
             return newScreenshots
@@ -104,16 +107,14 @@ namespace Catalog.Wpf.Commands
                 .OrderBy(s => s);
         }
 
-        private async Task<string?> DownloadCoverArt()
+        private static async Task<string?> DownloadCoverArt(string destinationDirectory, ScreenshotViewModel? gameCoverImage)
         {
-            var gameDirectory = BuildGamePath();
-
-            if (editGameViewModel.GameCoverImage == null)
+            if (gameCoverImage == null)
             {
                 return null;
             }
 
-            var url = editGameViewModel.GameCoverImage.Url;
+            var url = gameCoverImage.Url;
 
             if (new Uri(url).IsFile)
             {
@@ -121,31 +122,9 @@ namespace Catalog.Wpf.Commands
             }
 
             var path = await new ImageDownloader(Application.Current.ScraperWebClient())
-                .DownloadCoverArt(gameDirectory, url);
+                .DownloadCoverArt(destinationDirectory, url);
 
             return HomeDirectoryHelpers.ToRelativePath(path);
-        }
-
-        private void SetGameData(GameCopy gameCopy)
-        {
-            gameCopy.Title = editGameViewModel.GameTitle;
-            gameCopy.Sealed = editGameViewModel.GameSealed;
-            gameCopy.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
-            gameCopy.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
-            gameCopy.Publisher = editGameViewModel.GamePublisher;
-            gameCopy.GameCopyDevelopers = editGameViewModel.GameDevelopers.Distinct()
-                .Select(dev => new GameCopyDeveloper
-                {
-                    Developer = dev,
-                    Game = gameCopy
-                })
-                .ToList();
-            gameCopy.Items = editGameViewModel.GameItems.Select(item => item.BuildItem()).ToList();
-            gameCopy.Links = editGameViewModel.GameLinks.Distinct().ToList();
-            gameCopy.Notes = editGameViewModel.GameNotes;
-            gameCopy.TwoLetterIsoLanguageName =
-                editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList();
-            gameCopy.ReleaseDate = editGameViewModel.GameReleaseDate;
         }
     }
 }
