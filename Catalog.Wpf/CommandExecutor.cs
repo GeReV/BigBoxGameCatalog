@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Threading.Tasks;
+using System.Windows.Input;
+using Catalog.Wpf.Commands;
 
 namespace Catalog.Wpf
 {
@@ -12,6 +14,18 @@ namespace Catalog.Wpf
             }
 
             command.Execute(parameter);
+
+            return true;
+        }
+
+        public static async Task<bool> Execute(IAsyncCommand command, object? parameter = null)
+        {
+            if (!command.CanExecute(parameter))
+            {
+                return false;
+            }
+
+            await command.ExecuteAsync(parameter);
 
             return true;
         }
