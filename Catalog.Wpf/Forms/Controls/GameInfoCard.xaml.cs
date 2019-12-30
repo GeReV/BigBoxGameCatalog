@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Navigation;
 using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.ViewModel;
@@ -79,6 +81,16 @@ namespace Catalog.Wpf.Forms.Controls
             }
 
             CommandExecutor.Execute(new OpenFileCommand(), ((ListBoxItem) sender).DataContext);
+        }
+
+        private void Hyperlink_OnRequestNavigate(object _, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri)
+            {
+                UseShellExecute = true
+            });
+
+            e.Handled = true;
         }
     }
 }

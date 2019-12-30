@@ -49,7 +49,9 @@ namespace Catalog.Wpf.ViewModel
 
         public IEnumerable<Developer> Developers => GameCopy.Developers;
 
-        public IList<Tag> Tags => GameCopy.Tags;
+        public IEnumerable<Tag> Tags => GameCopy.Tags;
+
+        public IEnumerable<string> Links => GameCopy.Links;
 
         public string? Notes => GameCopy.Notes;
 

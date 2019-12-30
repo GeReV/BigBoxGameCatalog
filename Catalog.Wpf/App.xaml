@@ -23,6 +23,7 @@
             <converters:ColorToLuminanceConverter x:Key="ColorToLuminanceConverter" />
             <converters:ListIncludesToBooleanConverter x:Key="ListIncludesToBooleanConverter" />
             <converters:ArrayConverter x:Key="ArrayConverter" />
+            <converters:UriConverter x:Key="UriConverter" />
             <converters:ValueConverterGroup x:Key="ValueConverterGroup" />
             <converters:PropertyPathConverter x:Key="PropertyPathConverter" />
 

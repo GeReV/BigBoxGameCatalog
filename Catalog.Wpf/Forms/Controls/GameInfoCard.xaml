@@ -118,6 +118,21 @@
                     </ItemsControl.ItemTemplate>
                 </ListBox>
             </controls:FormField>
+            <controls:FormField LabelContent="Links"
+                                Visibility="{Binding Links, Converter={StaticResource NullableOrEmptyToVisibilityConverter}}">
+                <ItemsControl ItemsSource="{Binding Links}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Hyperlink NavigateUri="{Binding Converter={StaticResource UriConverter}, Mode=OneWay}"
+                                           RequestNavigate="Hyperlink_OnRequestNavigate">
+                                    <Run Text="{Binding Mode=OneWay}" />
+                                </Hyperlink>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </controls:FormField>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
