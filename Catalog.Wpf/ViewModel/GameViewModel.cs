@@ -41,6 +41,8 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
+        public int GameCopyId => GameCopy.GameCopyId;
+
         public string? Title => GameCopy.Title;
 
         public Publisher? Publisher => GameCopy.Publisher;

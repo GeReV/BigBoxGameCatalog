@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace Catalog.Model
 {
-    public class GameItem : IModel
+    public class GameItem : IModel, ICloneable<GameItem>
     {
         public int GameItemId { get; set; }
 
@@ -33,10 +33,25 @@ namespace Catalog.Model
 
         public DateTime LastUpdated { get; set; }
 
-        [NotMapped]
-        public IEnumerable<object> Children => Scans.Concat<object>(Files);
+        [NotMapped] public IEnumerable<object> Children => Scans.Concat<object>(Files);
 
         public int Id => GameItemId;
         public bool IsNew => GameItemId == 0;
+
+        public GameItem Clone() =>
+            new GameItem
+            {
+                Condition = Condition,
+                ConditionDetails = ConditionDetails,
+                Files = Files
+                    .Select(file => new File {Path = file.Path, Sha256Checksum = file.Sha256Checksum})
+                    .ToList(),
+                ItemType = ItemType,
+                Missing = Missing,
+                Notes = Notes,
+                Scans = Scans
+                    .Select(scan => new Image {Path = scan.Path})
+                    .ToList()
+            };
     }
 }

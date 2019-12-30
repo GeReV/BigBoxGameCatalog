@@ -56,6 +56,8 @@
                          UriSource="pack://application:,,,/Resources/disk.png" />
             <BitmapImage x:Key="IconDocument"
                          UriSource="pack://application:,,,/Resources/document.png" />
+            <BitmapImage x:Key="IconDocumentCopy"
+                         UriSource="pack://application:,,,/Resources/document-copy.png" />
             <BitmapImage x:Key="IconMinus"
                          UriSource="pack://application:,,,/Resources/minus.png" />
             <BitmapImage x:Key="IconPencil"

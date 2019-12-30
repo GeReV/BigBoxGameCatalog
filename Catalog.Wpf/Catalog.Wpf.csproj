@@ -91,6 +91,10 @@
         <Content Include="Resources\README.txt">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <None Remove="Resources\document-copy.png" />
+        <Content Include="Resources\document-copy.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>

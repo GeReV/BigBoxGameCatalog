@@ -51,6 +51,16 @@
                         <TextBlock>Delete Game</TextBlock>
                     </StackPanel>
                 </Button>
+                <Button Name="DuplicateGameButton"
+                        Command="{Binding DuplicateGameCommand}"
+                        CommandParameter="{Binding FilteredGames/GameCopyId}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{StaticResource IconDocumentCopy}"
+                               Width="16"
+                               Margin="0,0,4,0" />
+                        <TextBlock>Duplicate Game</TextBlock>
+                    </StackPanel>
+                </Button>
                 <Separator />
                 <controls:DropDownButton
                     Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=wpf:MainWindow}}">

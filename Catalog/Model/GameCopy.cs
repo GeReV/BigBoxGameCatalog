@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Catalog.Model
 {
-    public class GameCopy : IModel
+    public class GameCopy : IModel, ICloneable<GameCopy>
     {
         public int GameCopyId { get; set; }
 
@@ -56,5 +56,30 @@ namespace Catalog.Model
 
         public int Id => GameCopyId;
         public bool IsNew => GameCopyId == 0;
+
+        public GameCopy Clone() =>
+            new GameCopy
+            {
+                CoverImage = CoverImage,
+                GameCopyDevelopers = GameCopyDevelopers
+                    .Select(gcd => new GameCopyDeveloper {DeveloperId = gcd.DeveloperId})
+                    .ToList(),
+                GameCopyTags = GameCopyTags
+                    .Select(gct => new GameCopyTag {TagId = gct.TagId})
+                    .ToList(),
+                Items = Items
+                    .Select(item => item.Clone())
+                    .ToList(),
+                Links = Links.ToList(),
+                MobyGamesSlug = MobyGamesSlug,
+                Notes = Notes,
+                Platforms = Platforms.ToList(),
+                Publisher = Publisher,
+                ReleaseDate = ReleaseDate,
+                Screenshots = Screenshots,
+                Sealed = Sealed,
+                Title = Title,
+                TwoLetterIsoLanguageName = TwoLetterIsoLanguageName
+            };
     }
 }

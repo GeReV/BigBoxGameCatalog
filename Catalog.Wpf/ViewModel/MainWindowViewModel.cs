@@ -25,6 +25,7 @@ namespace Catalog.Wpf.ViewModel
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
         private ICommand? editGameCommand;
         private ICommand? deleteGameCommand;
+        private ICommand? duplicateGameCommand;
         private ICommand? toggleGameTagCommand;
         private ICommand? refreshGames;
 
@@ -110,6 +111,9 @@ namespace Catalog.Wpf.ViewModel
 
         public ICommand DeleteGameCommand =>
             deleteGameCommand ??= new DeleteGameCommand(this);
+
+        public ICommand DuplicateGameCommand =>
+            duplicateGameCommand ??= new DuplicateGameCommand(this);
 
         public ICommand ToggleGameTagCommand =>
             toggleGameTagCommand ??= new ToggleTagCommand(this);

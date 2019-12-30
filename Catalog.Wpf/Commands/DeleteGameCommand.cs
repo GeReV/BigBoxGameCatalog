@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Windows;
-using Catalog.Model;
+﻿using System.Windows;
 using Catalog.Wpf.ViewModel;
-using File = Catalog.Model.File;
 
 namespace Catalog.Wpf.Commands
 {
