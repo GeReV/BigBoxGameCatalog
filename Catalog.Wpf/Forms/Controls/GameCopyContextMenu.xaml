@@ -12,7 +12,7 @@
         </ContextMenu.Resources>
         <MenuItem Header="Edit Game..."
                   Command="{Binding PlacementTarget.Tag.EditGameCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                  CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
+                  CommandParameter="{Binding PlacementTarget.Tag.FilteredGames/GameCopyId, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
             <MenuItem.Icon>
                 <Image Source="{StaticResource IconPencil}" />
             </MenuItem.Icon>

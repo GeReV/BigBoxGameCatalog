@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -120,7 +119,8 @@ namespace Catalog.Wpf.ViewModel
 
         private void InitializeData(GameCopy gameCopy)
         {
-            Game = gameCopy;
+            IsNew = gameCopy.IsNew;
+            GameId = gameCopy.GameCopyId;
             GameTitle = gameCopy.Title;
             GameSealed = gameCopy.Sealed;
             GameMobyGamesSlug = gameCopy.MobyGamesSlug;
@@ -138,8 +138,11 @@ namespace Catalog.Wpf.ViewModel
                     .Select(HomeDirectoryHelpers.ToAbsolutePath)
                     .Select(ScreenshotViewModel.FromPath)
             );
-            GameCoverImage = gameCopy.CoverImage == null ? null : ScreenshotViewModel.FromPath(HomeDirectoryHelpers.ToAbsolutePath(gameCopy.CoverImage));
+            GameCoverImage = gameCopy.CoverImage == null
+                ? null
+                : ScreenshotViewModel.FromPath(HomeDirectoryHelpers.ToAbsolutePath(gameCopy.CoverImage));
         }
+
 
         private void RefreshFilteredDevelopers(object sender, PropertyChangedEventArgs e)
         {
@@ -160,7 +163,9 @@ namespace Catalog.Wpf.ViewModel
 
         public Window ParentWindow { get; }
 
-        public GameCopy Game { get; private set; } = new GameCopy();
+        public bool IsNew { get; set; }
+
+        public int GameId { get; set; }
 
         public string? GameTitle
         {
@@ -418,14 +423,9 @@ namespace Catalog.Wpf.ViewModel
         {
             Status = ViewStatus.DownloadingScreenshots;
 
-            var gameCopy = Game;
-
-            SetGameData(gameCopy);
-
             var args = new SaveGameCommand.SaveGameArguments(
-                gameCopy,
-                GameScreenshots,
-                GameCoverImage,
+                GameId,
+                this,
                 new Progress<int>(percentage => SaveProgress = percentage)
             );
 
@@ -459,27 +459,5 @@ namespace Catalog.Wpf.ViewModel
                 GameScreenshots.Remove(selectedItem);
             }
         });
-
-        private void SetGameData(GameCopy gameCopy)
-        {
-            gameCopy.Title = GameTitle;
-            gameCopy.Sealed = GameSealed;
-            gameCopy.MobyGamesSlug = GameMobyGamesSlug;
-            gameCopy.Platforms = GamePlatforms.Distinct().ToList();
-            gameCopy.Publisher = GamePublisher;
-            gameCopy.GameCopyDevelopers = GameDevelopers.Distinct()
-                .Select(dev => new GameCopyDeveloper
-                {
-                    Developer = dev,
-                    Game = gameCopy
-                })
-                .ToList();
-            gameCopy.Items = GameItems.Select(item => item.BuildItem()).ToList();
-            gameCopy.Links = GameLinks.Distinct().ToList();
-            gameCopy.Notes = GameNotes;
-            gameCopy.TwoLetterIsoLanguageName =
-                GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList();
-            gameCopy.ReleaseDate = GameReleaseDate;
-        }
     }
 }

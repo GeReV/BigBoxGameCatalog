@@ -25,6 +25,8 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<ImageViewModel> scans = new ObservableCollection<ImageViewModel>();
         private ObservableCollection<FileViewModel> files = new ObservableCollection<FileViewModel>();
 
+        public int ItemId { get; set; }
+
         public ItemType? ItemType
         {
             get => itemType;
@@ -109,15 +111,16 @@ namespace Catalog.Wpf.ViewModel
 
         public IEnumerable<ItemType> ItemTypes => Model.ItemTypes.All;
 
-        public ICommand AddFileCommand => addFileCommand ?? (addFileCommand = new GameItemAddFileCommand(this));
-        public ICommand RemoveFileCommand => removeFileCommand ?? (removeFileCommand = new GameItemRemoveFileCommand(this));
-        public ICommand AddScanCommand => addScanCommand ?? (addScanCommand = new GameItemAddScanCommand(this));
-        public ICommand RemoveScanCommand => removeScanCommand ?? (removeScanCommand = new GameItemRemoveScanCommand(this));
+        public ICommand AddFileCommand => addFileCommand ??= new GameItemAddFileCommand(this);
+        public ICommand RemoveFileCommand => removeFileCommand ??= new GameItemRemoveFileCommand(this);
+        public ICommand AddScanCommand => addScanCommand ??= new GameItemAddScanCommand(this);
+        public ICommand RemoveScanCommand => removeScanCommand ??= new GameItemRemoveScanCommand(this);
 
         public GameItem BuildItem()
         {
             return new GameItem
             {
+                GameItemId = ItemId,
                 ItemType = ItemType,
                 Missing = Missing,
                 Condition = Condition,
@@ -131,6 +134,7 @@ namespace Catalog.Wpf.ViewModel
         public static ItemViewModel FromItem(GameItem gameItem) =>
             new ItemViewModel
             {
+                ItemId = gameItem.GameItemId,
                 ItemType = gameItem.ItemType,
                 Missing = gameItem.Missing,
                 Condition = gameItem.Condition,

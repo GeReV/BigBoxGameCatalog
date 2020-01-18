@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using Catalog.Model;
 using Catalog.Wpf.ViewModel;
 using Microsoft.EntityFrameworkCore;

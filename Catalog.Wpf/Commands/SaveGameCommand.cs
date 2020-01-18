@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -16,17 +17,14 @@ namespace Catalog.Wpf.Commands
     {
         public sealed class SaveGameArguments
         {
-            public GameCopy Game { get; }
-            public ICollection<ScreenshotViewModel> GameScreenshots { get; }
-            public ScreenshotViewModel? GameCoverImage { get; }
+            public int GameId { get; }
+            public EditGameViewModel EditGameViewModel { get; }
             public IProgress<int>? Progress { get; }
 
-            public SaveGameArguments(GameCopy game, ICollection<ScreenshotViewModel> gameScreenshots,
-                ScreenshotViewModel? gameCoverImage, IProgress<int>? progress = null)
+            public SaveGameArguments(int gameId, EditGameViewModel editGameViewModel, IProgress<int>? progress = null)
             {
-                Game = game;
-                GameScreenshots = gameScreenshots;
-                GameCoverImage = gameCoverImage;
+                GameId = gameId;
+                EditGameViewModel = editGameViewModel;
                 Progress = progress;
             }
         }
@@ -38,11 +36,11 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            var game = args.Game;
-
             await using var database = Application.Current.Database();
 
-            database.Attach(game);
+            var game = GamesRepository.LoadGame(database, args.GameId);
+
+            UpdateGame(game, args.EditGameViewModel);
 
             await PersistGame(database);
 
@@ -50,16 +48,100 @@ namespace Catalog.Wpf.Commands
 
             var screenshots = await DownloadScreenshots(
                 Path.Combine(destinationDirectory, "screenshots"),
-                args.GameScreenshots,
+                args.EditGameViewModel.GameScreenshots,
                 args.Progress
             );
 
-            var cover = await DownloadCoverArt(destinationDirectory, args.GameCoverImage);
+            var cover = await DownloadCoverArt(destinationDirectory, args.EditGameViewModel.GameCoverImage);
 
             game.CoverImage = cover;
             game.Screenshots = screenshots.Distinct().ToList();
 
             await PersistGame(database);
+        }
+
+        private static void UpdateGameCopyDevelopers(ICollection<GameCopyDeveloper> gameDevelopers,
+            ICollection<Developer> nextGameDevelopers)
+        {
+            var currentGameDeveloperIds = gameDevelopers
+                .Select(gcd => gcd.DeveloperId)
+                .ToImmutableHashSet();
+
+            var nextGameDeveloperIds = gameDevelopers
+                .Select(gd => gd.DeveloperId)
+                .ToImmutableHashSet();
+
+            var dropGameDevelopers =
+                gameDevelopers.Where(gcd => !nextGameDeveloperIds.Contains(gcd.DeveloperId)).ToList();
+
+            foreach (var dropGameDeveloper in dropGameDevelopers)
+            {
+                gameDevelopers.Remove(dropGameDeveloper);
+            }
+
+            var addGameDevelopers = nextGameDevelopers
+                .Where(gd => !currentGameDeveloperIds.Contains(gd.DeveloperId))
+                .Select(dev => new GameCopyDeveloper
+                {
+                    DeveloperId = dev.DeveloperId,
+                    Developer = dev
+                });
+
+            foreach (var addGameDeveloper in addGameDevelopers)
+            {
+                gameDevelopers.Add(addGameDeveloper);
+            }
+        }
+
+        private static void UpdateGameItems(ICollection<GameItem> gameItems, ICollection<ItemViewModel> nextGameItems)
+        {
+            var currentGameItemIds = gameItems
+                .Select(gcd => gcd.GameItemId)
+                .ToImmutableHashSet();
+
+            var nextGameItemIds = nextGameItems
+                .Select(gd => gd.ItemId)
+                .ToImmutableHashSet();
+
+            var dropGameItems =
+                gameItems.Where(gcd => !nextGameItemIds.Contains(gcd.GameItemId)).ToList();
+
+            foreach (var dropGameItem in dropGameItems)
+            {
+                gameItems.Remove(dropGameItem);
+            }
+
+            var addGameItems = nextGameItems
+                .Where(gd => !currentGameItemIds.Contains(gd.ItemId))
+                .Select(item => item.BuildItem());
+
+            foreach (var addGameItem in addGameItems)
+            {
+                gameItems.Add(addGameItem);
+            }
+        }
+
+        private static void UpdateGame(GameCopy? game, EditGameViewModel editGameViewModel)
+        {
+            game.Title = editGameViewModel.GameTitle;
+            game.Sealed = editGameViewModel.GameSealed;
+            game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
+            game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
+
+            if (editGameViewModel.GamePublisher.PublisherId != game.PublisherId)
+            {
+                game.Publisher = editGameViewModel.GamePublisher;
+            }
+
+            game.Links = editGameViewModel.GameLinks.Distinct().ToList();
+            game.Notes = editGameViewModel.GameNotes;
+            game.TwoLetterIsoLanguageName =
+                editGameViewModel.GameLanguages.Select(ci => ci.TwoLetterISOLanguageName).Distinct().ToList();
+            game.ReleaseDate = editGameViewModel.GameReleaseDate;
+
+            UpdateGameCopyDevelopers(game.GameCopyDevelopers, editGameViewModel.GameDevelopers);
+
+            UpdateGameItems(game.Items, editGameViewModel.GameItems);
         }
 
         private static async Task PersistGame(DbContext db)
@@ -107,7 +189,8 @@ namespace Catalog.Wpf.Commands
                 .OrderBy(s => s);
         }
 
-        private static async Task<string?> DownloadCoverArt(string destinationDirectory, ScreenshotViewModel? gameCoverImage)
+        private static async Task<string?> DownloadCoverArt(string destinationDirectory,
+            ScreenshotViewModel? gameCoverImage)
         {
             if (gameCoverImage == null)
             {
