@@ -14,6 +14,16 @@ namespace Catalog.Wpf
 {
     public partial class EditGameDialog : Window
     {
+        public static RoutedUICommand DuplicateItemCommand = new RoutedUICommand(
+            "Duplicate Item",
+            "Duplicate",
+            typeof(EditGameDialog),
+            new InputGestureCollection
+            {
+                new KeyGesture(Key.D, ModifierKeys.Control)
+            }
+        );
+
         public EditGameDialog(int? gameCopyId = null)
         {
             InitializeComponent();
