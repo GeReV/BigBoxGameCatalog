@@ -5,7 +5,7 @@ using Catalog.Model;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public class ImageViewModel : NotifyPropertyChangedBase
+    public class ImageViewModel : NotifyPropertyChangedBase, ICloneable<ImageViewModel>
     {
         private string path;
         private ImageSource thumbnailSource;
@@ -48,5 +48,7 @@ namespace Catalog.Wpf.ViewModel
 
         public static ImageViewModel FromImage(Image image) =>
             new ImageViewModel(image.Path, new BitmapImage(new Uri(image.Path)));
+
+        public ImageViewModel Clone() => new ImageViewModel(Path, thumbnailSource.Clone());
     }
 }

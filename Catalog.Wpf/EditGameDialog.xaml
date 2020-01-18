@@ -181,8 +181,12 @@
                                          SelectionMode="Extended"
                                          ItemsSource="{Binding GameScreenshots}"
                                          Height="120"
-                                         KeyUp="Screenshots_OnKeyUp"
                                          ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                    <ListBox.CommandBindings>
+                                        <CommandBinding Command="Delete"
+                                                        Executed="DeleteScreenshot_Executed"
+                                                        CanExecute="DeleteScreenshot_CanExecute" />
+                                    </ListBox.CommandBindings>
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <VirtualizingStackPanel IsItemsHost="True"
@@ -222,7 +226,18 @@
                                                 Value="16" />
                                     </Style>
                                 </StackPanel.Resources>
+                                <xctk:IconButton Name="DuplicateButton"
+                                                 ToolTip="Duplicate item"
+                                                 Command="{Binding DuplicateItemCommand}"
+                                                 CommandParameter="{Binding GameItems/}"
+                                                 Margin="0,0,5,0">
+                                    <xctk:IconButton.Icon>
+                                        <Image Source="{StaticResource IconDocumentCopy}"
+                                               Width="16" />
+                                    </xctk:IconButton.Icon>
+                                </xctk:IconButton>
                                 <xctk:SplitButton Name="AddItemButton"
+                                                  ToolTip="Add item"
                                                   Height="20"
                                                   Command="{Binding AddItemCommand}"
                                                   Margin="0,0,5,0">
@@ -273,6 +288,14 @@
                                       SelectedItem="{Binding CurrentGameItem}"
                                       IsSynchronizedWithCurrentItem="True"
                                       behaviors:GridViewColumnResize.Enabled="True">
+                                <ListView.CommandBindings>
+                                    <CommandBinding Command="Delete"
+                                                    CanExecute="DeleteGameItem_OnCanExecute"
+                                                    Executed="DeleteGameItem_Executed" />
+                                    <CommandBinding Command="local:EditGameDialog.DuplicateItemCommand"
+                                                    CanExecute="DuplicateGameItem_OnCanExecute"
+                                                    Executed="DuplicateGameItem_Executed" />
+                                </ListView.CommandBindings>
                                 <ListView.View>
                                     <GridView AllowsColumnReorder="False">
                                         <GridView.ColumnHeaderContainerStyle>

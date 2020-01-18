@@ -48,12 +48,34 @@ namespace Catalog.Wpf
             AddItemButton.IsOpen = false;
         }
 
-        private void Screenshots_OnKeyUp(object sender, KeyEventArgs e)
+        private void DuplicateGameItem_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if (e.Key == Key.Delete)
-            {
-                CommandExecutor.Execute(ViewModel.RemoveScreenshotCommand, Screenshots.SelectedItems);
-            }
+            CommandExecutor.Execute(ViewModel.DuplicateItemCommand, ItemList.SelectedItem);
+        }
+
+        private void DuplicateGameItem_OnCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = ViewModel.DuplicateItemCommand.CanExecute(ItemList.SelectedItem);
+        }
+
+        private void DeleteGameItem_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            CommandExecutor.Execute(ViewModel.RemoveItemCommand, ItemList.SelectedItem);
+        }
+
+        private void DeleteGameItem_OnCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = ViewModel.RemoveItemCommand.CanExecute(ItemList.SelectedItem);
+        }
+
+        private void DeleteScreenshot_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            CommandExecutor.Execute(ViewModel.RemoveScreenshotCommand, Screenshots.SelectedItems);
+        }
+
+        private void DeleteScreenshot_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = ViewModel.RemoveScreenshotCommand.CanExecute(Screenshots.SelectedItems);
         }
     }
 }

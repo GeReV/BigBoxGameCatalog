@@ -5,7 +5,7 @@ using Catalog.Model;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public class FileViewModel : NotifyPropertyChangedBase
+    public class FileViewModel : NotifyPropertyChangedBase, ICloneable<FileViewModel>
     {
         private string path;
         private byte[] sha256Checksum;
@@ -68,5 +68,7 @@ namespace Catalog.Wpf.ViewModel
 
         public static FileViewModel FromFile(File file) =>
             new FileViewModel(file.Path, file.Sha256Checksum);
+
+        public FileViewModel Clone() => new FileViewModel(Path, Sha256Checksum);
     }
 }

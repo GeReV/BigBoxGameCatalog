@@ -10,7 +10,7 @@ using Microsoft.Win32;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public class ItemViewModel : NotifyPropertyChangedBase
+    public class ItemViewModel : NotifyPropertyChangedBase, ICloneable<ItemViewModel>
     {
         private ItemType? itemType;
         private bool missing;
@@ -143,5 +143,16 @@ namespace Catalog.Wpf.ViewModel
                 Scans = new ObservableCollection<ImageViewModel>(gameItem.Scans.Select(ImageViewModel.FromImage)),
                 Files = new ObservableCollection<FileViewModel>(gameItem.Files.Select(FileViewModel.FromFile)),
             };
+
+        public ItemViewModel Clone() => new ItemViewModel
+        {
+            ItemType = ItemType,
+            Missing = Missing,
+            Condition = Condition,
+            ConditionDetails = ConditionDetails,
+            Notes = Notes,
+            Files = new ObservableCollection<FileViewModel>(Files.Select(vm => vm.Clone())),
+            Scans = new ObservableCollection<ImageViewModel>(Scans.Select(vm => vm.Clone()))
+        };
     }
 }

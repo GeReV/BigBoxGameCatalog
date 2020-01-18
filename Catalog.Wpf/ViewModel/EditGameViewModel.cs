@@ -55,6 +55,7 @@ namespace Catalog.Wpf.ViewModel
 
         private ICommand? addItemCommand;
         private ICommand? removeItemCommand;
+        private ICommand? duplicateItemCommand;
         private ICommand? selectCoverImageCommand;
         private ICommand? removeScreenshotCommand;
         private IAsyncCommand? searchMobyGamesCommand;
@@ -415,6 +416,7 @@ namespace Catalog.Wpf.ViewModel
 
         public ICommand AddItemCommand => addItemCommand ??= new AddGameItemCommand(this);
         public ICommand RemoveItemCommand => removeItemCommand ??= new RemoveGameItemCommand(this);
+        public ICommand DuplicateItemCommand => duplicateItemCommand ??= new DuplicateGameItemCommand(this);
 
         public IAsyncCommand SearchMobyGamesCommand =>
             searchMobyGamesCommand ??= new SearchMobyGamesCommand(this);

@@ -15,7 +15,31 @@
         Width="1280"
         Style="{DynamicResource GlobalWindow}"
         d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
+    <Window.CommandBindings>
+        <CommandBinding Command="New"
+                        Executed="NewGame_Executed" />
+        <CommandBinding Command="Delete"
+                        CanExecute="DeleteGame_OnCanExecute"
+                        Executed="DeleteGame_Executed" />
+        <CommandBinding Command="wpf:MainWindow.DuplicateGame"
+                        CanExecute="DuplicateGame_OnCanExecute"
+                        Executed="DuplicateGame_OnExecuted" />
+        <CommandBinding Command="wpf:MainWindow.Exit"
+                        Executed="Exit_Executed" />
+    </Window.CommandBindings>
     <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Command="New"
+                          Header="_New Game" />
+                <MenuItem Command="wpf:MainWindow.DuplicateGame"
+                          Header="_Duplicate Game" />
+                <MenuItem Command="Delete"
+                          Header="_Delete Game" />
+                <Separator />
+                <MenuItem Command="wpf:MainWindow.Exit" />
+            </MenuItem>
+        </Menu>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
                 <ToolBar.Resources>
@@ -33,7 +57,7 @@
                     </Style>
                 </ToolBar.Resources>
                 <Button Name="AddGameButton"
-                        Click="AddGameButton_OnClick">
+                        Command="New">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="{StaticResource IconPlus}"
                                Width="16"
