@@ -25,11 +25,11 @@ namespace Catalog.Model
 
         public Publisher Publisher { get; set; }
 
-        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
+        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; } = new List<GameCopyDeveloper>();
 
         public IEnumerable<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer);
 
-        public ICollection<GameCopyTag> GameCopyTags { get; set; }
+        public ICollection<GameCopyTag> GameCopyTags { get; set; } = new List<GameCopyTag>();
 
         public IList<Tag> Tags => GameCopyTags
             .Select(gct => gct.Tag)
@@ -48,7 +48,7 @@ namespace Catalog.Model
 
         public List<string> Screenshots { get; set; } = new List<string>();
 
-        public ICollection<GameItem> Items { get; set; }
+        public ICollection<GameItem> Items { get; set; } = new List<GameItem>();
 
         public DateTime DateCreated { get; set; }
 

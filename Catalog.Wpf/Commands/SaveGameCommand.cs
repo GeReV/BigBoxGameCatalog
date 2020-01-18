@@ -38,7 +38,12 @@ namespace Catalog.Wpf.Commands
 
             await using var database = Application.Current.Database();
 
-            var game = GamesRepository.LoadGame(database, args.GameId);
+            var game = args.GameId == 0 ? new GameCopy() : GamesRepository.LoadGame(database, args.GameId);
+
+            if (game.IsNew)
+            {
+                database.Add(game);
+            }
 
             UpdateGame(game, args.EditGameViewModel);
 
@@ -128,7 +133,7 @@ namespace Catalog.Wpf.Commands
             game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
 
-            if (editGameViewModel.GamePublisher.PublisherId != game.PublisherId)
+            if (editGameViewModel.GamePublisher.IsNew || editGameViewModel.GamePublisher.PublisherId != game.PublisherId)
             {
                 game.Publisher = editGameViewModel.GamePublisher;
             }

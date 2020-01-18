@@ -6,7 +6,7 @@ namespace Catalog.Wpf
 {
     public static class GamesRepository
     {
-        public static GameCopy? LoadGame(CatalogContext database, int gameCopyId)
+        public static GameCopy LoadGame(CatalogContext database, int gameCopyId)
         {
             var game = database.Games.Find(gameCopyId);
 
