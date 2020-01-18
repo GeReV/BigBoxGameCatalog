@@ -2,6 +2,6 @@ pushd Catalog.Wpf
 
 rd "bin/Release" /S /Q
 
-dotnet publish -r win10-x64 -p:PublishSingleFile=true -c Release
+dotnet publish -r win10-x64 -c Release
 
 popd
