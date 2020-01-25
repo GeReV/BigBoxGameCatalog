@@ -221,8 +221,16 @@
                                         HorizontalAlignment="Right"
                                         Margin="0,5,0,0">
                                 <StackPanel.Resources>
+                                    <Style TargetType="xctk:IconButton">
+                                        <Setter Property="Height"
+                                                Value="24" />
+                                        <Setter Property="Width"
+                                                Value="24" />
+                                    </Style>
                                     <Style TargetType="Image">
                                         <Setter Property="Width"
+                                                Value="16" />
+                                        <Setter Property="Height"
                                                 Value="16" />
                                     </Style>
                                 </StackPanel.Resources>
@@ -237,8 +245,8 @@
                                     </xctk:IconButton.Icon>
                                 </xctk:IconButton>
                                 <xctk:SplitButton Name="AddItemButton"
+                                                  Height="22"
                                                   ToolTip="Add item"
-                                                  Height="20"
                                                   Command="{Binding AddItemCommand}"
                                                   Margin="0,0,5,0">
                                     <xctk:SplitButton.Content>

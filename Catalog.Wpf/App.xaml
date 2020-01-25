@@ -35,6 +35,7 @@
                    TargetType="{x:Type Window}">
                 <Setter Property="Background"
                         Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                <Setter Property="UseLayoutRounding" Value="True" />
             </Style>
 
             <BitmapImage x:Key="IconApplicationDetail"
