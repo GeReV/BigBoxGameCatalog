@@ -48,5 +48,6 @@ namespace Catalog.Wpf.ViewModel
         }
 
         public string CountString => Count > 1 ? $"×{Count}" : string.Empty;
+        public string ItemTooltip => ItemType.Description + (Count > 1 ? $" × {Count}" : string.Empty);
     }
 }

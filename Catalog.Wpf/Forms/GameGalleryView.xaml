@@ -41,9 +41,20 @@
         </ListBox.ItemsPanel>
         <ListBox.ItemTemplate>
             <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
-                <StackPanel Margin="5"
-                            Width="100">
-                    <Border>
+                <Grid Margin="5"
+                      Width="100"
+                      IsSharedSizeScope="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"
+                                       SharedSizeGroup="Image" />
+                        <RowDefinition Height="Auto"
+                                       SharedSizeGroup="Title" />
+                        <RowDefinition Height="Auto"
+                                       SharedSizeGroup="Stats" />
+                        <RowDefinition Height="Auto"
+                                       SharedSizeGroup="Labels" />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Style.Triggers>
@@ -59,17 +70,27 @@
                                Source="{Binding Cover}"
                                Height="120" />
                     </Border>
-                    <controls:HighlightedTextBlock Text="{Binding Title}"
+                    <controls:HighlightedTextBlock Grid.Row="1"
+                                                   Text="{Binding Title}"
                                                    HighlightedText="{Binding ViewModel.SearchTerm, ElementName=Main}"
                                                    Margin="0,5,0,0"
                                                    HorizontalAlignment="Center"
                                                    TextWrapping="NoWrap"
                                                    TextAlignment="Center"
                                                    TextTrimming="CharacterEllipsis" />
-                    <controls:GameStats GameItemGroups="{Binding GameStats, Delay=50}"
+
+                    <Image Grid.Row="2"
+                           Width="16"
+                           ToolTip="Sealed"
+                           Source="{StaticResource IconPresent}"
+                           Visibility="{Binding IsSealed, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <controls:GameStats Grid.Row="2"
+                                        Visibility="{Binding IsSealed, Converter={StaticResource InvertedBooleanToVisibilityConverter}}"
+                                        GameItemGroups="{Binding GameStats, Delay=50}"
                                         HorizontalAlignment="Center" />
 
-                    <ItemsControl ItemsSource="{Binding Tags}">
+                    <ItemsControl Grid.Row="3"
+                                  ItemsSource="{Binding Tags}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel FlowDirection="LeftToRight"
@@ -85,7 +106,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </StackPanel>
+                </Grid>
             </DataTemplate>
         </ListBox.ItemTemplate>
     </ListBox>

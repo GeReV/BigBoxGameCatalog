@@ -36,7 +36,8 @@
         <ItemsControl.ItemTemplate>
             <DataTemplate DataType="{x:Type viewModel:GameItemGroupViewModel}">
                 <StackPanel Orientation="Horizontal"
-                            Margin="0,0,3,0">
+                            Margin="0,0,3,0"
+                            ToolTip="{Binding ItemTooltip}">
                     <Canvas Width="16"
                             Height="16">
                         <Image Canvas.Top="0"

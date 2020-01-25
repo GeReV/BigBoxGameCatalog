@@ -95,6 +95,10 @@
         <Content Include="Resources\document-copy.png">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <None Remove="Resources\present.png" />
+        <Content Include="Resources\present.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>

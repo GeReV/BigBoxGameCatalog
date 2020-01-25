@@ -45,6 +45,8 @@ namespace Catalog.Wpf.ViewModel
 
         public string? Title => GameCopy.Title;
 
+        public bool IsSealed => GameCopy.Sealed;
+
         public Publisher? Publisher => GameCopy.Publisher;
 
         public IEnumerable<Developer> Developers => GameCopy.Developers;

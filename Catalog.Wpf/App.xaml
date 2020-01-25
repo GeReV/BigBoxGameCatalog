@@ -13,6 +13,10 @@
             <converters:DictionaryAccessConverter x:Key="DictionaryAccessConverter" />
             <converters:NullableToBooleanConverter x:Key="NullableToBooleanConverter" />
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:ValueConverterGroup x:Key="InvertedBooleanToVisibilityConverter">
+                <converters:BooleanNotConverter />
+                <converters:BooleanToVisibilityConverter />
+            </converters:ValueConverterGroup>
             <converters:NullableOrEmptyToVisibilityConverter x:Key="NullableOrEmptyToVisibilityConverter" />
             <converters:NullableOrEmptyToBooleanConverter x:Key="NullableOrEmptyToBooleanConverter" />
             <converters:NullConverter x:Key="NullConverter" />
@@ -65,6 +69,8 @@
                          UriSource="pack://application:,,,/Resources/pencil.png" />
             <BitmapImage x:Key="IconPlus"
                          UriSource="pack://application:,,,/Resources/plus.png" />
+            <BitmapImage x:Key="IconPresent"
+                         UriSource="pack://application:,,,/Resources/present.png" />
             <BitmapImage x:Key="IconProhibition"
                          UriSource="pack://application:,,,/Resources/prohibition.png" />
             <BitmapImage x:Key="IconTag"
