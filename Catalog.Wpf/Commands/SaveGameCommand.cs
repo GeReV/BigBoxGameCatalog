@@ -66,7 +66,7 @@ namespace Catalog.Wpf.Commands
         }
 
         private static void UpdateGameCopyDevelopers(ICollection<GameCopyDeveloper> gameDevelopers,
-            ICollection<Developer> nextGameDevelopers)
+            IEnumerable<Developer> nextGameDevelopers)
         {
             var currentGameDeveloperIds = gameDevelopers
                 .Select(gcd => gcd.DeveloperId)
@@ -116,6 +116,13 @@ namespace Catalog.Wpf.Commands
                 gameItems.Remove(dropGameItem);
             }
 
+            foreach (var gameItem in gameItems)
+            {
+                var matchingNextItem = nextGameItems.First(gi => gi.ItemId == gameItem.GameItemId);
+
+                gameItem.CopyFrom(matchingNextItem.BuildItem());
+            }
+
             var addGameItems = nextGameItems
                 .Where(gd => !currentGameItemIds.Contains(gd.ItemId))
                 .Select(item => item.BuildItem());
@@ -133,7 +140,8 @@ namespace Catalog.Wpf.Commands
             game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
 
-            if (editGameViewModel.GamePublisher.IsNew || editGameViewModel.GamePublisher.PublisherId != game.PublisherId)
+            if (editGameViewModel.GamePublisher.IsNew ||
+                editGameViewModel.GamePublisher.PublisherId != game.PublisherId)
             {
                 game.Publisher = editGameViewModel.GamePublisher;
             }

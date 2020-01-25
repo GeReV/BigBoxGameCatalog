@@ -7,6 +7,7 @@ namespace Catalog.Wpf.ViewModel
 {
     public class FileViewModel : NotifyPropertyChangedBase, ICloneable<FileViewModel>
     {
+        private int fileId;
         private string path;
         private byte[] sha256Checksum;
         private int progress;
@@ -22,6 +23,17 @@ namespace Catalog.Wpf.ViewModel
             }
 
             progress.ProgressChanged += (_, percentage) => { Progress = percentage; };
+        }
+
+        public int FileId
+        {
+            get => fileId;
+            set
+            {
+                if (value == fileId) return;
+                fileId = value;
+                OnPropertyChanged();
+            }
         }
 
         public string Path
@@ -61,13 +73,14 @@ namespace Catalog.Wpf.ViewModel
         {
             return new File
             {
+                FileId = FileId,
                 Path = Path,
                 Sha256Checksum = Sha256Checksum
             };
         }
 
         public static FileViewModel FromFile(File file) =>
-            new FileViewModel(file.Path, file.Sha256Checksum);
+            new FileViewModel(file.Path, file.Sha256Checksum) {FileId = file.FileId};
 
         public FileViewModel Clone() => new FileViewModel(Path, Sha256Checksum);
     }

@@ -7,6 +7,7 @@ namespace Catalog.Wpf.ViewModel
 {
     public class ImageViewModel : NotifyPropertyChangedBase, ICloneable<ImageViewModel>
     {
+        private int imageId;
         private string path;
         private ImageSource thumbnailSource;
 
@@ -14,6 +15,17 @@ namespace Catalog.Wpf.ViewModel
         {
             this.path = path;
             this.thumbnailSource = thumbnailSource;
+        }
+
+        public int ImageId
+        {
+            get => imageId;
+            set
+            {
+                if (value == imageId) return;
+                imageId = value;
+                OnPropertyChanged();
+            }
         }
 
         public string Path
@@ -42,12 +54,16 @@ namespace Catalog.Wpf.ViewModel
         {
             return new Image
             {
+                ImageId = ImageId,
                 Path = Path
             };
         }
 
         public static ImageViewModel FromImage(Image image) =>
-            new ImageViewModel(image.Path, new BitmapImage(new Uri(image.Path)));
+            new ImageViewModel(image.Path, new BitmapImage(new Uri(image.Path)))
+            {
+                ImageId = image.ImageId
+            };
 
         public ImageViewModel Clone() => new ImageViewModel(Path, thumbnailSource.Clone());
     }
