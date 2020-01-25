@@ -243,7 +243,7 @@ namespace Catalog.Scrapers.MobyGames
             };
         }
 
-        private IEnumerable<ScreenshotEntry> ExtractOfficialScreenshots(Uri baseUri, HtmlNode gallery)
+        private static IEnumerable<ScreenshotEntry> ExtractOfficialScreenshots(Uri baseUri, HtmlNode gallery)
         {
             if (gallery == null)
             {
@@ -251,7 +251,7 @@ namespace Catalog.Scrapers.MobyGames
             }
 
             return gallery
-                .SelectNodes(".//a")
+                .SelectNodes(".//a[img]")
                 .Select(thumbnail => new ScreenshotEntry
                 {
                     Url = thumbnail.GetAttributeValue("href", null),
