@@ -200,6 +200,9 @@
                 </controls:DropDownButton>
             </ToolBar>
         </ToolBarTray>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem Content="{Binding Games.Count}" ContentStringFormat="{}{0} items"></StatusBarItem>
+        </StatusBar>
         <Grid Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"
