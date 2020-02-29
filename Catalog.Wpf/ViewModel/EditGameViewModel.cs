@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -17,13 +19,10 @@ using Condition = Catalog.Model.Condition;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public sealed class EditGameViewModel : NotifyPropertyChangedBase
+    public sealed class EditGameViewModel : NotifyPropertyChangedBase, INotifyDataErrorInfo
     {
-        private string? gameTitle;
-        private string? gameMobyGamesSlug;
-        private string? gameNotes;
-        private DateTime gameReleaseDate;
-        private Publisher? gamePublisher;
+        private GameCopy gameCopy;
+
         private int saveProgress;
         private ViewStatus viewStatus = ViewStatus.Idle;
         private ItemViewModel? currentGameItem;
@@ -44,13 +43,12 @@ namespace Catalog.Wpf.ViewModel
             }
         };
 
-        private ScreenshotViewModel? gameCoverImage;
-
         private ObservableCollection<ScreenshotViewModel> gameScreenshots =
             new ObservableCollection<ScreenshotViewModel>();
 
+        private ScreenshotViewModel? gameCoverImage;
+
         private string? languageSearchTerm;
-        private bool gameSealed;
         private ImageSource? coverImageSource;
 
         private ICommand? addItemCommand;
@@ -62,6 +60,9 @@ namespace Catalog.Wpf.ViewModel
         private IAsyncCommand? saveGameCommand;
         private IAsyncCommand? searchMobyGamesCoverCommand;
 
+        private readonly Dictionary<string, ICollection<string>> validationErrors =
+            new Dictionary<string, ICollection<string>>();
+
         public enum ViewStatus
         {
             [Description("Idle")] Idle,
@@ -72,6 +73,8 @@ namespace Catalog.Wpf.ViewModel
 
         public EditGameViewModel(Window parentWindow, GameCopy gameCopy)
         {
+            this.gameCopy = gameCopy;
+
             ParentWindow = parentWindow;
 
             using var database = Application.Current.Database();
@@ -118,32 +121,24 @@ namespace Catalog.Wpf.ViewModel
             PropertyChanged += RefreshFilteredDevelopers;
         }
 
-        private void InitializeData(GameCopy gameCopy)
+        private void InitializeData(GameCopy game)
         {
-            IsNew = gameCopy.IsNew;
-            GameId = gameCopy.GameCopyId;
-            GameTitle = gameCopy.Title;
-            GameSealed = gameCopy.Sealed;
-            GameMobyGamesSlug = gameCopy.MobyGamesSlug;
-            GameNotes = gameCopy.Notes;
-            GamePublisher = gameCopy.Publisher;
-            GameDevelopers = new ObservableCollection<Developer>(gameCopy.Developers.Distinct());
-            GameLinks = new ObservableCollection<string>(gameCopy.Links.Distinct());
-            GamePlatforms = new ObservableCollection<Platform>(gameCopy.Platforms.Distinct());
+            GameDevelopers = new ObservableCollection<Developer>(game.Developers.Distinct());
+            GameLinks = new ObservableCollection<string>(game.Links.Distinct());
+            GamePlatforms = new ObservableCollection<Platform>(game.Platforms.Distinct());
             GameLanguages =
                 new ObservableCollection<CultureInfo>(
-                    gameCopy.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang)));
-            GameItems = new ObservableCollection<ItemViewModel>(gameCopy.Items.Select(ItemViewModel.FromItem));
+                    game.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang)));
+            GameItems = new ObservableCollection<ItemViewModel>(game.Items.Select(ItemViewModel.FromItem));
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>(
-                gameCopy.Screenshots
+                game.Screenshots
                     .Select(HomeDirectoryHelpers.ToAbsolutePath)
                     .Select(ScreenshotViewModel.FromPath)
             );
-            GameCoverImage = gameCopy.CoverImage == null
+            GameCoverImage = game.CoverImage == null
                 ? null
-                : ScreenshotViewModel.FromPath(HomeDirectoryHelpers.ToAbsolutePath(gameCopy.CoverImage));
+                : ScreenshotViewModel.FromPath(HomeDirectoryHelpers.ToAbsolutePath(game.CoverImage));
         }
-
 
         private void RefreshFilteredDevelopers(object sender, PropertyChangedEventArgs e)
         {
@@ -164,50 +159,77 @@ namespace Catalog.Wpf.ViewModel
 
         public Window ParentWindow { get; }
 
-        public bool IsNew { get; set; }
+        public bool IsNew => gameCopy.IsNew;
 
-        public int GameId { get; set; }
-
-        public string? GameTitle
+        public int GameId
         {
-            get => gameTitle;
+            get => gameCopy.GameCopyId;
+            set => gameCopy.GameCopyId = value;
+        }
+
+        public string? Title
+        {
+            get => gameCopy.Title;
             set
             {
-                if (value == gameTitle) return;
-                gameTitle = value;
+                if (value == gameCopy.Title) return;
+                gameCopy.Title = value;
                 OnPropertyChanged();
+                ValidateModelProperty(value);
             }
         }
 
         public bool GameSealed
         {
-            get => gameSealed;
+            get => gameCopy.Sealed;
             set
             {
-                if (value == gameSealed) return;
-                gameSealed = value;
+                if (value == gameCopy.Sealed) return;
+                gameCopy.Sealed = value;
                 OnPropertyChanged();
             }
         }
 
         public string? GameMobyGamesSlug
         {
-            get => gameMobyGamesSlug;
+            get => gameCopy.MobyGamesSlug;
             set
             {
-                if (value == gameMobyGamesSlug) return;
-                gameMobyGamesSlug = value;
+                if (value == gameCopy.MobyGamesSlug) return;
+                gameCopy.MobyGamesSlug = value;
                 OnPropertyChanged();
             }
         }
 
         public string? GameNotes
         {
-            get => gameNotes;
+            get => gameCopy.Notes;
             set
             {
-                if (value == gameNotes) return;
-                gameNotes = value;
+                if (value == gameCopy.Notes) return;
+                gameCopy.Notes = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime GameReleaseDate
+        {
+            get => gameCopy.ReleaseDate;
+            set
+            {
+                if (value.Equals(gameCopy.ReleaseDate)) return;
+                gameCopy.ReleaseDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Publisher? GamePublisher
+        {
+            get => gameCopy.Publisher;
+            set
+            {
+                if (Equals(value, gameCopy.Publisher)) return;
+                gameCopy.Publisher = value;
                 OnPropertyChanged();
             }
         }
@@ -223,17 +245,6 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ItemViewModel? CurrentGameItem
-        {
-            get => currentGameItem;
-            set
-            {
-                if (Equals(value, currentGameItem)) return;
-                currentGameItem = value;
-                OnPropertyChanged();
-            }
-        }
-
         public ObservableCollection<string> GameLinks
         {
             get => gameLinks;
@@ -244,22 +255,6 @@ namespace Catalog.Wpf.ViewModel
                 OnPropertyChanged();
             }
         }
-
-        public string? LanguageSearchTerm
-        {
-            get => languageSearchTerm;
-            set
-            {
-                if (value == languageSearchTerm) return;
-                languageSearchTerm = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public static IEnumerable<CultureInfo> Languages => CultureInfo.GetCultures(CultureTypes.AllCultures)
-            .Where(ci => Equals(ci.Parent, CultureInfo.InvariantCulture) && !Equals(ci, CultureInfo.InvariantCulture));
-
-        public ListCollectionView FilteredLanguages { get; }
 
         public ObservableCollection<CultureInfo> GameLanguages
         {
@@ -283,27 +278,54 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public DateTime GameReleaseDate
+        public ObservableCollection<Developer> GameDevelopers
         {
-            get => gameReleaseDate;
+            get => gameDevelopers;
             set
             {
-                if (value.Equals(gameReleaseDate)) return;
-                gameReleaseDate = value;
+                if (Equals(value, gameDevelopers)) return;
+                gameDevelopers = value;
                 OnPropertyChanged();
             }
         }
 
-        public Publisher? GamePublisher
+        public ObservableCollection<ScreenshotViewModel> GameScreenshots
         {
-            get => gamePublisher;
+            get => gameScreenshots;
             set
             {
-                if (Equals(value, gamePublisher)) return;
-                gamePublisher = value;
+                if (Equals(value, gameScreenshots)) return;
+                gameScreenshots = value;
                 OnPropertyChanged();
             }
         }
+
+        public ItemViewModel? CurrentGameItem
+        {
+            get => currentGameItem;
+            set
+            {
+                if (Equals(value, currentGameItem)) return;
+                currentGameItem = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string? LanguageSearchTerm
+        {
+            get => languageSearchTerm;
+            set
+            {
+                if (value == languageSearchTerm) return;
+                languageSearchTerm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public static IEnumerable<CultureInfo> Languages => CultureInfo.GetCultures(CultureTypes.AllCultures)
+            .Where(ci => Equals(ci.Parent, CultureInfo.InvariantCulture) && !Equals(ci, CultureInfo.InvariantCulture));
+
+        public ListCollectionView FilteredLanguages { get; }
 
         public string? DeveloperSearchTerm
         {
@@ -312,17 +334,6 @@ namespace Catalog.Wpf.ViewModel
             {
                 if (value == developerSearchTerm) return;
                 developerSearchTerm = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<Developer> GameDevelopers
-        {
-            get => gameDevelopers;
-            set
-            {
-                if (Equals(value, gameDevelopers)) return;
-                gameDevelopers = value;
                 OnPropertyChanged();
             }
         }
@@ -359,17 +370,6 @@ namespace Catalog.Wpf.ViewModel
                     new ScreenshotViewModel(bitmapImage.UriSource.ToString(), bitmapImage.UriSource.ToString());
 
                 OnPropertyChanged(nameof(GameCoverImage));
-            }
-        }
-
-        public ObservableCollection<ScreenshotViewModel> GameScreenshots
-        {
-            get => gameScreenshots;
-            set
-            {
-                if (Equals(value, gameScreenshots)) return;
-                gameScreenshots = value;
-                OnPropertyChanged();
             }
         }
 
@@ -461,5 +461,54 @@ namespace Catalog.Wpf.ViewModel
                 GameScreenshots.Remove(selectedItem);
             }
         });
+
+        #region Model Validation
+
+        private void ValidateModelProperty(object value, [CallerMemberName] string? propertyName = null)
+        {
+            if (validationErrors.ContainsKey(propertyName))
+            {
+                validationErrors.Remove(propertyName);
+            }
+
+            ICollection<ValidationResult> validationResults = new List<ValidationResult>();
+
+            var validationContext = new ValidationContext(gameCopy, null, null)
+            {
+                MemberName = propertyName
+            };
+
+            if (!Validator.TryValidateProperty(value, validationContext, validationResults))
+            {
+                validationErrors.Add(propertyName, new List<string>());
+
+                foreach (var validationResult in validationResults)
+                {
+                    validationErrors[propertyName].Add(validationResult.ErrorMessage);
+                }
+            }
+
+            OnErrorsChanged(propertyName);
+        }
+
+        public IEnumerable? GetErrors(string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName) || !validationErrors.ContainsKey(propertyName))
+            {
+                return null;
+            }
+
+            return validationErrors[propertyName];
+        }
+
+        public bool HasErrors => validationErrors.Count > 0;
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+        private void OnErrorsChanged([CallerMemberName] string? propertyName = null)
+        {
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
+
+        #endregion
     }
 }

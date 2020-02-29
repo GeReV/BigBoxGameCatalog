@@ -54,7 +54,7 @@ namespace Catalog.Wpf.Commands
 
             editGameViewModel.GameScreenshots.Clear();
 
-            editGameViewModel.GameTitle = gameEntry.Name;
+            editGameViewModel.Title = gameEntry.Name;
             editGameViewModel.GameMobyGamesSlug = gameEntry.Slug;
             editGameViewModel.GameLinks.Add(gameEntry.Url);
 

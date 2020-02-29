@@ -135,7 +135,7 @@ namespace Catalog.Wpf.Commands
 
         private static void UpdateGame(GameCopy? game, EditGameViewModel editGameViewModel)
         {
-            game.Title = editGameViewModel.GameTitle;
+            game.Title = editGameViewModel.Title;
             game.Sealed = editGameViewModel.GameSealed;
             game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();

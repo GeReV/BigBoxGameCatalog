@@ -32,7 +32,7 @@ namespace Catalog.Wpf
 
             ViewModel = new EditGameViewModel(this, gameCopyId.HasValue ? GamesRepository.LoadGame(database, gameCopyId.Value) : new GameCopy());
 
-            Title = ViewModel.IsNew ? "Add Game" : $"Edit Game: {ViewModel.GameTitle}";
+            Title = ViewModel.IsNew ? "Add Game" : $"Edit Game: {ViewModel.Title}";
         }
 
         public EditGameViewModel ViewModel

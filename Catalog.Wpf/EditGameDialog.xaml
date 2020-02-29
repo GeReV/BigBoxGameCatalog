@@ -75,16 +75,26 @@
                                         HorizontalAlignment="Right"
                                         Name="SearchMobyGamesButton"
                                         Command="{Binding SearchMobyGamesCommand}"
-                                        CommandParameter="{Binding GameTitle}">
+                                        CommandParameter="{Binding Title, ValidatesOnNotifyDataErrors=False}">
                                     Search MobyGames
                                 </Button>
                                 <TextBox Name="TitleTextbox"
-                                         Text="{Binding GameTitle, UpdateSourceTrigger=PropertyChanged}"
+                                         Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
                                          VerticalContentAlignment="Center">
+                                    <TextBox.Style>
+                                        <Style TargetType="{x:Type TextBox}">
+                                            <Style.Triggers>
+                                                <Trigger Property="Validation.HasError" Value="true">
+                                                    <Setter Property="ToolTip"
+                                                            Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)/ErrorContent}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
                                     <TextBox.InputBindings>
                                         <KeyBinding Key="Enter"
                                                     Command="{Binding SearchMobyGamesCommand}"
-                                                    CommandParameter="{Binding GameTitle}" />
+                                                    CommandParameter="{Binding Title}" />
                                     </TextBox.InputBindings>
                                 </TextBox>
                             </DockPanel>
