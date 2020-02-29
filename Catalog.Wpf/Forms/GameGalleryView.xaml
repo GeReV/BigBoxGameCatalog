@@ -24,8 +24,15 @@
             <Style TargetType="ListBoxItem">
                 <Setter Property="VerticalContentAlignment"
                         Value="Top" />
-                <Setter Property="ToolTip"
-                        Value="{Binding Title}" />
+                <Setter Property="ToolTip">
+                    <Setter.Value>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding Title}" />
+                            <controls:GameStats Margin="0,5,0,0"
+                                                GameItemGroups="{Binding GameStats}" />
+                        </StackPanel>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="Tag"
                         Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                 <Setter Property="ContextMenu"
@@ -84,10 +91,6 @@
                            ToolTip="Sealed"
                            Source="{StaticResource IconPresent}"
                            Visibility="{Binding IsSealed, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <controls:GameStats Grid.Row="2"
-                                        Visibility="{Binding IsSealed, Converter={StaticResource InvertedBooleanToVisibilityConverter}}"
-                                        GameItemGroups="{Binding GameStats, Delay=50}"
-                                        HorizontalAlignment="Center" />
 
                     <ItemsControl Grid.Row="3"
                                   ItemsSource="{Binding Tags}">
