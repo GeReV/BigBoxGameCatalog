@@ -464,8 +464,13 @@ namespace Catalog.Wpf.ViewModel
 
         #region Model Validation
 
-        private void ValidateModelProperty(object value, [CallerMemberName] string? propertyName = null)
+        private void ValidateModelProperty(object? value, [CallerMemberName] string? propertyName = null)
         {
+            if (propertyName == null)
+            {
+                return;
+            }
+
             if (validationErrors.ContainsKey(propertyName))
             {
                 validationErrors.Remove(propertyName);
