@@ -480,12 +480,11 @@ namespace Catalog.Wpf.ViewModel
 
             if (!Validator.TryValidateProperty(value, validationContext, validationResults))
             {
-                validationErrors.Add(propertyName, new List<string>());
+                var errors = validationResults
+                    .Select(validationResult => validationResult.ErrorMessage)
+                    .ToList();
 
-                foreach (var validationResult in validationResults)
-                {
-                    validationErrors[propertyName].Add(validationResult.ErrorMessage);
-                }
+                validationErrors.Add(propertyName, errors);
             }
 
             OnErrorsChanged(propertyName);
