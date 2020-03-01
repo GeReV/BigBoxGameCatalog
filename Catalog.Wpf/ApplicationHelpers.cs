@@ -7,7 +7,7 @@ namespace Catalog.Wpf
     public static class ApplicationHelpers
     {
         public static string HomeDirectory(this Application application) =>
-            application.Properties[nameof(HomeDirectory)].ToString();
+            application.Properties[nameof(HomeDirectory)]?.ToString();
 
         public static CatalogContext Database(this Application application) =>
             new CatalogContext(Path.Combine(application.HomeDirectory(), "database.sqlite"));

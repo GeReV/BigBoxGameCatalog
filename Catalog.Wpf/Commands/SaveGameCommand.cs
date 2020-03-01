@@ -179,7 +179,7 @@ namespace Catalog.Wpf.Commands
         }
 
         private static async Task<IEnumerable<string>> DownloadScreenshots(string destinationDirectory,
-            ICollection<ScreenshotViewModel> selectedScreenshots, IProgress<int> progress = null)
+            ICollection<ScreenshotViewModel> selectedScreenshots, IProgress<int>? progress = null)
         {
             var screenshotsToDownload = selectedScreenshots
                 .Where(ss => Uri.TryCreate(ss.Url, UriKind.Absolute, out var uri) && !uri.IsFile)

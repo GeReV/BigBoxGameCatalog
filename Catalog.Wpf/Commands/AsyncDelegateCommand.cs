@@ -8,7 +8,7 @@ namespace Catalog.Wpf.Commands
         private readonly Func<object?, Task> execute;
         private readonly Predicate<object?>? canExecute;
 
-        public AsyncDelegateCommand(Func<object?, Task> execute, Predicate<object>? canExecute = null)
+        public AsyncDelegateCommand(Func<object?, Task> execute, Predicate<object?>? canExecute = null)
         {
             this.execute = execute;
             this.canExecute = canExecute;
