@@ -3,10 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>Catalog</RootNamespace>
-    <PackageVersion>0.2.2</PackageVersion>
+    <PackageVersion>0.2.3</PackageVersion>
     <Title>Big Box Game Catalog</Title>
     <Copyright>Copyright © 2020</Copyright>
-    <Description></Description>
+    <Description>A cataloging software for Big Box game collections</Description>
     <LangVersion>8</LangVersion>
     <AssemblyName>BBGC.Core</AssemblyName>
     <Nullable>warnings</Nullable>
