@@ -133,11 +133,11 @@ namespace Catalog.Wpf.Commands
             }
         }
 
-        private static void UpdateGame(GameCopy? game, EditGameViewModel editGameViewModel)
+        private static void UpdateGame(GameCopy game, EditGameViewModel editGameViewModel)
         {
-            game.Title = editGameViewModel.Title;
+            game.Title = editGameViewModel.Title ?? "";
             game.Sealed = editGameViewModel.GameSealed;
-            game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug;
+            game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug ?? "";
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
 
             if (editGameViewModel.GamePublisher.IsNew ||
