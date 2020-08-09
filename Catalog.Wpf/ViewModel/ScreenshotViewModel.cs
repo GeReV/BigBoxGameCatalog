@@ -11,7 +11,7 @@ namespace Catalog.Wpf.ViewModel
         private string thumbnailUrl;
         private string url;
 
-        public ImageSource ThumbnailSource
+        public ImageSource? ThumbnailSource
         {
             get {
                 try

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Documents;
-using Catalog.Wpf.Annotations;
+using JetBrains.Annotations;
 
 namespace Catalog.Wpf.Forms.Controls
 {

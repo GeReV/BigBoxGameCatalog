@@ -140,8 +140,8 @@ namespace Catalog.Wpf.Commands
             game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug ?? "";
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
 
-            if (editGameViewModel.GamePublisher.IsNew ||
-                editGameViewModel.GamePublisher.PublisherId != game.PublisherId)
+            if (editGameViewModel.GamePublisher != null && (editGameViewModel.GamePublisher.IsNew ||
+                                                            editGameViewModel.GamePublisher.PublisherId != game.PublisherId))
             {
                 game.Publisher = editGameViewModel.GamePublisher;
             }
