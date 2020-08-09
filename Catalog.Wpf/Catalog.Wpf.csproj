@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <PackageId>BigBoxGameCatalog.Wpf</PackageId>
-        <PackageVersion>0.2.3</PackageVersion>
+        <PackageVersion>0.2.4</PackageVersion>
         <Authors>Amir Grozki</Authors>
         <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
         <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
@@ -30,7 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\application-detail.png" />
       <Content Include="Resources\application-detail.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
@@ -79,24 +78,22 @@
         <Content Include="Resources\prohibition.png">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <None Remove="Resources\tag-plus.png" />
         <Content Include="Resources\tag-plus.png">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <None Remove="Resources\tag.png" />
         <Content Include="Resources\tag.png">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <None Remove="Resources\README.txt" />
         <Content Include="Resources\README.txt">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <None Remove="Resources\document-copy.png" />
         <Content Include="Resources\document-copy.png">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <None Remove="Resources\present.png" />
         <Content Include="Resources\present.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Resources\box-medium.png">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

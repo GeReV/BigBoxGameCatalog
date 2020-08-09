@@ -86,11 +86,15 @@
                                  UriSource="pack://application:,,,/Resources/book.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.BigBox}"
                                  UriSource="pack://application:,,,/Resources/box.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.SmallBox}"
+                                 UriSource="pack://application:,,,/Resources/box-medium.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.Cassette}"
                                  UriSource="pack://application:,,,/Resources/cassette.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.DvdRom}"
                                  UriSource="pack://application:,,,/Resources/disc-blue.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.JewelCase}"
+                                 UriSource="pack://application:,,,/Resources/disc-case.png" />
+                    <BitmapImage x:Key="{x:Static model:ItemTypes.DvdCase}"
                                  UriSource="pack://application:,,,/Resources/disc-case.png" />
                     <BitmapImage x:Key="{x:Static model:ItemTypes.CdRom}"
                                  UriSource="pack://application:,,,/Resources/disc.png" />
