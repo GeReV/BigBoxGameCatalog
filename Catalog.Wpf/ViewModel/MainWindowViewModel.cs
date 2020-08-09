@@ -20,7 +20,7 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<Tag> tags = new ObservableCollection<Tag>();
         private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
         private IList selectedGames = new ArrayList();
-        private ListCollectionView? filteredGames;
+        private ListCollectionView filteredGames = new ListCollectionView(new ArrayList());
         private string? searchTerm;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
         private ICommand? editGameCommand;

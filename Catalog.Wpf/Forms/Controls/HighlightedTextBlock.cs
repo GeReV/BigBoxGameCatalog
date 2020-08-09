@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,8 +47,13 @@ namespace Catalog.Wpf.Forms.Controls
 
             var index = 0;
 
-            foreach (Match match in r.Matches(text))
+            foreach (Match? match in r.Matches(text))
             {
+                if (match == null)
+                {
+                    continue;
+                }
+
                 textBlock.Inlines.Add(new Run(text.Substring(index, match.Index - index)));
                 textBlock.Inlines.Add(new Highlight(new Run(match.Value)));
 

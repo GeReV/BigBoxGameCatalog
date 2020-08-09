@@ -506,7 +506,7 @@ namespace Catalog.Wpf.ViewModel
         }
 
         public bool HasErrors => validationErrors.Count > 0;
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
         private void OnErrorsChanged([CallerMemberName] string? propertyName = null)
         {
