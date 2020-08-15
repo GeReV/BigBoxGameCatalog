@@ -69,8 +69,23 @@ namespace Catalog.Scrapers.MobyGames
 
                     var searchResult = ExtractNamedEntryFromNode<SearchResult>(entryLink);
 
-                    searchResult.Releases = result.SelectSingleNodeByClass(SEARCH_DETAILS).SelectNodes("span")
-                        .Select(sp => sp.PlainInnerText()).ToArray();
+                    searchResult.Releases = result
+                        .SelectSingleNodeByClass(SEARCH_DETAILS)
+                        .SelectNodes("span")
+                        .Select(sp =>
+                        {
+                            var platformLink = sp.SelectSingleNode("a") ??
+                                               throw new NullReferenceException(
+                                                   "Expected a link to the game's release page.");
+
+                            return new SearchResult.Release
+                            {
+                                Text = sp.PlainInnerText(),
+                                Platform = platformLink.PlainInnerText(),
+                                Url = platformLink.GetAttributeValue("href", "")
+                            };
+                        })
+                        .ToArray();
 
                     return searchResult;
                 })
@@ -79,10 +94,8 @@ namespace Catalog.Scrapers.MobyGames
             return entries;
         }
 
-        public GameEntry GetGame(string slug)
+        public GameEntry GetGame(string url)
         {
-            var url = BuildGameUrl(slug);
-
             var doc = webClient.Load(url).DocumentNode;
 
             var details = doc.SelectSingleNodeById(CORE_GAME_RELEASE_ID);
@@ -90,7 +103,7 @@ namespace Catalog.Scrapers.MobyGames
             return new GameEntry
             {
                 Name = doc.SelectSingleNodeByClass(GAME_NAME_TITLE).SelectSingleNode("a").PlainInnerText(),
-                Slug = slug,
+                Slug = ExtractSlug(url),
                 Url = url,
                 Publisher = ExtractPublisher(details),
                 Developers = ExtractDevelopers(details),

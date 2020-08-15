@@ -17,6 +17,9 @@ namespace Catalog.Wpf.Commands
     {
         private readonly EditGameViewModel editGameViewModel;
 
+        // TODO: Turn into an application-level option?
+        private static string[] PlatformPriorities = { "Windows", "DOS" };
+
         public SearchMobyGamesCommand(EditGameViewModel editGameViewModel)
         {
             this.editGameViewModel = editGameViewModel;
@@ -46,7 +49,27 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            var gameEntry = scraper.GetGame(disambiguationDialog.SelectedResult.Slug);
+            var url = disambiguationDialog.SelectedResult.Url;
+
+            if (disambiguationDialog.SelectedResult.Releases.Any())
+            {
+                // Find the first release that matches our preferred platforms.
+                foreach (var platform in PlatformPriorities)
+                {
+                    var matchingRelease =
+                        disambiguationDialog.SelectedResult.Releases
+                            .FirstOrDefault(release => release.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase));
+
+                    if (matchingRelease == null || string.IsNullOrEmpty(matchingRelease.Url))
+                    {
+                        continue;
+                    }
+
+                    url = matchingRelease.Url;
+                }
+            }
+
+            var gameEntry = scraper.GetGame(url);
 
             GetSpecs(gameEntry);
 
