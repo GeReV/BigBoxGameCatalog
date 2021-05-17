@@ -426,7 +426,7 @@ namespace Catalog.Wpf.ViewModel
 
         public string StatusDescription => Status switch
         {
-            ViewStatus.Error => $"Error: {CurrentException.Message}",
+            ViewStatus.Error => CurrentException == null ? "Unknown Error" : $"Error: {CurrentException.Message}",
             var status => status.GetDescription()
         };
 
