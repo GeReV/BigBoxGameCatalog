@@ -55,9 +55,9 @@ namespace Catalog.Wpf
 
         private void GameView_OnGameDoubleClick(object sender, EventArgs e)
         {
-            var gameViewModel = (GameViewModel) ViewModel.FilteredGames.CurrentItem;
+            var gameViewModel = (GameViewModel?) ViewModel.FilteredGames.CurrentItem;
 
-            CommandExecutor.Execute(ViewModel.EditGameCommand, gameViewModel.GameCopy.GameCopyId);
+            CommandExecutor.Execute(ViewModel.EditGameCommand, gameViewModel?.GameCopy.GameCopyId);
         }
 
         private void Exit_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -67,16 +67,16 @@ namespace Catalog.Wpf
 
         private void DuplicateGame_OnCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            var gameViewModel = (GameViewModel) ViewModel.FilteredGames.CurrentItem;
+            var gameViewModel = (GameViewModel?) ViewModel.FilteredGames.CurrentItem;
 
-            e.CanExecute = ViewModel.DuplicateGameCommand.CanExecute(gameViewModel.GameCopyId);
+            e.CanExecute = ViewModel.DuplicateGameCommand.CanExecute(gameViewModel?.GameCopyId);
         }
 
         private void DuplicateGame_OnExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            var gameViewModel = (GameViewModel) ViewModel.FilteredGames.CurrentItem;
+            var gameViewModel = (GameViewModel?) ViewModel.FilteredGames.CurrentItem;
 
-            CommandExecutor.Execute(ViewModel.DuplicateGameCommand, gameViewModel.GameCopyId);
+            CommandExecutor.Execute(ViewModel.DuplicateGameCommand, gameViewModel?.GameCopyId);
         }
 
         private void DeleteGame_OnCanExecute(object sender, CanExecuteRoutedEventArgs e)
