@@ -35,33 +35,45 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            await using var database = Application.Current.Database();
+            args.EditGameViewModel.Status = EditGameViewModel.ViewStatus.DownloadingScreenshots;
 
-            var game = args.GameId == 0 ? new GameCopy() : GamesRepository.LoadGame(database, args.GameId);
-
-            if (game.IsNew)
+            try
             {
-                database.Add(game);
+                await using var database = Application.Current.Database();
+
+                var game = args.GameId == 0 ? new GameCopy() : GamesRepository.LoadGame(database, args.GameId);
+
+                if (game.IsNew)
+                {
+                    database.Add(game);
+                }
+
+                UpdateGame(game, args.EditGameViewModel);
+
+                await PersistGame(database);
+
+                var destinationDirectory = BuildGamePath(game);
+
+                var screenshots = await DownloadScreenshots(
+                    Path.Combine(destinationDirectory, "screenshots"),
+                    args.EditGameViewModel.GameScreenshots,
+                    args.Progress
+                );
+
+                var cover = await DownloadCoverArt(destinationDirectory, args.EditGameViewModel.GameCoverImage);
+
+                game.CoverImage = cover;
+                game.Screenshots = screenshots.Distinct().ToList();
+
+                await PersistGame(database);
+
+                args.EditGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
             }
-
-            UpdateGame(game, args.EditGameViewModel);
-
-            await PersistGame(database);
-
-            var destinationDirectory = BuildGamePath(game);
-
-            var screenshots = await DownloadScreenshots(
-                Path.Combine(destinationDirectory, "screenshots"),
-                args.EditGameViewModel.GameScreenshots,
-                args.Progress
-            );
-
-            var cover = await DownloadCoverArt(destinationDirectory, args.EditGameViewModel.GameCoverImage);
-
-            game.CoverImage = cover;
-            game.Screenshots = screenshots.Distinct().ToList();
-
-            await PersistGame(database);
+            catch (Exception e)
+            {
+                args.EditGameViewModel.CurrentException = e;
+                args.EditGameViewModel.Status = EditGameViewModel.ViewStatus.Error;
+            }
         }
 
         private static void UpdateGameCopyDevelopers(ICollection<GameCopyDeveloper> gameDevelopers,

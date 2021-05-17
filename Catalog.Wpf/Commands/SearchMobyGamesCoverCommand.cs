@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.ViewModel;
 using Application = System.Windows.Application;
@@ -19,19 +20,33 @@ namespace Catalog.Wpf.Commands
 
         protected override async Task Perform(object? parameter)
         {
-            var scraper = new Scraper(Application.Current.ScraperWebClient());
+            editGameViewModel.Status = EditGameViewModel.ViewStatus.Searching;
 
-            var covers = await Task.Run(() => scraper.GetCoverArt(editGameViewModel.GameMobyGamesSlug));
-
-            var selectionDialog = new CoverSelectionDialog(covers)
+            try
             {
-                Owner = editGameViewModel.ParentWindow
-            };
+                var scraper = new Scraper(Application.Current.ScraperWebClient());
 
-            if (selectionDialog.ShowDialog() == true)
-            {
-                editGameViewModel.GameCoverImage = new ScreenshotViewModel(selectionDialog.SelectedResult.Thumbnail, selectionDialog.SelectedResult.Url);
+                var covers = await Task.Run(() => scraper.GetCoverArt(editGameViewModel.GameMobyGamesSlug));
+
+                var selectionDialog = new CoverSelectionDialog(covers)
+                {
+                    Owner = editGameViewModel.ParentWindow
+                };
+
+                if (selectionDialog.ShowDialog() == true)
+                {
+                    editGameViewModel.GameCoverImage = new ScreenshotViewModel(selectionDialog.SelectedResult.Thumbnail,
+                        selectionDialog.SelectedResult.Url);
+                }
+
+                editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
             }
+            catch (Exception e)
+            {
+                editGameViewModel.CurrentException = e;
+                editGameViewModel.Status = EditGameViewModel.ViewStatus.Error;
+            }
+
         }
     }
 }

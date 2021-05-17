@@ -41,7 +41,8 @@ namespace Catalog.Scrapers.MobyGames
             this.webClient = webClient;
         }
 
-        private readonly Regex backgroundImageRegex = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)");
+        private readonly Regex backgroundImageRegex = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)", RegexOptions.Compiled);
+        private readonly Regex releaseYearRegex = new Regex("^(.*?)\\s+\\([0-9]{4}\\)$", RegexOptions.Compiled);
 
         private const string SEARCH_RESULT = "searchResult";
         private const string SEARCH_TITLE = "searchTitle";
@@ -74,9 +75,21 @@ namespace Catalog.Scrapers.MobyGames
                         .SelectNodes("span")
                         .Select(sp =>
                         {
-                            var platformLink = sp.SelectSingleNode("a") ??
-                                               throw new NullReferenceException(
-                                                   "Expected a link to the game's release page.");
+                            var platformLink = sp.SelectSingleNode("a");
+
+                            if (platformLink == null)
+                            {
+                                var text = sp.PlainInnerText() ?? string.Empty;
+
+                                var matches = releaseYearRegex.Matches(text);
+
+                                return new SearchResult.Release
+                                {
+                                    Text = text,
+                                    Platform = matches.Count > 0 ? matches[0].Value : text,
+                                    Url = entryLink.GetAttributeValue("href", "")
+                                };
+                            }
 
                             return new SearchResult.Release
                             {
@@ -229,7 +242,7 @@ namespace Catalog.Scrapers.MobyGames
             var container = doc.SelectSingleNodeById("main");
 
             var src = container
-                ?.SelectSingleNode(".//img")
+                ?.SelectSingleNode(".//h1/following::*//img")
                 .GetAttributeValue("src", null);
 
             if (src == null)
@@ -319,7 +332,7 @@ namespace Catalog.Scrapers.MobyGames
 
         private static T ExtractNamedEntryFromNode<T>(HtmlNode node) where T : NamedEntry, new()
         {
-            if (node == null || node.Name != "a")
+            if (!(node is {Name: "a"}))
             {
                 throw new ScraperException("Attempt to extract named entry from node failed.");
             }

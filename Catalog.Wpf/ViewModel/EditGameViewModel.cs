@@ -60,8 +60,11 @@ namespace Catalog.Wpf.ViewModel
         private IAsyncCommand? saveGameCommand;
         private IAsyncCommand? searchMobyGamesCoverCommand;
 
+        private Exception currentException;
+
         private readonly Dictionary<string, ICollection<string>> validationErrors =
             new Dictionary<string, ICollection<string>>();
+
 
         public enum ViewStatus
         {
@@ -69,6 +72,9 @@ namespace Catalog.Wpf.ViewModel
 
             [Description("Downloading screenshots...")]
             DownloadingScreenshots,
+            [Description("Searching...")]
+            Searching,
+            Error,
         }
 
         public EditGameViewModel(Window parentWindow, GameCopy gameCopy)
@@ -322,6 +328,22 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
+        public Exception CurrentException
+        {
+            get => currentException;
+            set
+            {
+                if (Equals(value, currentException)) return;
+                currentException = value;
+                OnPropertyChanged();
+
+                if (Status == ViewStatus.Error)
+                {
+                    OnPropertyChanged(nameof(StatusDescription));
+                }
+            }
+        }
+
         public static IEnumerable<CultureInfo> Languages => CultureInfo.GetCultures(CultureTypes.AllCultures)
             .Where(ci => Equals(ci.Parent, CultureInfo.InvariantCulture) && !Equals(ci, CultureInfo.InvariantCulture));
 
@@ -398,10 +420,17 @@ namespace Catalog.Wpf.ViewModel
                 viewStatus = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsSaving));
+                OnPropertyChanged(nameof(StatusDescription));
             }
         }
 
-        public bool IsSaving => Status != ViewStatus.Idle;
+        public string StatusDescription => Status switch
+        {
+            ViewStatus.Error => $"Error: {CurrentException.Message}",
+            var status => status.GetDescription()
+        };
+
+        public bool IsSaving => Status == ViewStatus.DownloadingScreenshots;
 
         public int SaveProgress
         {
@@ -423,8 +452,6 @@ namespace Catalog.Wpf.ViewModel
 
         public IAsyncCommand SaveGameCommand => saveGameCommand ??= new AsyncDelegateCommand(async _ =>
         {
-            Status = ViewStatus.DownloadingScreenshots;
-
             var args = new SaveGameCommand.SaveGameArguments(
                 GameId,
                 this,
@@ -432,8 +459,6 @@ namespace Catalog.Wpf.ViewModel
             );
 
             await CommandExecutor.Execute(new SaveGameCommand(), args);
-
-            Status = ViewStatus.Idle;
 
             // TODO: Ideally this should be external to the viewmodel.
             ParentWindow.DialogResult = true;

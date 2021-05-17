@@ -30,7 +30,19 @@ namespace Catalog.Wpf.Commands
 
         protected override async Task Perform(object? parameter)
         {
-            await SearchMobyGames(parameter as string ?? string.Empty);
+            editGameViewModel.Status = EditGameViewModel.ViewStatus.Searching;
+
+            try
+            {
+                await SearchMobyGames(parameter as string ?? string.Empty);
+
+                editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
+            }
+            catch (Exception e)
+            {
+                editGameViewModel.Status = EditGameViewModel.ViewStatus.Error;
+                editGameViewModel.CurrentException = e;
+            }
         }
 
         private async Task SearchMobyGames(string term)
