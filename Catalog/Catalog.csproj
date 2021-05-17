@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Catalog</RootNamespace>
-    <PackageVersion>0.3.1</PackageVersion>
+    <PackageVersion>0.3.2</PackageVersion>
     <Title>Big Box Game Catalog</Title>
-    <Copyright>Copyright © 2020</Copyright>
+    <Copyright>Copyright © 2021</Copyright>
     <Description>A cataloging software for Big Box game collections</Description>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <AssemblyName>BBGC.Core</AssemblyName>
     <Nullable>warnings</Nullable>
     <PackageId>BigBoxGameCatalog.Core</PackageId>
@@ -15,6 +14,11 @@
     <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
     <PublishTrimmed>true</PublishTrimmed>
+    <TargetFrameworks>net5.0-windows;netcoreapp3.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
