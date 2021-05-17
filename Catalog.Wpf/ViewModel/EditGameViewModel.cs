@@ -60,7 +60,7 @@ namespace Catalog.Wpf.ViewModel
         private IAsyncCommand? saveGameCommand;
         private IAsyncCommand? searchMobyGamesCoverCommand;
 
-        private Exception currentException;
+        private Exception? currentException;
 
         private readonly Dictionary<string, ICollection<string>> validationErrors =
             new Dictionary<string, ICollection<string>>();
@@ -328,7 +328,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public Exception CurrentException
+        public Exception? CurrentException
         {
             get => currentException;
             set
