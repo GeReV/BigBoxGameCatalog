@@ -9,7 +9,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Big Box Game Catalog")]
-[assembly: AssemblyCopyright("Copyright © Amir Grozki 2020")]
+[assembly: AssemblyCopyright("Copyright © Amir Grozki 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
