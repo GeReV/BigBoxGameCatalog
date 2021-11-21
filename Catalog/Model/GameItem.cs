@@ -23,9 +23,9 @@ namespace Catalog.Model
 
         public string? Notes { get; set; }
 
-        public ICollection<Image> Scans { get; set; }
+        public ICollection<Image> Scans { get; set; } = new List<Image>();
 
-        public ICollection<File> Files { get; set; }
+        public ICollection<File> Files { get; set; } = new List<File>();
 
         public DateTime DateCreated { get; set; }
 

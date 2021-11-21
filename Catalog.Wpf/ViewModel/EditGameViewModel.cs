@@ -115,8 +115,7 @@ namespace Catalog.Wpf.ViewModel
                 {
                     if (obj is CultureInfo cultureInfo)
                     {
-                        return cultureInfo.EnglishName.IndexOf(LanguageSearchTerm ?? string.Empty,
-                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
+                        return cultureInfo.EnglishName.Contains(LanguageSearchTerm ?? string.Empty, StringComparison.InvariantCultureIgnoreCase);
                     }
 
                     return false;
@@ -457,12 +456,19 @@ namespace Catalog.Wpf.ViewModel
                 new Progress<int>(percentage => SaveProgress = percentage)
             );
 
-            await CommandExecutor.Execute(new SaveGameCommand(), args);
+            try
+            {
+                await CommandExecutor.Execute(new SaveGameCommand(), args);
 
-            // TODO: Ideally this should be external to the viewmodel.
-            ParentWindow.DialogResult = true;
+                // TODO: Ideally this should be external to the viewmodel.
+                ParentWindow.DialogResult = true;
 
-            ParentWindow.Close();
+                ParentWindow.Close();
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
         });
 
         public IAsyncCommand SearchMobyGamesCoverCommand =>

@@ -25,19 +25,20 @@ namespace Catalog.Model
 
         public string? ColorArgb { get; set; }
 
+
+        public ICollection<GameCopyTag> GameCopyTags { get; set; } = new List<GameCopyTag>();
+
+        public IEnumerable<GameCopy> Games => GameCopyTags.Select(gct => gct.Game);
+
+        public DateTime DateCreated { get; set; }
+        public DateTime LastUpdated { get; set; }
+
         [NotMapped]
         public Color Color
         {
             get => Color.FromArgb(Convert.ToInt32(ColorArgb, 16));
             set => ColorArgb = Convert.ToString(value.ToArgb(), 16);
         }
-
-        public DateTime DateCreated { get; set; }
-        public DateTime LastUpdated { get; set; }
-
-        public ICollection<GameCopyTag> GameCopyTags { get; set; }
-
-        public IEnumerable<GameCopy> Games => GameCopyTags.Select(gct => gct.Game);
 
         public int Id => TagId;
         public bool IsNew => TagId == 0;

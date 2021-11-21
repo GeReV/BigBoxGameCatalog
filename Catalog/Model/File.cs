@@ -15,7 +15,7 @@ namespace Catalog.Model
 
         public int FileId { get; set; }
 
-       public GameItem GameItem { get; set; }
+        public GameItem GameItem { get; set; }
         public byte[] Sha256Checksum { get; set; } = Array.Empty<byte>();
         public string Path { get; }
 

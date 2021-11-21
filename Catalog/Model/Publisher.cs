@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Catalog.Model
 {
-    public sealed class Publisher : IModel
+    public sealed class Publisher : IEquatable<Publisher>, IModel
     {
         public Publisher(string name, string slug)
         {
@@ -17,7 +17,7 @@ namespace Catalog.Model
         [Required] public string Name { get; set; }
         public List<string> Links { get; set; } = new();
 
-        public ICollection<GameCopy> Games { get; set; }
+        public ICollection<GameCopy> Games { get; set; } = new List<GameCopy>();
 
         public DateTime DateCreated { get; set; }
 
@@ -26,9 +26,18 @@ namespace Catalog.Model
         public int Id => PublisherId;
         public bool IsNew => PublisherId == 0;
 
-        public override string ToString()
+        public override string ToString() => Name;
+
+        public bool Equals(Publisher? other)
         {
-            return Name;
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return PublisherId == other.PublisherId || Slug == other.Slug;
         }
+
+        public override bool Equals(object? obj) =>
+            ReferenceEquals(this, obj) || obj is Publisher other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(PublisherId, Slug);
     }
 }

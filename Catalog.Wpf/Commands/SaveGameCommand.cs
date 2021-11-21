@@ -30,7 +30,7 @@ namespace Catalog.Wpf.Commands
 
         protected override async Task Perform(object? parameter)
         {
-            if (!(parameter is SaveGameArguments args))
+            if (parameter is not SaveGameArguments args)
             {
                 return;
             }
@@ -73,11 +73,15 @@ namespace Catalog.Wpf.Commands
             {
                 args.EditGameViewModel.CurrentException = e;
                 args.EditGameViewModel.Status = EditGameViewModel.ViewStatus.Error;
+
+                throw;
             }
         }
 
-        private static void UpdateGameCopyDevelopers(ICollection<GameCopyDeveloper> gameDevelopers,
-            IEnumerable<Developer> nextGameDevelopers)
+        private static void UpdateGameCopyDevelopers(
+            ICollection<GameCopyDeveloper> gameDevelopers,
+            IEnumerable<Developer> nextGameDevelopers
+        )
         {
             var currentGameDeveloperIds = gameDevelopers
                 .Select(gcd => gcd.DeveloperId)
@@ -98,10 +102,11 @@ namespace Catalog.Wpf.Commands
             var addGameDevelopers = nextGameDevelopers
                 .Where(gd => !currentGameDeveloperIds.Contains(gd.DeveloperId))
                 .Select(dev => new GameCopyDeveloper
-                {
-                    DeveloperId = dev.DeveloperId,
-                    Developer = dev
-                });
+                    {
+                        DeveloperId = dev.DeveloperId,
+                        Developer = dev
+                    }
+                );
 
             foreach (var addGameDeveloper in addGameDevelopers)
             {
@@ -146,13 +151,14 @@ namespace Catalog.Wpf.Commands
 
         private static void UpdateGame(GameCopy game, EditGameViewModel editGameViewModel)
         {
-            game.Title = editGameViewModel.Title ?? "";
+            game.Title = editGameViewModel.Title;
             game.Sealed = editGameViewModel.GameSealed;
-            game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug ?? "";
+            game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug ?? string.Empty;
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
 
             if (editGameViewModel.GamePublisher != null && (editGameViewModel.GamePublisher.IsNew ||
-                                                            editGameViewModel.GamePublisher.PublisherId != game.PublisherId))
+                                                            editGameViewModel.GamePublisher.PublisherId !=
+                                                            game.PublisherId))
             {
                 game.Publisher = editGameViewModel.GamePublisher;
             }
@@ -189,8 +195,11 @@ namespace Catalog.Wpf.Commands
             return Path.Combine(Application.Current.HomeDirectory(), directoryName);
         }
 
-        private static async Task<IEnumerable<string>> DownloadScreenshots(string destinationDirectory,
-            ICollection<ScreenshotViewModel> selectedScreenshots, IProgress<int>? progress = null)
+        private static async Task<IEnumerable<string>> DownloadScreenshots(
+            string destinationDirectory,
+            ICollection<ScreenshotViewModel> selectedScreenshots,
+            IProgress<int>? progress = null
+        )
         {
             var screenshotsToDownload = selectedScreenshots
                 .Where(ss => Uri.TryCreate(ss.Url, UriKind.Absolute, out var uri) && !uri.IsFile)
@@ -213,8 +222,10 @@ namespace Catalog.Wpf.Commands
                 .OrderBy(s => s);
         }
 
-        private static async Task<string?> DownloadCoverArt(string destinationDirectory,
-            ScreenshotViewModel? gameCoverImage)
+        private static async Task<string?> DownloadCoverArt(
+            string destinationDirectory,
+            ScreenshotViewModel? gameCoverImage
+        )
         {
             if (gameCoverImage == null)
             {

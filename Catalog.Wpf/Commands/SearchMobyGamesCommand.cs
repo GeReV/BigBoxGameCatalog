@@ -105,7 +105,7 @@ namespace Catalog.Wpf.Commands
 
             if (gameEntry.Publisher != null)
             {
-                var publisher = editGameViewModel.Publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
+                var publisher = editGameViewModel.Publishers.FirstOrDefault(p => p.Slug == gameEntry.Publisher.Slug || p.Name == gameEntry.Publisher.Name);
 
                 if (publisher == null)
                 {
