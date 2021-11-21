@@ -11,25 +11,34 @@ namespace Catalog.Model
 {
     public class GameCopy : IModel, ICloneable<GameCopy>
     {
+        public GameCopy() : this(string.Empty)
+        {
+        }
+
+        public GameCopy(string title)
+        {
+            Title = title;
+        }
+
         public int GameCopyId { get; set; }
 
         [Required] public string Title { get; set; }
 
         public bool Sealed { get; set; }
 
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 
-        public string MobyGamesSlug { get; set; }
+        public string? MobyGamesSlug { get; set; }
 
         public int PublisherId { get; set; }
 
         public Publisher Publisher { get; set; }
 
-        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; } = new List<GameCopyDeveloper>();
+        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; }
 
         public IEnumerable<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer);
 
-        public ICollection<GameCopyTag> GameCopyTags { get; set; } = new List<GameCopyTag>();
+        public ICollection<GameCopyTag> GameCopyTags { get; set; }
 
         public IList<Tag> Tags => GameCopyTags
             .Select(gct => gct.Tag)
@@ -38,17 +47,17 @@ namespace Catalog.Model
 
         public DateTime ReleaseDate { get; set; }
 
-        public List<string> TwoLetterIsoLanguageName { get; set; } = new List<string>();
+        public List<string> TwoLetterIsoLanguageName { get; set; } = new();
 
-        public List<Platform> Platforms { get; set; } = new List<Platform>();
+        public List<Platform> Platforms { get; set; } = new();
 
-        public List<string> Links { get; set; } = new List<string>();
+        public List<string> Links { get; set; } = new();
 
-        public string CoverImage { get; set; }
+        public string? CoverImage { get; set; }
 
-        public List<string> Screenshots { get; set; } = new List<string>();
+        public List<string> Screenshots { get; set; } = new();
 
-        public ICollection<GameItem> Items { get; set; } = new List<GameItem>();
+        public ICollection<GameItem> Items { get; set; }
 
         public DateTime DateCreated { get; set; }
 
@@ -58,14 +67,14 @@ namespace Catalog.Model
         public bool IsNew => GameCopyId == 0;
 
         public GameCopy Clone() =>
-            new GameCopy
+            new(Title)
             {
                 CoverImage = CoverImage,
                 GameCopyDevelopers = GameCopyDevelopers
-                    .Select(gcd => new GameCopyDeveloper {DeveloperId = gcd.DeveloperId})
+                    .Select(gcd => new GameCopyDeveloper { DeveloperId = gcd.DeveloperId })
                     .ToList(),
                 GameCopyTags = GameCopyTags
-                    .Select(gct => new GameCopyTag {TagId = gct.TagId})
+                    .Select(gct => new GameCopyTag { TagId = gct.TagId })
                     .ToList(),
                 Items = Items
                     .Select(item => item.Clone())
@@ -78,7 +87,6 @@ namespace Catalog.Model
                 ReleaseDate = ReleaseDate,
                 Screenshots = Screenshots,
                 Sealed = Sealed,
-                Title = Title,
                 TwoLetterIsoLanguageName = TwoLetterIsoLanguageName
             };
     }

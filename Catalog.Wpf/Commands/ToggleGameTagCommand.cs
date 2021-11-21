@@ -66,6 +66,11 @@ namespace Catalog.Wpf.Commands
                 {
                     var gameCopyTag = game.GameCopyTags.FirstOrDefault(gct => gct.TagId == tag.TagId);
 
+                    if (gameCopyTag == null)
+                    {
+                        continue;
+                    }
+
                     game.GameCopyTags.Remove(gameCopyTag);
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using Catalog.Wpf.ViewModel;
@@ -15,9 +16,9 @@ namespace Catalog.Wpf.Commands
             this.itemViewModel = itemViewModel;
         }
 
-        public override bool CanExecute(object parameter)
+        public override bool CanExecute(object? parameter)
         {
-            if (!(parameter is IList list))
+            if (parameter is not IList list)
             {
                 return false;
             }
@@ -25,9 +26,14 @@ namespace Catalog.Wpf.Commands
             return list.Count > 0;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
-            var selectedItems = ((IList) parameter).Cast<ImageViewModel>().ToList();
+            if (parameter is not IList<ImageViewModel> list)
+            {
+                return;
+            }
+
+            var selectedItems = list.ToList();
 
             foreach (var selectedItem in selectedItems)
             {

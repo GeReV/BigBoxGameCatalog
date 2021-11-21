@@ -14,14 +14,14 @@ namespace Catalog.Wpf.Commands
             this.mainWindowViewModel = mainWindowViewModel;
         }
 
-        public override bool CanExecute(object parameter)
+        public override bool CanExecute(object? parameter)
         {
             return parameter is int;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
-            if (!(parameter is int gameCopyId))
+            if (parameter is not int gameCopyId)
             {
                 return;
             }

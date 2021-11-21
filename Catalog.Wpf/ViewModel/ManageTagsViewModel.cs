@@ -38,9 +38,9 @@ namespace Catalog.Wpf.ViewModel
 
         public ICommand DeleteTagCommand { get; }
 
-        private void DeleteTag(object parameter)
+        private void DeleteTag(object? parameter)
         {
-            if (!(parameter is TagViewModel tag))
+            if (parameter is not TagViewModel tag)
             {
                 return;
             }

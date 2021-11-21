@@ -38,7 +38,7 @@ namespace Catalog.Wpf.Commands
 
         protected abstract Task Perform(object? parameter);
 
-        public virtual event EventHandler CanExecuteChanged
+        public virtual event EventHandler? CanExecuteChanged
         {
             add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;
@@ -51,10 +51,10 @@ namespace Catalog.Wpf.Commands
 
         #region Explicit implementations
 
-        bool ICommand.CanExecute(object parameter) => CanExecute(parameter);
+        bool ICommand.CanExecute(object? parameter) => CanExecute(parameter);
 
 #pragma warning disable 4014
-        void ICommand.Execute(object parameter) => ExecuteAsync(parameter);
+        void ICommand.Execute(object? parameter) => ExecuteAsync(parameter);
 #pragma warning restore 4014
 
         #endregion

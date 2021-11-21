@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Catalog.Wpf
+namespace Catalog
 {
     public class ProgressStream : Stream
     {
@@ -14,7 +12,7 @@ namespace Catalog.Wpf
             this.stream = stream;
         }
 
-        public event ProgressChangedEventHandler ProgressChanged;
+        public event ProgressChangedEventHandler? ProgressChanged;
 
         protected virtual void OnProgressChanged()
         {

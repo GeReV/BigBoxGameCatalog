@@ -12,7 +12,7 @@ namespace Catalog.Wpf.Commands
             this.editGameViewModel = editGameViewModel;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
             var item = new ItemViewModel
             {

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Catalog.Model;
-using Catalog.Scrapers;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Scrapers.MobyGames.Model;
 using Catalog.Wpf.ViewModel;
@@ -18,7 +15,7 @@ namespace Catalog.Wpf.Commands
         private readonly EditGameViewModel editGameViewModel;
 
         // TODO: Turn into an application-level option?
-        private static string[] PlatformPriorities = { "Windows", "DOS" };
+        private static readonly string[] PlatformPriorities = { "Windows", "DOS" };
 
         public SearchMobyGamesCommand(EditGameViewModel editGameViewModel)
         {
@@ -51,6 +48,18 @@ namespace Catalog.Wpf.Commands
 
             var entries = await Task.Run(() => scraper.Search(term));
 
+            if (entries.Count == 0)
+            {
+                MessageBox.Show(
+                    $"No results were found for \"{term}\"",
+                    "No Results",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+
+                return;
+            }
+
             var disambiguationDialog = new GameDisambiguationDialog(entries)
             {
                 Owner = editGameViewModel.ParentWindow
@@ -70,7 +79,8 @@ namespace Catalog.Wpf.Commands
                 {
                     var matchingRelease =
                         disambiguationDialog.SelectedResult.Releases
-                            .FirstOrDefault(release => release.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase));
+                            .FirstOrDefault(release =>
+                                release.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase));
 
                     if (matchingRelease == null || string.IsNullOrEmpty(matchingRelease.Url))
                     {
@@ -93,21 +103,22 @@ namespace Catalog.Wpf.Commands
             editGameViewModel.GameMobyGamesSlug = gameEntry.Slug;
             editGameViewModel.GameLinks.Add(gameEntry.Url);
 
-            var publisher = editGameViewModel.Publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
-
-            if (publisher == null)
+            if (gameEntry.Publisher != null)
             {
-                publisher = new Publisher
+                var publisher = editGameViewModel.Publishers.ToList().Find(p => p.Slug == gameEntry.Publisher.Slug);
+
+                if (publisher == null)
                 {
-                    Name = gameEntry.Publisher.Name,
-                    Slug = gameEntry.Publisher.Slug,
-                    Links = new List<string> {gameEntry.Publisher.Url}
-                };
+                    publisher = new Publisher(gameEntry.Publisher.Name, gameEntry.Publisher.Slug)
+                    {
+                        Links = new List<string> { gameEntry.Publisher.Url }
+                    };
 
-                editGameViewModel.Publishers.Add(publisher);
+                    editGameViewModel.Publishers.Add(publisher);
+                }
+
+                editGameViewModel.GamePublisher = publisher;
             }
-
-            editGameViewModel.GamePublisher = publisher;
 
             var developerCollection = editGameViewModel.Developers.ToList();
 
@@ -117,11 +128,9 @@ namespace Catalog.Wpf.Commands
 
                 if (developer == null)
                 {
-                    developer = new Developer
+                    developer = new Developer(devEntry.Name, devEntry.Slug)
                     {
-                        Name = devEntry.Name,
-                        Slug = devEntry.Slug,
-                        Links = new List<string> {devEntry.Url},
+                        Links = new List<string> { devEntry.Url },
                     };
 
                     editGameViewModel.Developers.Add(developer);

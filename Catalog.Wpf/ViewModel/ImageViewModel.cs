@@ -52,10 +52,9 @@ namespace Catalog.Wpf.ViewModel
 
         public Image BuildImage()
         {
-            return new Image
+            return new Image(Path)
             {
                 ImageId = ImageId,
-                Path = Path
             };
         }
 

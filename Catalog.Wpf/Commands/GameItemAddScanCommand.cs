@@ -14,7 +14,7 @@ namespace Catalog.Wpf.Commands
             this.itemViewModel = itemViewModel;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
             var openFileDialog = new OpenFileDialog
             {

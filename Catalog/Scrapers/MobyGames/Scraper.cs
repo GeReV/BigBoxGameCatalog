@@ -27,7 +27,8 @@ namespace Catalog.Scrapers.MobyGames
 
         protected ScraperException(
             System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) : base(info, context)
+            System.Runtime.Serialization.StreamingContext context
+        ) : base(info, context)
         {
         }
     }
@@ -41,7 +42,9 @@ namespace Catalog.Scrapers.MobyGames
             this.webClient = webClient;
         }
 
-        private readonly Regex backgroundImageRegex = new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)", RegexOptions.Compiled);
+        private readonly Regex backgroundImageRegex =
+            new Regex("background(?:-image)?:\\s*url\\('?(.*?)'?\\)", RegexOptions.Compiled);
+
         private readonly Regex releaseYearRegex = new Regex("^(.*?)\\s+\\([0-9]{4}\\)$", RegexOptions.Compiled);
 
         private const string SEARCH_RESULT = "searchResult";
@@ -60,48 +63,53 @@ namespace Catalog.Scrapers.MobyGames
 
             var results = doc.DocumentNode.SelectNodesByClass(SEARCH_RESULT, "div");
 
+            if (results == null)
+            {
+                return new List<SearchResult>();
+            }
 
             var entries = results
                 .Where(result =>
-                    result.SelectSingleNodeByClass(SEARCH_TITLE)?.PlainInnerText().StartsWith("Game:") ?? false)
+                    result.SelectSingleNodeByClass(SEARCH_TITLE)?.PlainInnerText().StartsWith("Game:") ?? false
+                )
                 .Select(result =>
-                {
-                    var entryLink = result.SelectSingleNodeByClass(SEARCH_TITLE).SelectSingleNode("a");
+                    {
+                        var entryLink = result?.SelectSingleNodeByClass(SEARCH_TITLE)?.SelectSingleNode("a");
 
-                    var searchResult = ExtractNamedEntryFromNode<SearchResult>(entryLink);
+                        var searchResult = ExtractNamedEntryFromNode<SearchResult>(entryLink);
 
-                    searchResult.Releases = result
-                        .SelectSingleNodeByClass(SEARCH_DETAILS)
-                        .SelectNodes("span")
-                        .Select(sp =>
-                        {
-                            var platformLink = sp.SelectSingleNode("a");
-
-                            if (platformLink == null)
-                            {
-                                var text = sp.PlainInnerText() ?? string.Empty;
-
-                                var matches = releaseYearRegex.Matches(text);
-
-                                return new SearchResult.Release
+                        searchResult.Releases = result
+                            ?.SelectSingleNodeByClass(SEARCH_DETAILS)
+                            ?.SelectNodes("span")
+                            .Select(sp =>
                                 {
-                                    Text = text,
-                                    Platform = matches.Count > 0 ? matches[0].Value : text,
-                                    Url = entryLink.GetAttributeValue("href", "")
-                                };
-                            }
+                                    var platformLink = sp.SelectSingleNode("a");
 
-                            return new SearchResult.Release
-                            {
-                                Text = sp.PlainInnerText(),
-                                Platform = platformLink.PlainInnerText(),
-                                Url = platformLink.GetAttributeValue("href", "")
-                            };
-                        })
-                        .ToArray();
+                                    if (platformLink == null)
+                                    {
+                                        var text = sp.PlainInnerText() ?? string.Empty;
 
-                    return searchResult;
-                })
+                                        var matches = releaseYearRegex.Matches(text);
+
+                                        return new SearchResult.Release(
+                                            text,
+                                            matches.Count > 0 ? matches[0].Value : text,
+                                            entryLink?.GetAttributeValue("href", string.Empty) ?? string.Empty
+                                        );
+                                    }
+
+                                    return new SearchResult.Release(
+                                        sp.PlainInnerText(),
+                                        platformLink.PlainInnerText(),
+                                        platformLink.GetAttributeValue("href", string.Empty)
+                                    );
+                                }
+                            )
+                            .ToArray() ?? Array.Empty<SearchResult.Release>();
+
+                        return searchResult;
+                    }
+                )
                 .ToList();
 
             return entries;
@@ -115,7 +123,8 @@ namespace Catalog.Scrapers.MobyGames
 
             return new GameEntry
             {
-                Name = doc.SelectSingleNodeByClass(GAME_NAME_TITLE).SelectSingleNode("a").PlainInnerText(),
+                Name = doc.SelectSingleNodeByClass(GAME_NAME_TITLE)?.SelectSingleNode("a").PlainInnerText() ??
+                       throw new ArgumentNullException(),
                 Slug = ExtractSlug(url),
                 Url = url,
                 Publisher = ExtractPublisher(details),
@@ -132,19 +141,27 @@ namespace Catalog.Scrapers.MobyGames
             var doc = webClient.Load(url).DocumentNode;
 
             var platformTechInfos = doc
-                .SelectNodesByClass("techInfo")
-                .ToDictionary(node => node.SelectSingleNode("thead").PlainInnerText().Trim());
+                                        ?.SelectNodesByClass("techInfo")
+                                        ?.ToDictionary(
+                                            node =>
+                                                node.SelectSingleNode("thead").PlainInnerText().Trim()
+                                        ) ??
+                                    new Dictionary<string, HtmlNode>();
 
             var platforms = new List<string>();
 
             if (platformTechInfos.ContainsKey("Windows"))
             {
-                var minimumOs = platformTechInfos["Windows"].SelectNodeWithText("Minimum OS Class Required")
+                var minimumOs = platformTechInfos["Windows"]
+                    .SelectNodeWithText("Minimum OS Class Required")
                     ?.SelectFollowingNodeByTagName("td")
                     ?.PlainInnerText()
                     .Trim();
 
-                platforms.Add(minimumOs);
+                if (minimumOs != null)
+                {
+                    platforms.Add(minimumOs);
+                }
             }
 
             if (platformTechInfos.ContainsKey("DOS"))
@@ -153,11 +170,11 @@ namespace Catalog.Scrapers.MobyGames
             }
 
             var mediaTypes = platformTechInfos
-                .Where(pair => pair.Key == "DOS" || pair.Key == "Windows")
+                .Where(pair => pair.Key is "DOS" or "Windows")
                 .SelectMany(pair =>
                     pair.Value.SelectNodeWithText("Media Type")
                         ?.SelectFollowingNodeByTagName("td")
-                        ?.SelectNodes(".//a[not(img)]")
+                        ?.SelectNodes(".//a[not(img)]") ?? Enumerable.Empty<HtmlNode>()
                 )
                 .Select(node => node.PlainInnerText())
                 .Distinct();
@@ -196,16 +213,18 @@ namespace Catalog.Scrapers.MobyGames
 
             var baseUri = new Uri(url);
 
-            return doc.SelectNodesByClass("coverHeading")
-                .Select(cover => ExtractCoverArtCollectionEntry(baseUri, cover))
-                .ToArray();
+            return doc
+                ?.SelectNodesByClass("coverHeading")
+                ?.Select(cover => ExtractCoverArtCollectionEntry(baseUri, cover))
+                .ToArray() ?? Array.Empty<CoverArtCollectionEntry>();
         }
 
-        public async Task<ImageEntry> DownloadScreenshot(string url, IProgress<int> progress = null)
+        public async Task<ImageEntry> DownloadScreenshot(string url, IProgress<int>? progress = null)
         {
             var doc = webClient.Load(url).DocumentNode;
 
-            var container = doc.SelectSingleNodeByClassContains("screenshot") ?? doc.SelectSingleNodeByClass("promoImage");
+            var container = doc.SelectSingleNodeByClassContains("screenshot") ??
+                            doc.SelectSingleNodeByClass("promoImage");
 
             var src = container
                 ?.SelectSingleNode(".//img")
@@ -228,14 +247,10 @@ namespace Catalog.Scrapers.MobyGames
 
             var data = await client.DownloadDataTaskAsync(imageUrl);
 
-            return new ImageEntry
-            {
-                Data = data,
-                Url = imageUrl
-            };
+            return new ImageEntry(data, imageUrl);
         }
 
-        public async Task<ImageEntry> DownloadCoverArt(string url, IProgress<int> progress = null)
+        public async Task<ImageEntry> DownloadCoverArt(string url, IProgress<int>? progress = null)
         {
             var doc = webClient.Load(url).DocumentNode;
 
@@ -262,14 +277,10 @@ namespace Catalog.Scrapers.MobyGames
 
             var data = await client.DownloadDataTaskAsync(imageUrl);
 
-            return new ImageEntry
-            {
-                Data = data,
-                Url = imageUrl
-            };
+            return new ImageEntry(data, imageUrl);
         }
 
-        private static IEnumerable<ScreenshotEntry> ExtractOfficialScreenshots(Uri baseUri, HtmlNode gallery)
+        private static IEnumerable<ScreenshotEntry> ExtractOfficialScreenshots(Uri baseUri, HtmlNode? gallery)
         {
             if (gallery == null)
             {
@@ -278,15 +289,14 @@ namespace Catalog.Scrapers.MobyGames
 
             return gallery
                 .SelectNodes(".//a[img]")
-                .Select(thumbnail => new ScreenshotEntry
-                {
-                    Url = thumbnail.GetAttributeValue("href", null),
-                    Thumbnail = new Uri(baseUri, thumbnail.SelectSingleNode("img").GetAttributeValue("src", null))
-                        .ToString()
-                });
+                .Select(thumbnail =>
+                    new ScreenshotEntry(thumbnail.GetAttributeValue("href", null),
+                        new Uri(baseUri, thumbnail.SelectSingleNode("img").GetAttributeValue("src", null)).ToString()
+                    )
+                );
         }
 
-        private IEnumerable<ScreenshotEntry> ExtractScreenshots(Uri baseUri, HtmlNodeCollection nodes)
+        private IEnumerable<ScreenshotEntry> ExtractScreenshots(Uri baseUri, HtmlNodeCollection? nodes)
         {
             if (nodes == null)
             {
@@ -295,17 +305,16 @@ namespace Catalog.Scrapers.MobyGames
 
             return nodes
                 .Select(thumbnail =>
-                {
-                    var thumbnailPath = backgroundImageRegex.Match(thumbnail.GetAttributeValue("style", ""))
-                        ?.Groups[1].Value;
-
-                    return new ScreenshotEntry
                     {
-                        Url = thumbnail.GetAttributeValue("href", null),
-                        Thumbnail = new Uri(baseUri, thumbnailPath)
-                            .ToString()
-                    };
-                });
+                        var thumbnailPath = backgroundImageRegex.Match(thumbnail.GetAttributeValue("style", ""))
+                            ?.Groups[1]
+                            .Value;
+
+                        return new ScreenshotEntry(thumbnail.GetAttributeValue("href", null),
+                            new Uri(baseUri, thumbnailPath).ToString()
+                        );
+                    }
+                );
         }
 
         private static string BuildGameUrl(string slug)
@@ -330,9 +339,9 @@ namespace Catalog.Scrapers.MobyGames
             return new Uri(href).Segments.Last();
         }
 
-        private static T ExtractNamedEntryFromNode<T>(HtmlNode node) where T : NamedEntry, new()
+        private static T ExtractNamedEntryFromNode<T>(HtmlNode? node) where T : NamedEntry, new()
         {
-            if (!(node is {Name: "a"}))
+            if (node is not { Name: "a" })
             {
                 throw new ScraperException("Attempt to extract named entry from node failed.");
             }
@@ -347,11 +356,11 @@ namespace Catalog.Scrapers.MobyGames
             };
         }
 
-        private static PublisherEntry ExtractPublisher(HtmlNode details)
+        private static PublisherEntry? ExtractPublisher(HtmlNode? details)
         {
-            var publisherNode = details.SelectNodeWithText("Published by")
+            var publisherNode = details?.SelectNodeWithText("Published by")
                 ?.NextSibling
-                .SelectSingleNode("a");
+                ?.SelectSingleNode("a");
 
             if (publisherNode == null)
             {
@@ -361,83 +370,84 @@ namespace Catalog.Scrapers.MobyGames
             return ExtractNamedEntryFromNode<PublisherEntry>(publisherNode);
         }
 
-        private static DeveloperEntry[] ExtractDevelopers(HtmlNode details)
+        private static DeveloperEntry[] ExtractDevelopers(HtmlNode? details)
         {
-            var developerNodes = details.SelectNodeWithText("Developed by")
+            var developerNodes = details?.SelectNodeWithText("Developed by")
                 ?.NextSibling
-                .SelectNodes("a");
+                ?.SelectNodes("a");
 
             if (developerNodes == null)
             {
-                return new DeveloperEntry[0];
+                return Array.Empty<DeveloperEntry>();
             }
 
             return developerNodes.Select(ExtractNamedEntryFromNode<DeveloperEntry>).ToArray();
         }
 
-        private static string[] ExtractPlatforms(HtmlNode details)
+        private static string[] ExtractPlatforms(HtmlNode? details)
         {
-            return details.SelectNodeWithTextStartingWith("Platform")
+            return details?.SelectNodeWithTextStartingWith("Platform")
                 ?.NextSibling
-                .SelectNodes("a")
-                .Select(node => node.PlainInnerText())
-                .ToArray();
+                ?.SelectNodes("a")
+                ?.Select(node => node.PlainInnerText())
+                .ToArray() ?? Array.Empty<string>();
         }
 
-        private static string ExtractReleaseDate(HtmlNode details)
+        private static string? ExtractReleaseDate(HtmlNode? details)
         {
-            return details.SelectNodeWithText("Released")
+            return details?.SelectNodeWithText("Released")
                 ?.NextSibling
-                .SelectSingleNode("a")
-                .PlainInnerText();
+                ?.SelectSingleNode("a")
+                ?.PlainInnerText();
         }
 
         private CoverArtCollectionEntry ExtractCoverArtCollectionEntry(Uri baseUri, HtmlNode coverCollection)
         {
             var platform = coverCollection.SelectSingleNode(".//h2").PlainInnerText();
 
-            var country = coverCollection.SelectNodeWithText("Country")?.NextSibling?.NextSibling
+            var country = coverCollection.SelectNodeWithText("Country")
+                ?.NextSibling?.NextSibling
                 .PlainInnerText();
 
             var covers = coverCollection
                 .SelectFollowingNodeByClass("row")
-                .SelectNodesByClass("thumbnail")
-                .Select(cover =>
-                {
-
-                    var caption = cover
-                        .SelectSingleNodeByClass("thumbnail-cover-caption")
-                        .PlainInnerText()
-                        .Trim();
-
-                    var thumbnail = cover.SelectSingleNodeByClass("thumbnail-cover") ??
-                                    throw new ScraperException(
-                                        $"Could not find cover art element with class \"thumbnail-cover\" in {platform}, {country}.");
-
-                    var thumbnailUrl = backgroundImageRegex
-                        .Match(thumbnail.GetAttributeValue("style", string.Empty))
-                        ?.Groups[1]
-                        .Value;
-
-                    return new CoverArtEntry
+                ?.SelectNodesByClass("thumbnail")
+                ?.Select(cover =>
                     {
-                        Type = caption switch
-                        {
-                            "Front Cover" => CoverArtEntry.CoverArtType.Front,
-                            "Back Cover" => CoverArtEntry.CoverArtType.Back,
-                            var s when s.StartsWith("Media") => CoverArtEntry.CoverArtType.Media,
-                            _ => CoverArtEntry.CoverArtType.Other,
-                        },
-                        Url = thumbnail.GetAttributeValue("href", string.Empty),
-                        Thumbnail = new Uri(baseUri, thumbnailUrl).ToString(),
-                    };
-                });
+                        var caption = cover
+                            .SelectSingleNodeByClass("thumbnail-cover-caption")
+                            ?.PlainInnerText()
+                            .Trim() ?? string.Empty;
 
-            return new CoverArtCollectionEntry
+                        var thumbnail = cover.SelectSingleNodeByClass("thumbnail-cover") ??
+                                        throw new ScraperException(
+                                            $"Could not find cover art element with class \"thumbnail-cover\" in {platform}, {country}."
+                                        );
+
+                        var thumbnailUrl = backgroundImageRegex
+                            .Match(thumbnail.GetAttributeValue("style", string.Empty))
+                            ?.Groups[1]
+                            .Value;
+
+                        return new CoverArtEntry(thumbnail.GetAttributeValue("href", string.Empty),
+                            new Uri(baseUri, thumbnailUrl).ToString()
+                        )
+                        {
+                            Type = caption switch
+                            {
+                                "Front Cover" => CoverArtEntry.CoverArtType.Front,
+                                "Back Cover" => CoverArtEntry.CoverArtType.Back,
+                                var s when s.StartsWith("Media") => CoverArtEntry.CoverArtType.Media,
+                                _ => CoverArtEntry.CoverArtType.Other,
+                            }
+                        };
+                    }
+                )
+                .ToArray() ?? Array.Empty<CoverArtEntry>();
+
+            return new CoverArtCollectionEntry(platform, country)
             {
-                Platform = platform,
-                Country = country,
-                Covers = covers.ToArray()
+                Covers = covers
             };
         }
     }

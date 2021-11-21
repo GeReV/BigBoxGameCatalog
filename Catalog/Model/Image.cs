@@ -5,8 +5,13 @@ using System.Text;
 
 namespace Catalog.Model
 {
-    public class Image : ILocalResource, IModel
+    public sealed class Image : ILocalResource, IModel
     {
+        public Image(string path)
+        {
+            Path = path;
+        }
+
         public int ImageId { get; set; }
 
         public GameItem GameItem { get; set; }
@@ -15,33 +20,6 @@ namespace Catalog.Model
         public DateTime DateCreated { get; set; }
 
         public DateTime LastUpdated { get; set; }
-
-        public Image()
-        {
-        }
-
-        public Image(string path)
-        {
-            Path = path;
-        }
-
-        public bool Equals(ILocalResource other)
-        {
-            return Path == other.Path;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Image) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return (Path != null ? Path.GetHashCode() : 0);
-        }
 
         public int Id => ImageId;
         public bool IsNew => ImageId == 0;

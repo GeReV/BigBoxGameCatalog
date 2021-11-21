@@ -12,7 +12,7 @@ namespace Catalog.Wpf.ViewModel
 {
     public class ItemViewModel : NotifyPropertyChangedBase, ICloneable<ItemViewModel>
     {
-        private ItemType? itemType;
+        private ItemType itemType;
         private bool missing;
         private Condition? condition;
         private string? conditionDetails;
@@ -22,12 +22,17 @@ namespace Catalog.Wpf.ViewModel
         private ICommand? removeFileCommand;
         private ICommand? addScanCommand;
         private ICommand? removeScanCommand;
-        private ObservableCollection<ImageViewModel> scans = new ObservableCollection<ImageViewModel>();
-        private ObservableCollection<FileViewModel> files = new ObservableCollection<FileViewModel>();
+        private ObservableCollection<ImageViewModel> scans = new();
+        private ObservableCollection<FileViewModel> files = new();
+
+        public ItemViewModel()
+        {
+            itemType = Model.ItemTypes.BigBox;
+        }
 
         public int ItemId { get; set; }
 
-        public ItemType? ItemType
+        public ItemType ItemType
         {
             get => itemType;
             set

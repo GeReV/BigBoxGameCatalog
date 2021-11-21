@@ -12,9 +12,9 @@ namespace Catalog.Wpf.Commands
             this.editGameViewModel = editGameViewModel;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
-            if (!(parameter is ItemViewModel itemViewModel))
+            if (parameter is not ItemViewModel itemViewModel)
             {
                 return;
             }
@@ -25,6 +25,6 @@ namespace Catalog.Wpf.Commands
             editGameViewModel.CurrentGameItem = item;
         }
 
-        public override bool CanExecute(object parameter) => parameter != null;
+        public override bool CanExecute(object? parameter) => parameter != null;
     }
 }

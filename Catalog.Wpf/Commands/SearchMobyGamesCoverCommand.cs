@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.ViewModel;
@@ -26,6 +27,10 @@ namespace Catalog.Wpf.Commands
             {
                 var scraper = new Scraper(Application.Current.ScraperWebClient());
 
+                Debug.Assert(editGameViewModel.GameMobyGamesSlug != null,
+                    "editGameViewModel.GameMobyGamesSlug != null"
+                );
+
                 var covers = await Task.Run(() => scraper.GetCoverArt(editGameViewModel.GameMobyGamesSlug));
 
                 var selectionDialog = new CoverSelectionDialog(covers)
@@ -36,7 +41,8 @@ namespace Catalog.Wpf.Commands
                 if (selectionDialog.ShowDialog() == true)
                 {
                     editGameViewModel.GameCoverImage = new ScreenshotViewModel(selectionDialog.SelectedResult.Thumbnail,
-                        selectionDialog.SelectedResult.Url);
+                        selectionDialog.SelectedResult.Url
+                    );
                 }
 
                 editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
@@ -46,7 +52,6 @@ namespace Catalog.Wpf.Commands
                 editGameViewModel.CurrentException = e;
                 editGameViewModel.Status = EditGameViewModel.ViewStatus.Error;
             }
-
         }
     }
 }

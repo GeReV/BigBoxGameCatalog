@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
@@ -118,11 +119,19 @@ namespace Catalog.Wpf.ViewModel
         public ICommand ToggleGameTagCommand =>
             toggleGameTagCommand ??= new ToggleTagCommand(this);
 
-        public ICommand ChangeViewModeCommand => new DelegateCommand(mode => { ViewMode = (MainWindowViewMode) mode; });
+        public ICommand ChangeViewModeCommand => new DelegateCommand(param =>
+        {
+            if (param is not MainWindowViewMode mode)
+            {
+                throw new InvalidOperationException();
+            }
+
+            ViewMode = mode;
+        });
 
         public ICommand AddTagCommand => new DelegateCommand((param) =>
         {
-            if (!(param is GameViewModel gameViewModel))
+            if (param is not GameViewModel gameViewModel)
             {
                 return;
             }
@@ -138,6 +147,8 @@ namespace Catalog.Wpf.ViewModel
             }
 
             using var database = Application.Current.Database();
+
+            Debug.Assert(addTagWindow.ResultTag != null, "addTagWindow.ResultTag != null");
 
             database.Tags.Add(addTagWindow.ResultTag);
 
@@ -167,6 +178,8 @@ namespace Catalog.Wpf.ViewModel
             }
 
             using var database = Application.Current.Database();
+
+            Debug.Assert(addTagWindow.ResultTag != null, "addTagWindow.ResultTag != null");
 
             database.Tags.Add(addTagWindow.ResultTag);
 
@@ -209,7 +222,7 @@ namespace Catalog.Wpf.ViewModel
                 Games.Remove(existingGame);
             }
 
-            Games.Add(new GameViewModel(game));
+            Games.Add(new GameViewModel(game ?? throw new InvalidOperationException()));
         }
 
         public void RefreshGamesCollection()
@@ -254,7 +267,7 @@ namespace Catalog.Wpf.ViewModel
             Tags = new ObservableCollection<Tag>(database.Tags.OrderBy(t => t.Name));
         }
 
-        private void RefreshFilteredGames(object sender, PropertyChangedEventArgs e)
+        private void RefreshFilteredGames(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(SearchTerm))
             {

@@ -21,7 +21,7 @@ namespace Catalog.Wpf
                         return new CoverSelectionViewModel.Item(
                             entry.Platform,
                             entry.Country,
-                            entry.Covers.FirstOrDefault(cover => cover.Type == CoverArtEntry.CoverArtType.Front)
+                            entry.Covers.FirstOrDefault(cover => cover.Type == CoverArtEntry.CoverArtType.Front)!
                         );
                     })
             };

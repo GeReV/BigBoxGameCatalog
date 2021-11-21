@@ -5,9 +5,9 @@ namespace Catalog.Wpf.ViewModel
 {
     public class CoverSelectionViewModel
     {
-        public class Item
+        public record Item
         {
-            public Item(string platform, string country, CoverArtEntry frontCover)
+            public Item(string platform, string? country, CoverArtEntry frontCover)
             {
                 Platform = platform;
                 Country = country;
@@ -15,7 +15,7 @@ namespace Catalog.Wpf.ViewModel
             }
 
             public string Platform { get; set; }
-            public string Country { get; set; }
+            public string? Country { get; set; }
             public CoverArtEntry FrontCover { get; set; }
         }
 

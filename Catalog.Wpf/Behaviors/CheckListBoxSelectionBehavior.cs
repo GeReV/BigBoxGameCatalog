@@ -25,7 +25,7 @@ namespace Catalog.Wpf.Behaviors
 
         private static void PropertyChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            void Handler(object s, NotifyCollectionChangedEventArgs e) => SelectedItemsChanged(sender, e);
+            void Handler(object? s, NotifyCollectionChangedEventArgs e) => SelectedItemsChanged(sender, e);
 
             if (args.OldValue is INotifyCollectionChanged oldCollection)
             {

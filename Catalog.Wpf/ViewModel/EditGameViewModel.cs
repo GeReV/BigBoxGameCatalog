@@ -62,8 +62,8 @@ namespace Catalog.Wpf.ViewModel
 
         private Exception? currentException;
 
-        private readonly Dictionary<string, ICollection<string>> validationErrors =
-            new Dictionary<string, ICollection<string>>();
+        private readonly Dictionary<string, ICollection<string?>> validationErrors =
+            new();
 
 
         public enum ViewStatus
@@ -146,18 +146,17 @@ namespace Catalog.Wpf.ViewModel
                 : ScreenshotViewModel.FromPath(HomeDirectoryHelpers.ToAbsolutePath(game.CoverImage));
         }
 
-        private void RefreshFilteredDevelopers(object sender, PropertyChangedEventArgs e)
+        private void RefreshFilteredDevelopers(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(DeveloperSearchTerm) || e.PropertyName == nameof(Developers) ||
-                e.PropertyName == nameof(GameDevelopers))
+            if (e.PropertyName is nameof(DeveloperSearchTerm) or nameof(Developers) or nameof(GameDevelopers))
             {
                 FilteredDevelopers.Refresh();
             }
         }
 
-        private void RefreshFilteredLanguages(object sender, PropertyChangedEventArgs e)
+        private void RefreshFilteredLanguages(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(LanguageSearchTerm) || e.PropertyName == nameof(GameLanguages))
+            if (e.PropertyName is nameof(LanguageSearchTerm) or nameof(GameLanguages))
             {
                 FilteredLanguages.Refresh();
             }
@@ -173,7 +172,7 @@ namespace Catalog.Wpf.ViewModel
             set => gameCopy.GameCopyId = value;
         }
 
-        public string? Title
+        public string Title
         {
             get => gameCopy.Title;
             set
@@ -520,11 +519,11 @@ namespace Catalog.Wpf.ViewModel
             OnErrorsChanged(propertyName);
         }
 
-        public IEnumerable? GetErrors(string propertyName)
+        public IEnumerable GetErrors(string? propertyName)
         {
             if (string.IsNullOrEmpty(propertyName) || !validationErrors.ContainsKey(propertyName))
             {
-                return null;
+                return Enumerable.Empty<string>();
             }
 
             return validationErrors[propertyName];

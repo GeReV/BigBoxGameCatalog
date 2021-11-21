@@ -82,7 +82,7 @@ namespace Catalog.Wpf.Behaviors
         }
 
         // Re-select items when the set of items changes
-        private void OnListViewItemsChanged(object sender, NotifyCollectionChangedEventArgs args)
+        private void OnListViewItemsChanged(object? sender, NotifyCollectionChangedEventArgs args)
         {
             if (viewHandled)
             {

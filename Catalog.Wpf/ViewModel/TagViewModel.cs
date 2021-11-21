@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows.Input;
@@ -9,20 +10,20 @@ namespace Catalog.Wpf.ViewModel
 {
     public class TagViewModel : NotifyPropertyChangedBase
     {
-        private string? title;
+        private string title;
         private Color color;
 
         public TagViewModel(Tag tag)
         {
             Tag = tag;
 
-            Title = Tag.Name;
-            Color = Tag.Color;
+            title = Tag.Name;
+            color = Tag.Color;
         }
 
         public Tag Tag { get; }
 
-        public string? Title
+        public string Title
         {
             get => title;
             set
@@ -46,8 +47,16 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<Color> Colors => new ObservableCollection<Color>(TagColors.All);
+        public ObservableCollection<Color> Colors => new(TagColors.All);
 
-        public ICommand SetColor => new DelegateCommand(param => { Color = (Color) param; });
+        public ICommand SetColor => new DelegateCommand(param =>
+        {
+            if (param is not Color c)
+            {
+                throw new InvalidOperationException();
+            }
+
+            Color = c;
+        });
     }
 }

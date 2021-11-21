@@ -8,7 +8,7 @@ namespace Catalog.Wpf.Commands
 {
     public class OpenFileCommand : CommandBase
     {
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
             var explorerPath =
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");

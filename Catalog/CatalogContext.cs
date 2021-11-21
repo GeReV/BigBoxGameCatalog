@@ -16,7 +16,7 @@ namespace Catalog
         private const string GETDATE_SQL = "DATETIME('now')";
 
         private static readonly ValueConverter<List<string>, string> SplitJoinValueConverter =
-            new ValueConverter<List<string>, string>(
+            new(
                 v => string.Join(STRING_SEPARATOR, v),
                 v => v.Split(STRING_SEPARATOR, StringSplitOptions.RemoveEmptyEntries).ToList()
             );
@@ -24,7 +24,6 @@ namespace Catalog
         public DbSet<GameCopy> Games { get; set; }
         public DbSet<Developer> Developers { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
-
         public DbSet<Tag> Tags { get; set; }
 
         public CatalogContext() : this("database.sqlite")
@@ -67,16 +66,17 @@ namespace Catalog
             gameCopyBuilder.Property(v => v.Links).HasConversion(SplitJoinValueConverter);
             gameCopyBuilder.Property(v => v.TwoLetterIsoLanguageName).HasConversion(SplitJoinValueConverter);
             gameCopyBuilder.Property(v => v.Screenshots).HasConversion(SplitJoinValueConverter);
-            gameCopyBuilder.Property(v => v.Platforms).HasConversion(
-                v => string.Join(STRING_SEPARATOR, v.Select(p => Enum.GetName(typeof(Platform), p))),
-                v =>
-                    v
-                        .Split(STRING_SEPARATOR, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(Enum.Parse<Platform>)
-                        .ToList()
-            );
+            gameCopyBuilder.Property(v => v.Platforms)
+                .HasConversion(
+                    v => string.Join(STRING_SEPARATOR, v.Select(p => Enum.GetName(typeof(Platform), p))),
+                    v =>
+                        v
+                            .Split(STRING_SEPARATOR, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(Enum.Parse<Platform>)
+                            .ToList()
+                );
 
-            gameCopyBuilder.HasOne(v => v.Publisher)
+            gameCopyBuilder.HasOne(v => v.Publisher!)
                 .WithMany(p => p.Games)
                 .HasForeignKey(v => v.PublisherId);
 
@@ -142,7 +142,7 @@ namespace Catalog
         {
             var gameCopyDeveloperBuilder = modelBuilder.Entity<GameCopyDeveloper>();
 
-            gameCopyDeveloperBuilder.HasKey(t => new {t.GameCopyId, t.DeveloperId});
+            gameCopyDeveloperBuilder.HasKey(t => new { t.GameCopyId, t.DeveloperId });
 
             gameCopyDeveloperBuilder
                 .HasOne(gd => gd.Developer)
@@ -161,7 +161,7 @@ namespace Catalog
         {
             var gameCopyTagBuilder = modelBuilder.Entity<GameCopyTag>();
 
-            gameCopyTagBuilder.HasKey(t => new {t.GameCopyId, t.TagId});
+            gameCopyTagBuilder.HasKey(t => new { t.GameCopyId, t.TagId });
 
             gameCopyTagBuilder
                 .HasOne(gct => gct.Tag)

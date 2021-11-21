@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <PackageId>BigBoxGameCatalog.Wpf</PackageId>
-        <PackageVersion>0.3.2</PackageVersion>
+        <PackageVersion>0.3.3</PackageVersion>
         <Authors>Amir Grozki</Authors>
         <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
         <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
@@ -15,9 +15,9 @@
         <AssemblyName>BBGC</AssemblyName>
         <Title>Big Box Game Catalog</Title>
         <Copyright>Copyright © 2021</Copyright>
-        <PublishTrimmed>true</PublishTrimmed>
-        <TargetFrameworks>net5.0-windows;netcoreapp3.1</TargetFrameworks>
+        <PublishTrimmed>false</PublishTrimmed>
         <LangVersion>9</LangVersion>
+        <TargetFramework>net5.0-windows</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -25,9 +25,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Extended.Wpf.Toolkit" Version="4.0.1" />
-      <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
-      <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+      <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
+      <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+      <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>

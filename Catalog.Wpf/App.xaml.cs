@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -67,7 +68,9 @@ namespace Catalog.Wpf
             if (context.Database.IsSqlite())
             {
                 var connection = context.Database.GetDbConnection();
-                var sourceFileInfo = new FileInfo(connection.DataSource);
+                var sourceFileInfo = new FileInfo(connection.DataSource ?? throw new InvalidOperationException());
+
+                Debug.Assert(sourceFileInfo.Directory != null, "sourceFileInfo.Directory != null");
 
                 var backupDirectory = sourceFileInfo.Directory.CreateSubdirectory(BACKUP_DIRECTORY);
 

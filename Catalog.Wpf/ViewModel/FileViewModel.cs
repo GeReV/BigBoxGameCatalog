@@ -71,17 +71,16 @@ namespace Catalog.Wpf.ViewModel
 
         public File BuildFile()
         {
-            return new File
+            return new File(Path)
             {
                 FileId = FileId,
-                Path = Path,
                 Sha256Checksum = Sha256Checksum
             };
         }
 
         public static FileViewModel FromFile(File file) =>
-            new FileViewModel(file.Path, file.Sha256Checksum) {FileId = file.FileId};
+            new(file.Path, file.Sha256Checksum) {FileId = file.FileId};
 
-        public FileViewModel Clone() => new FileViewModel(Path, Sha256Checksum);
+        public FileViewModel Clone() => new(Path, Sha256Checksum);
     }
 }

@@ -16,9 +16,9 @@ namespace Catalog.Wpf.Commands
             this.mainWindowViewModel = mainWindowViewModel;
         }
 
-        public override void Execute(object parameter)
+        public override void Execute(object? parameter)
         {
-            if (!(parameter is int gameId))
+            if (parameter is not int gameId)
             {
                 return;
             }

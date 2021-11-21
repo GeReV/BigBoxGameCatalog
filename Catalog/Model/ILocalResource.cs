@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Catalog.Model
 {
-    public interface ILocalResource : IEquatable<ILocalResource>
+    public interface ILocalResource
     {
-        string Path { get; set; }
+        string Path { get; }
 
         DateTime DateCreated { get; set; }
     }

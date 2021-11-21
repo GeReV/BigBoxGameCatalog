@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using JetBrains.Annotations;
 
 namespace Catalog.Model
 {
@@ -14,17 +11,17 @@ namespace Catalog.Model
     {
         public int GameItemId { get; set; }
 
-        [Required] public ItemType ItemType { get; set; }
+        [Required] public ItemType ItemType { get; set; } = ItemTypes.BigBox;
 
-        [Required] public GameCopy Game { get; set; }
+        public GameCopy? Game { get; set; }
 
         public bool Missing { get; set; }
 
         public Condition? Condition { get; set; }
 
-        [CanBeNull] public string ConditionDetails { get; set; }
+        public string? ConditionDetails { get; set; }
 
-        [CanBeNull] public string Notes { get; set; }
+        public string? Notes { get; set; }
 
         public ICollection<Image> Scans { get; set; }
 
@@ -40,18 +37,18 @@ namespace Catalog.Model
         public bool IsNew => GameItemId == 0;
 
         public GameItem Clone() =>
-            new GameItem
+            new()
             {
                 Condition = Condition,
                 ConditionDetails = ConditionDetails,
                 Files = Files
-                    .Select(file => new File {Path = file.Path, Sha256Checksum = file.Sha256Checksum})
+                    .Select(file => new File(file.Path) { Sha256Checksum = file.Sha256Checksum })
                     .ToList(),
                 ItemType = ItemType,
                 Missing = Missing,
                 Notes = Notes,
                 Scans = Scans
-                    .Select(scan => new Image {Path = scan.Path})
+                    .Select(scan => new Image(scan.Path))
                     .ToList()
             };
 

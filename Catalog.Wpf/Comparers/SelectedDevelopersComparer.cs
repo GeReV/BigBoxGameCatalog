@@ -17,12 +17,12 @@ namespace Catalog.Wpf.Comparers
 
         public int Compare(object? x, object? y)
         {
-            if (!(x is Developer developerX))
+            if (x is not Developer developerX)
             {
                 return -1;
             }
 
-            if (!(y is Developer developerY))
+            if (y is not Developer developerY)
             {
                 return 1;
             }
