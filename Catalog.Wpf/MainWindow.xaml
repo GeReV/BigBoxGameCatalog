@@ -250,8 +250,16 @@
                         </ResourceDictionary.MergedDictionaries>
                         <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.GalleryMode}"
                                       DataType="viewModel:MainWindowViewModel">
-                            <forms:GameGalleryView GameDoubleClick="GameView_OnGameDoubleClick"
-                                                   GameContextMenu="{DynamicResource GameCopyContextMenu}" />
+                            <Border BorderBrush="{x:Static SystemColors.ControlDarkBrush}"
+                                    BorderThickness="1">
+                                <ScrollViewer CanContentScroll="True"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Hidden">
+                                    <forms:SkiaGameGalleryView Games="{Binding FilteredGames}" />
+                                </ScrollViewer>
+                            </Border>
+                            <!-- <forms:GameGalleryView GameDoubleClick="GameView_OnGameDoubleClick" -->
+                            <!-- GameContextMenu="{DynamicResource GameCopyContextMenu}" /> -->
                         </DataTemplate>
                         <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.DetailsMode}"
                                       DataType="viewModel:MainWindowViewModel">

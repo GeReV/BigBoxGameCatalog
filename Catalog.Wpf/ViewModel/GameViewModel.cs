@@ -61,6 +61,8 @@ namespace Catalog.Wpf.ViewModel
 
         public IEnumerable<GameItem> Items => GameCopy.Items;
 
+        public string? CoverPath => GameCopy.CoverImage != null ? HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage) : null;
+
         public ImageSource? Cover
         {
             get
@@ -72,7 +74,7 @@ namespace Catalog.Wpf.ViewModel
 
                 try
                 {
-                    return new BitmapImage(new Uri(HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage)));
+                    return new BitmapImage(new Uri(CoverPath));
                 }
                 catch (IOException)
                 {
