@@ -10,6 +10,8 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Catalog.Wpf.GlContexts;
+using Catalog.Wpf.GlContexts.Wgl;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
@@ -21,7 +23,7 @@ namespace Catalog.Wpf.Forms
         private Size extent;
         private Vector offset;
 
-        private SkiaTextureAtlas atlas = new();
+        private readonly SkiaTextureAtlas atlas = new();
 
         public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
             nameof(GameContextMenu),
@@ -72,7 +74,7 @@ namespace Catalog.Wpf.Forms
             var list = games.Select(g => g.CoverPath)
                 .OfType<string>();
 
-            atlas.BuildAtlas(list);
+            atlas.BuildAtlas(glContext, grContext, list);
         }
 
         private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs _) =>
@@ -98,6 +100,12 @@ namespace Catalog.Wpf.Forms
             new PropertyMetadata(120d, ItemWidthPropertyChangedCallback)
         );
 
+        private readonly GlContext glContext = new WglContext();
+        private readonly GRContext grContext;
+
+        private SKSurface? surface;
+        private SKSizeI screenCanvasSize;
+
         private static void ItemWidthPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = (SkiaGameGalleryView)d;
@@ -120,21 +128,38 @@ namespace Catalog.Wpf.Forms
         public SkiaGameGalleryView()
         {
             InitializeComponent();
+
+            glContext.MakeCurrent();
+            grContext = GRContext.CreateGl();
         }
 
         private void Canvas_OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
         {
-            var canvas = e.Surface.Canvas;
+            var canvasSize = new SKSizeI(e.Info.Width, e.Info.Height);
 
-            canvas.Clear(SKColors.White);
+            // check if we need to recreate the off-screen surface
+            if (screenCanvasSize != canvasSize)
+            {
+                surface?.Dispose();
+                surface = SKSurface.Create(grContext, true, new SKImageInfo(canvasSize.Width, canvasSize.Height));
 
-            Render(canvas);
+                screenCanvasSize = canvasSize;
+            }
+
+            Render(e.Surface.Canvas);
         }
 
         private void Render(SKCanvas canvas)
         {
-            canvas.Save();
-            canvas.Translate(0, (float)-VerticalOffset);
+            if (surface == null)
+            {
+                throw new Exception();
+            }
+
+            surface.Canvas.Clear(SKColors.White);
+
+            surface.Canvas.Save();
+            surface.Canvas.Translate(0, (float)-VerticalOffset);
 
             using var paint = new SKPaint
             {
@@ -168,13 +193,15 @@ namespace Catalog.Wpf.Forms
                 }
                 else
                 {
-                    canvas.DrawRect(rect, paint);
+                    surface.Canvas.DrawRect(rect, paint);
                 }
             }
 
-            atlas.DrawSprites(canvas, images.ToArray(), rects.ToArray());
+            atlas.DrawSprites(surface.Canvas, images.ToArray(), rects.ToArray());
 
-            canvas.Restore();
+            surface.Canvas.Restore();
+
+            canvas.DrawSurface(surface, SKPoint.Empty);
         }
 
         private void OnGameDoubleClick(object sender, MouseButtonEventArgs e)

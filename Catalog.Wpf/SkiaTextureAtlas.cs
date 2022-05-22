@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
+using Catalog.Wpf.GlContexts;
 using SkiaSharp;
 
 namespace Catalog.Wpf
@@ -71,37 +71,43 @@ namespace Catalog.Wpf
         private readonly int spriteWidth;
         private readonly int atlasSize;
 
-        private Dictionary<string, SKRectI> atlasSprites = new();
-        private SKBitmap atlas;
-        private static bool IsPowerOf2(int n) => (n & (n - 1)) == 0;
+        private readonly Dictionary<string, SKRectI> atlasSprites = new();
+        private SKImage? atlas;
 
+        // private static bool IsPowerOf2(int n) => (n & (n - 1)) == 0;
 
         public SkiaTextureAtlas(int spriteWidth = 256, int atlasSize = 8192)
         {
-            Contract.Requires<ArgumentException>(
-                spriteWidth > 0,
-                $"Expected {nameof(spriteWidth)} to be greater than 0"
-            );
-            Contract.Requires<ArgumentException>(
-                IsPowerOf2(spriteWidth),
-                $"Expected {nameof(spriteWidth)} to be a power of 2"
-            );
-
-            Contract.Requires<ArgumentException>(atlasSize > 0, $"Expected {nameof(atlasSize)} to be greater than 0");
-            Contract.Requires<ArgumentException>(
-                IsPowerOf2(atlasSize),
-                $"Expected {nameof(atlasSize)} to be a power of 2"
-            );
+            // Contract.Requires<ArgumentException>(
+            //     spriteWidth > 0,
+            //     $"Expected {nameof(spriteWidth)} to be greater than 0"
+            // );
+            // Contract.Requires<ArgumentException>(
+            //     IsPowerOf2(spriteWidth),
+            //     $"Expected {nameof(spriteWidth)} to be a power of 2"
+            // );
+            //
+            // Contract.Requires<ArgumentException>(atlasSize > 0, $"Expected {nameof(atlasSize)} to be greater than 0");
+            // Contract.Requires<ArgumentException>(
+            //     IsPowerOf2(atlasSize),
+            //     $"Expected {nameof(atlasSize)} to be a power of 2"
+            // );
 
             this.spriteWidth = spriteWidth;
             this.atlasSize = atlasSize;
-
-            atlas = new SKBitmap(atlasSize, atlasSize, SKColorType.Rgb888x, SKAlphaType.Opaque);
         }
 
-        public void BuildAtlas(IEnumerable<string> images)
+        public void BuildAtlas(GlContext glContext, GRContext grContext, IEnumerable<string> images)
         {
-            var sprites = images.AsParallel()
+            var texture = glContext.CreateTexture(new SKSizeI(atlasSize, atlasSize));
+
+            var surface = SKSurface.CreateAsRenderTarget(
+                grContext,
+                new GRBackendTexture(atlasSize, atlasSize, true, texture),
+                SKColorType.Rgba8888
+            );
+
+            var sprites = images
                 .Select(path => new AtlasSprite(path, spriteWidth))
                 .OrderByDescending(info => info.ImageInfo.Height)
                 .ToList();
@@ -124,14 +130,7 @@ namespace Catalog.Wpf
                 targetBin.PushSprite(sprite);
             }
 
-            using var canvas = new SKCanvas(atlas);
-
-            using var paint = new SKPaint
-            {
-                // FilterQuality = SKFilterQuality.High,
-            };
-
-            canvas.Clear(SKColors.White);
+            surface.Canvas.Clear(SKColors.White);
 
             foreach (var bin in bins)
             {
@@ -144,9 +143,11 @@ namespace Catalog.Wpf
 
                     atlasSprites.Add(sprite.ImageKey, sprite.AtlasBounds);
 
-                    canvas.DrawImage(sprite.Image, sprite.AtlasBounds, paint);
+                    surface.Canvas.DrawImage(sprite.Image, sprite.AtlasBounds);
                 }
             }
+
+            atlas = surface.Snapshot();
 
             foreach (var bin in bins)
             {
@@ -160,35 +161,17 @@ namespace Catalog.Wpf
 
             var sprites = images.Select(image => (SKRect)atlasSprites[image]).ToArray();
 
-            var transforms = rects.Zip(sprites)
-                .Select(
-                    pair =>
-                    {
-                        var (dest, sprite) = pair;
-
-                        return SKRotationScaleMatrix.Create(
-                            dest.Width / sprite.Width,
-                            0,
-                            dest.Left,
-                            dest.Top,
-                            0,
-                            0
-                        );
-                    }
-                )
-                .ToArray();
-
-            using var paint = new SKPaint
+            for (var i = 0; i < sprites.Length; i++)
             {
-                // FilterQuality = SKFilterQuality.High,
-            };
+                var dest = rects[i].AspectFit(sprites[i].Size);
 
-            canvas.DrawAtlas(SKImage.FromBitmap(atlas), sprites, transforms, paint);
+                canvas.DrawImage(atlas, sprites[i], dest);
+            }
         }
 
         public void Dispose()
         {
-            atlas.Dispose();
+            atlas?.Dispose();
         }
     }
 }
