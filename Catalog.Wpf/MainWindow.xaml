@@ -201,7 +201,8 @@
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem Content="{Binding Games.Count}" ContentStringFormat="{}{0} items"></StatusBarItem>
+            <StatusBarItem Content="{Binding Games.Count}"
+                           ContentStringFormat="{}{0} items" />
         </StatusBar>
         <Grid Margin="5">
             <Grid.ColumnDefinitions>
