@@ -59,7 +59,10 @@ namespace Catalog.Wpf.Forms
                 newCollection.CollectionChanged += view.GamesCollectionChanged;
             }
 
-            var collectionView = (CollectionView)e.NewValue;
+            if (e.NewValue is not CollectionView collectionView)
+            {
+                return;
+            }
 
             view.BuildAtlas(collectionView);
 
@@ -93,12 +96,52 @@ namespace Catalog.Wpf.Forms
             set => SetValue(GamesProperty, value);
         }
 
-        public static readonly DependencyProperty ItemWidthProperty = DependencyProperty.Register(
-            nameof(ItemWidth),
+        public static readonly DependencyProperty ThumbnailWidthProperty = DependencyProperty.Register(
+            nameof(ThumbnailWidth),
             typeof(double),
             typeof(SkiaGameGalleryView),
-            new PropertyMetadata(120d, ItemWidthPropertyChangedCallback)
+            new PropertyMetadata(120d, RedrawCallback)
         );
+
+        public double ThumbnailWidth
+        {
+            get => (double)GetValue(ThumbnailWidthProperty);
+            set => SetValue(ThumbnailWidthProperty, value);
+        }
+
+        public static readonly DependencyProperty ItemPaddingProperty = DependencyProperty.Register(
+            nameof(ItemPadding),
+            typeof(Thickness),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(new Thickness(8.0f), RedrawCallback)
+        );
+
+        public Thickness ItemPadding
+        {
+            get => (Thickness)GetValue(ItemPaddingProperty);
+            set => SetValue(ItemPaddingProperty, value);
+        }
+
+        public static readonly DependencyProperty ItemMarginProperty = DependencyProperty.Register(
+            nameof(ItemMargin),
+            typeof(Thickness),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(Thickness), RedrawCallback)
+        );
+
+        public Thickness ItemMargin
+        {
+            get => (Thickness)GetValue(ItemMarginProperty);
+            set => SetValue(ItemMarginProperty, value);
+        }
+
+        private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (SkiaGameGalleryView)d;
+
+            control.InvalidateArrange();
+        }
+
 
         private readonly GlContext glContext = new WglContext();
         private readonly GRContext grContext;
@@ -106,31 +149,40 @@ namespace Catalog.Wpf.Forms
         private SKSurface? surface;
         private SKSizeI screenCanvasSize;
 
-        private static void ItemWidthPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = (SkiaGameGalleryView)d;
+        private static readonly SKColor ItemBorderColor = new(0xff70c0e7);
+        private static readonly SKColor ItemMouseOverBackgroundColor = new(0xffe5f3fb);
+        private static readonly SKColor ItemSelectedBackgroundColor = new(0xffcbe8f6);
 
-            control.InvalidateArrange();
-        }
+        private const float ASPECT_RATIO = 4f / 3f;
 
-        public double ItemWidth
-        {
-            get => (double)GetValue(ItemWidthProperty);
-            set => SetValue(ItemWidthProperty, value);
-        }
+        private const float CORNER_RADIUS = 2.0f;
 
-        private double ItemHeight => Math.Floor(ItemWidth * 4 / 3);
+        private const float FONT_SIZE = 12f;
+        private const float LINE_HEIGHT = 16f;
+        private const float LINE_MARGIN = 4f;
+        private double ThumbnailHeight => Math.Floor(ThumbnailWidth * ASPECT_RATIO);
+        private double ItemWidth => ThumbnailWidth + ItemPadding.Left + ItemPadding.Right;
+        private double ItemHeight => ThumbnailHeight + ItemPadding.Top + ItemPadding.Bottom + LINE_HEIGHT;
 
-        private int ItemsPerRow => (int)(ViewportWidth / ItemWidth);
+        private double ContainerWidth => ItemWidth + ItemMargin.Left + ItemMargin.Right;
+        private double ContainerHeight => ItemHeight + ItemMargin.Top + ItemMargin.Bottom;
+        private int ItemsPerRow => (int)((ViewportWidth + ItemMargin.Left + ItemMargin.Right) / ContainerWidth);
 
         public event EventHandler<EventArgs>? GameDoubleClick;
 
         public SkiaGameGalleryView()
         {
-            InitializeComponent();
-
             glContext.MakeCurrent();
             grContext = GRContext.CreateGl();
+
+            InitializeComponent();
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            Surface.InvalidateVisual();
         }
 
         private void Canvas_OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
@@ -161,13 +213,23 @@ namespace Catalog.Wpf.Forms
             surface.Canvas.Save();
             surface.Canvas.Translate(0, (float)-VerticalOffset);
 
+            var mouse = Mouse.GetPosition(this);
+
+            mouse.Y += VerticalOffset;
+
             using var paint = new SKPaint
             {
-                Color = SKColors.Gray,
-                Style = SKPaintStyle.Fill,
+                StrokeWidth = 1.0f,
+                IsAntialias = true
             };
 
-            var start = (int)(VerticalOffset / ItemHeight) * ItemsPerRow;
+            using var textPaint = new SKPaint
+            {
+                TextSize = FONT_SIZE,
+                TextAlign = SKTextAlign.Center
+            };
+
+            var start = (int)(VerticalOffset / ContainerHeight) * ItemsPerRow;
             var end = (int)Math.Min(Games.Count, start + (Math.Ceiling(ViewportHeight / ItemHeight) + 1) * ItemsPerRow);
 
             var total = end - start;
@@ -179,22 +241,58 @@ namespace Catalog.Wpf.Forms
             {
                 var game = (GameViewModel)Games.GetItemAt(i);
 
-                var rect = SKRect.Create(
-                    (float)((i % ItemsPerRow) * ItemWidth),
-                    (float)(Math.Floor(i / (float)ItemsPerRow) * ItemHeight),
+                var indexX = i % ItemsPerRow;
+                var indexY = i / ItemsPerRow;
+
+                var containerRect = SKRect.Create(
+                    (float)(indexX * ContainerWidth),
+                    (float)(indexY * ContainerHeight),
                     (float)ItemWidth,
                     (float)ItemHeight
+                );
+
+                if (containerRect.Contains((float)mouse.X, (float)mouse.Y))
+                {
+                    paint.Color = ItemMouseOverBackgroundColor;
+                    paint.Style = SKPaintStyle.Fill;
+
+                    surface.Canvas.DrawRoundRect(containerRect, CORNER_RADIUS, CORNER_RADIUS, paint);
+
+                    paint.Color = ItemBorderColor;
+                    paint.Style = SKPaintStyle.Stroke;
+
+                    surface.Canvas.DrawRoundRect(containerRect, CORNER_RADIUS, CORNER_RADIUS, paint);
+                }
+
+                var contentLeft = (float)(containerRect.Left + ItemPadding.Left);
+                var contentTop = (float)(containerRect.Top + ItemPadding.Top);
+
+                var thumbnailRect = SKRect.Create(
+                    contentLeft,
+                    contentTop,
+                    (float)ThumbnailWidth,
+                    (float)ThumbnailHeight
                 );
 
                 if (game.CoverPath != null)
                 {
                     images.Add(game.CoverPath);
-                    rects.Add(rect);
+                    rects.Add(thumbnailRect);
                 }
                 else
                 {
-                    surface.Canvas.DrawRect(rect, paint);
+                    paint.Color = SKColors.Gray;
+                    paint.Style = SKPaintStyle.Fill;
+
+                    surface.Canvas.DrawRect(thumbnailRect, paint);
                 }
+
+                DrawText(
+                    surface.Canvas,
+                    game.Title,
+                    new SKPoint(contentLeft, (float)(contentTop + ThumbnailHeight)),
+                    textPaint
+                );
             }
 
             atlas.DrawSprites(surface.Canvas, images.ToArray(), rects.ToArray());
@@ -202,6 +300,20 @@ namespace Catalog.Wpf.Forms
             surface.Canvas.Restore();
 
             canvas.DrawSurface(surface, SKPoint.Empty);
+        }
+
+        private void DrawText(SKCanvas canvas, string? text, SKPoint point, SKPaint paint)
+        {
+            var fThumbnailWidth = (float)ThumbnailWidth;
+            var textBounds = SKRect.Empty;
+
+            paint.BreakText(text, fThumbnailWidth, out _, out var measuredText);
+            paint.MeasureText(measuredText, ref textBounds);
+
+            var textBottom = point.Y + LINE_HEIGHT + LINE_MARGIN;
+            var textCenter = point.X + fThumbnailWidth * 0.5f;
+
+            canvas.DrawText(measuredText, textCenter, textBottom + textBounds.Top, paint);
         }
 
         private void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
@@ -233,8 +345,8 @@ namespace Catalog.Wpf.Forms
         private void VerifyScrollData()
         {
             extent = new Size(
-                ItemWidth * ItemsPerRow,
-                Math.Ceiling(Games.Count / (double)ItemsPerRow) * ItemHeight
+                ContainerWidth * ItemsPerRow,
+                Math.Ceiling(Games.Count / (double)ItemsPerRow) * ContainerHeight
             );
 
             offset.X = Math.Max(0, Math.Min(offset.X, ExtentWidth - ViewportWidth));

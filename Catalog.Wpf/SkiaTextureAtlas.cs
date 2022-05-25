@@ -149,6 +149,8 @@ namespace Catalog.Wpf
 
             atlas = surface.Snapshot();
 
+            surface.Dispose();
+
             foreach (var bin in bins)
             {
                 bin.Dispose();
