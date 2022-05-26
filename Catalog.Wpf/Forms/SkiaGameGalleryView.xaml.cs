@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -70,6 +71,35 @@ namespace Catalog.Wpf.Forms
             view.Surface.InvalidateVisual();
         }
 
+        public static readonly DependencyProperty HighlightedTextProperty = DependencyProperty.Register(
+            nameof(HighlightedText),
+            typeof(string),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(string), HighlightedTextPropertyChangedCallback)
+        );
+
+        private static void HighlightedTextPropertyChangedCallback(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e
+        )
+        {
+            var view = (SkiaGameGalleryView)d;
+
+            view.highlightedTextRegex = e.NewValue is string s
+                ? new Regex(s, RegexOptions.Compiled | RegexOptions.IgnoreCase)
+                : null;
+
+            RedrawCallback(d, e);
+        }
+
+        public string HighlightedText
+        {
+            get => (string)GetValue(HighlightedTextProperty);
+            set => SetValue(HighlightedTextProperty, value);
+        }
+
+        private Regex? highlightedTextRegex;
+
         private void BuildAtlas(ICollectionView collectionView)
         {
             var games = collectionView.SourceCollection.Cast<GameViewModel>();
@@ -135,7 +165,7 @@ namespace Catalog.Wpf.Forms
             set => SetValue(ItemMarginProperty, value);
         }
 
-        private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
         {
             var control = (SkiaGameGalleryView)d;
 
@@ -152,6 +182,7 @@ namespace Catalog.Wpf.Forms
         private static readonly SKColor ItemBorderColor = new(0xff70c0e7);
         private static readonly SKColor ItemMouseOverBackgroundColor = new(0xffe5f3fb);
         private static readonly SKColor ItemSelectedBackgroundColor = new(0xffcbe8f6);
+        private static readonly SKColor HighlightTextColor = new(0xffeee8aa);
 
         private const float ASPECT_RATIO = 4f / 3f;
 
@@ -229,6 +260,12 @@ namespace Catalog.Wpf.Forms
                 TextAlign = SKTextAlign.Center
             };
 
+            using var highlightTextPaint = new SKPaint
+            {
+                Color = HighlightTextColor,
+                Style = SKPaintStyle.Fill
+            };
+
             var start = (int)(VerticalOffset / ContainerHeight) * ItemsPerRow;
             var end = (int)Math.Min(Games.Count, start + (Math.Ceiling(ViewportHeight / ItemHeight) + 1) * ItemsPerRow);
 
@@ -291,7 +328,8 @@ namespace Catalog.Wpf.Forms
                     surface.Canvas,
                     game.Title,
                     new SKPoint(contentLeft, (float)(contentTop + ThumbnailHeight)),
-                    textPaint
+                    textPaint,
+                    highlightTextPaint
                 );
             }
 
@@ -302,18 +340,53 @@ namespace Catalog.Wpf.Forms
             canvas.DrawSurface(surface, SKPoint.Empty);
         }
 
-        private void DrawText(SKCanvas canvas, string? text, SKPoint point, SKPaint paint)
+        private void DrawText(SKCanvas canvas, string? text, SKPoint point, SKPaint paint, SKPaint highlightPaint)
         {
+            if (text == null)
+            {
+                return;
+            }
+
             var fThumbnailWidth = (float)ThumbnailWidth;
             var textBounds = SKRect.Empty;
 
             paint.BreakText(text, fThumbnailWidth, out _, out var measuredText);
             paint.MeasureText(measuredText, ref textBounds);
 
-            var textBottom = point.Y + LINE_HEIGHT + LINE_MARGIN;
+            var textBottom = point.Y + LINE_HEIGHT;
             var textCenter = point.X + fThumbnailWidth * 0.5f;
 
-            canvas.DrawText(measuredText, textCenter, textBottom + textBounds.Top, paint);
+            if (highlightedTextRegex != null)
+            {
+                var index = 0;
+                var leftPosition = textCenter - textBounds.Width * 0.5f;
+
+                foreach (Match? match in highlightedTextRegex.Matches(measuredText))
+                {
+                    if (match == null)
+                    {
+                        continue;
+                    }
+
+                    leftPosition += paint.MeasureText(measuredText.Substring(index, match.Index - index));
+
+                    var runWidth = paint.MeasureText(match.Value);
+
+                    canvas.DrawRect(
+                        leftPosition,
+                        textBottom - LINE_HEIGHT + LINE_MARGIN,
+                        runWidth,
+                        LINE_HEIGHT,
+                        highlightPaint
+                    );
+
+                    leftPosition += runWidth;
+
+                    index = match.Index + match.Length;
+                }
+            }
+
+            canvas.DrawText(measuredText, textCenter, textBottom, paint);
         }
 
         private void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
