@@ -85,7 +85,7 @@ namespace Catalog.Wpf.Forms
         {
             var view = (SkiaGameGalleryView)d;
 
-            view.highlightedTextRegex = e.NewValue is string s
+            view.highlightedTextRegex = e.NewValue is string s && !string.IsNullOrWhiteSpace(s)
                 ? new Regex(s, RegexOptions.Compiled | RegexOptions.IgnoreCase)
                 : null;
 
