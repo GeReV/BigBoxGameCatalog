@@ -21,11 +21,6 @@ namespace Catalog.Wpf.Forms
 {
     public sealed partial class SkiaGameGalleryView : UserControl, IScrollInfo
     {
-        private Size extent;
-        private Vector offset;
-
-        private readonly SkiaTextureAtlas atlas = new();
-
         public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
             nameof(GameContextMenu),
             typeof(ContextMenu),
@@ -55,6 +50,11 @@ namespace Catalog.Wpf.Forms
                 oldCollection.CollectionChanged -= view.GamesCollectionChanged;
             }
 
+            if (e.OldValue is CollectionView oldCollectionView)
+            {
+                oldCollectionView.CurrentChanged -= view.CurrentItemChanged;
+            }
+
             if (e.NewValue is INotifyCollectionChanged newCollection)
             {
                 newCollection.CollectionChanged += view.GamesCollectionChanged;
@@ -66,6 +66,8 @@ namespace Catalog.Wpf.Forms
             }
 
             view.BuildAtlas(collectionView);
+
+            collectionView.CurrentChanged += view.CurrentItemChanged;
 
             view.InvalidateArrange();
             view.Surface.InvalidateVisual();
@@ -110,7 +112,11 @@ namespace Catalog.Wpf.Forms
             atlas.BuildAtlas(glContext, grContext, list);
         }
 
-        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs _) =>
+        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs _) => Redraw();
+
+        private void CurrentItemChanged(object? sender, EventArgs e) => Redraw();
+
+        private void Redraw() =>
             Dispatcher.InvokeAsync(
                 () =>
                 {
@@ -172,12 +178,16 @@ namespace Catalog.Wpf.Forms
             control.InvalidateArrange();
         }
 
-
         private readonly GlContext glContext = new WglContext();
         private readonly GRContext grContext;
 
         private SKSurface? surface;
         private SKSizeI screenCanvasSize;
+
+        private Size extent;
+        private Vector offset;
+
+        private readonly SkiaTextureAtlas atlas = new();
 
         private static readonly SKColor ItemBorderColor = new(0xff70c0e7);
         private static readonly SKColor ItemMouseOverBackgroundColor = new(0xffe5f3fb);
@@ -199,7 +209,21 @@ namespace Catalog.Wpf.Forms
         private double ContainerHeight => ItemHeight + ItemMargin.Top + ItemMargin.Bottom;
         private int ItemsPerRow => (int)((ViewportWidth + ItemMargin.Left + ItemMargin.Right) / ContainerWidth);
 
-        public event EventHandler<EventArgs>? GameDoubleClick;
+        private int? ItemIndexAtPoint(Point point)
+        {
+            point.Y += VerticalOffset;
+
+            var indexX = (int)(point.X / ContainerWidth);
+
+            if (indexX >= ItemsPerRow)
+            {
+                return null;
+            }
+
+            var indexY = (int)(point.Y / ContainerHeight);
+
+            return indexY * ItemsPerRow + indexX;
+        }
 
         public SkiaGameGalleryView()
         {
@@ -216,6 +240,36 @@ namespace Catalog.Wpf.Forms
             Surface.InvalidateVisual();
         }
 
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonUp(e);
+
+            var mousePos = Mouse.GetPosition(this);
+
+            var position = ItemIndexAtPoint(mousePos);
+
+            if (!position.HasValue)
+            {
+                return;
+            }
+
+            Games.MoveCurrentToPosition(position.Value);
+        }
+
+        #region Public Events
+
+        public event EventHandler<EventArgs>? GameDoubleClick;
+
+        private void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                GameDoubleClick?.Invoke(this, e);
+            }
+        }
+
+        #endregion
+
         private void Canvas_OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
         {
             var canvasSize = new SKSizeI(e.Info.Width, e.Info.Height);
@@ -231,6 +285,8 @@ namespace Catalog.Wpf.Forms
 
             Render(e.Surface.Canvas);
         }
+
+        #region Rendering
 
         private void Render(SKCanvas canvas)
         {
@@ -288,17 +344,13 @@ namespace Catalog.Wpf.Forms
                     (float)ItemHeight
                 );
 
-                if (containerRect.Contains((float)mouse.X, (float)mouse.Y))
+                if (Games.CurrentItem == game)
                 {
-                    paint.Color = ItemMouseOverBackgroundColor;
-                    paint.Style = SKPaintStyle.Fill;
-
-                    surface.Canvas.DrawRoundRect(containerRect, CORNER_RADIUS, CORNER_RADIUS, paint);
-
-                    paint.Color = ItemBorderColor;
-                    paint.Style = SKPaintStyle.Stroke;
-
-                    surface.Canvas.DrawRoundRect(containerRect, CORNER_RADIUS, CORNER_RADIUS, paint);
+                    DrawRect(surface.Canvas, containerRect, paint, ItemSelectedBackgroundColor, ItemBorderColor);
+                }
+                else if (containerRect.Contains((float)mouse.X, (float)mouse.Y))
+                {
+                    DrawRect(surface.Canvas, containerRect, paint, ItemMouseOverBackgroundColor, ItemBorderColor);
                 }
 
                 var contentLeft = (float)(containerRect.Left + ItemPadding.Left);
@@ -338,6 +390,25 @@ namespace Catalog.Wpf.Forms
             surface.Canvas.Restore();
 
             canvas.DrawSurface(surface, SKPoint.Empty);
+        }
+
+        private static void DrawRect(
+            SKCanvas canvas,
+            SKRect rect,
+            SKPaint paint,
+            SKColor backgroundColor,
+            SKColor borderColor
+        )
+        {
+            paint.Color = backgroundColor;
+            paint.Style = SKPaintStyle.Fill;
+
+            canvas.DrawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
+
+            paint.Color = borderColor;
+            paint.Style = SKPaintStyle.Stroke;
+
+            canvas.DrawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
         }
 
         private void DrawText(SKCanvas canvas, string? text, SKPoint point, SKPaint paint, SKPaint highlightPaint)
@@ -389,13 +460,7 @@ namespace Catalog.Wpf.Forms
             canvas.DrawText(measuredText, textCenter, textBottom, paint);
         }
 
-        private void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                GameDoubleClick?.Invoke(this, e);
-            }
-        }
+        #endregion
 
         protected override Size MeasureOverride(Size constraint)
         {
