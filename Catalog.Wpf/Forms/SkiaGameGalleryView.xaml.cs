@@ -15,6 +15,7 @@ using Catalog.Wpf.GlContexts;
 using Catalog.Wpf.GlContexts.Wgl;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
+using SkiaSharp.HarfBuzz;
 using SkiaSharp.Views.Desktop;
 
 namespace Catalog.Wpf.Forms
@@ -312,9 +313,14 @@ namespace Catalog.Wpf.Forms
 
             using var textPaint = new SKPaint
             {
+                Typeface = SKTypeface.Default,
                 TextSize = FONT_SIZE,
-                TextAlign = SKTextAlign.Center
+                TextAlign = SKTextAlign.Center,
+                IsAntialias = true,
+                IsLinearText = true,
             };
+            
+            using var shaper = new SKShaper(textPaint.Typeface);
 
             using var highlightTextPaint = new SKPaint
             {
@@ -378,6 +384,7 @@ namespace Catalog.Wpf.Forms
 
                 DrawText(
                     surface.Canvas,
+                    shaper,
                     game.Title,
                     new SKPoint(contentLeft, (float)(contentTop + ThumbnailHeight)),
                     textPaint,
@@ -411,7 +418,7 @@ namespace Catalog.Wpf.Forms
             canvas.DrawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
         }
 
-        private void DrawText(SKCanvas canvas, string? text, SKPoint point, SKPaint paint, SKPaint highlightPaint)
+        private void DrawText(SKCanvas canvas, SKShaper shaper, string? text, SKPoint point, SKPaint paint, SKPaint highlightPaint)
         {
             if (text == null)
             {
@@ -425,7 +432,7 @@ namespace Catalog.Wpf.Forms
             paint.MeasureText(measuredText, ref textBounds);
 
             var textBottom = point.Y + LINE_HEIGHT;
-            var textCenter = point.X + fThumbnailWidth * 0.5f;
+            var textCenter = point.X + (fThumbnailWidth - textBounds.Width) * 0.5f;
 
             if (highlightedTextRegex != null)
             {
@@ -456,8 +463,8 @@ namespace Catalog.Wpf.Forms
                     index = match.Index + match.Length;
                 }
             }
-
-            canvas.DrawText(measuredText, textCenter, textBottom, paint);
+            
+            canvas.DrawShapedText(shaper, measuredText, textCenter, textBottom, paint);
         }
 
         #endregion
