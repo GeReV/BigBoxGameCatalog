@@ -106,30 +106,6 @@ namespace Catalog.Wpf.Forms
 
         private Regex? highlightedTextRegex;
 
-        private void BuildAtlas(ICollectionView collectionView)
-        {
-            var games = collectionView.SourceCollection.Cast<GameViewModel>();
-
-            var list = games.Select(g => g.CoverPath)
-                .OfType<string>();
-
-            atlas.BuildAtlas(glContext, grContext, list);
-        }
-
-        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs _) => Redraw();
-
-        private void CurrentItemChanged(object? sender, EventArgs e) => Redraw();
-
-        private void Redraw() =>
-            Dispatcher.InvokeAsync(
-                () =>
-                {
-                    InvalidateArrange();
-                    Surface.InvalidateVisual();
-                },
-                DispatcherPriority.Render
-            );
-
         public CollectionView Games
         {
             get => (CollectionView)GetValue(GamesProperty);
@@ -174,6 +150,24 @@ namespace Catalog.Wpf.Forms
             get => (Thickness)GetValue(ItemMarginProperty);
             set => SetValue(ItemMarginProperty, value);
         }
+        
+        private Rect CurrentItemRect
+        {
+            get
+            {
+                var index = Games.CurrentPosition;
+
+                var indexX = index % ItemsPerRow;
+                var indexY = index / ItemsPerRow;
+
+                return new Rect(
+                    indexX * ContainerWidth,
+                    indexY * ContainerHeight,
+                    ContainerWidth,
+                    ContainerHeight
+                );
+            }
+        }
 
         private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
         {
@@ -181,6 +175,20 @@ namespace Catalog.Wpf.Forms
 
             control.InvalidateArrange();
         }
+        
+        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs _) => Redraw();
+
+        private void CurrentItemChanged(object? sender, EventArgs e) => Redraw();
+
+        private void Redraw() =>
+            Dispatcher.InvokeAsync(
+                () =>
+                {
+                    InvalidateArrange();
+                    Surface.InvalidateVisual();
+                },
+                DispatcherPriority.Render
+            );
 
         private readonly GlContext glContext = new WglContext();
         private readonly GRContext grContext;
@@ -349,24 +357,6 @@ namespace Catalog.Wpf.Forms
             }
         }
 
-        public Rect CurrentItemRect
-        {
-            get
-            {
-                var index = Games.CurrentPosition;
-
-                var indexX = index % ItemsPerRow;
-                var indexY = index / ItemsPerRow;
-
-                return new Rect(
-                    indexX * ContainerWidth,
-                    indexY * ContainerHeight,
-                    ContainerWidth,
-                    ContainerHeight
-                );
-            }
-        }
-
         #region Public Events
 
         public event EventHandler<EventArgs>? GameDoubleClick;
@@ -398,6 +388,16 @@ namespace Catalog.Wpf.Forms
         }
 
         #region Rendering
+        
+        private void BuildAtlas(ICollectionView collectionView)
+        {
+            var games = collectionView.SourceCollection.Cast<GameViewModel>();
+
+            var list = games.Select(g => g.CoverPath)
+                .OfType<string>();
+
+            atlas.BuildAtlas(glContext, grContext, list);
+        }
 
         private void Render(SKCanvas canvas)
         {
