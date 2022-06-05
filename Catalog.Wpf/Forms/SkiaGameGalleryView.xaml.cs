@@ -89,12 +89,6 @@ namespace Catalog.Wpf.Forms
             DependencyPropertyChangedEventArgs e
         )
         {
-            var view = (SkiaGameGalleryView)d;
-
-            view.highlightedTextRegex = e.NewValue is string s && !string.IsNullOrWhiteSpace(s)
-                ? new Regex(s, RegexOptions.Compiled | RegexOptions.IgnoreCase)
-                : null;
-
             RedrawCallback(d, e);
         }
 
@@ -103,8 +97,6 @@ namespace Catalog.Wpf.Forms
             get => (string)GetValue(HighlightedTextProperty);
             set => SetValue(HighlightedTextProperty, value);
         }
-
-        private Regex? highlightedTextRegex;
 
         public CollectionView Games
         {
@@ -150,7 +142,7 @@ namespace Catalog.Wpf.Forms
             get => (Thickness)GetValue(ItemMarginProperty);
             set => SetValue(ItemMarginProperty, value);
         }
-        
+
         private Rect CurrentItemRect
         {
             get
@@ -175,7 +167,7 @@ namespace Catalog.Wpf.Forms
 
             control.InvalidateArrange();
         }
-        
+
         private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs _) => Redraw();
 
         private void CurrentItemChanged(object? sender, EventArgs e) => Redraw();
@@ -295,20 +287,20 @@ namespace Catalog.Wpf.Forms
                     {
                         handled = false;
                     }
-                    
+
                     BringIntoView(CurrentItemRect);
 
                     break;
                 }
                 case Key.Home:
                     NavigateToStart();
-                    
+
                     BringIntoView(CurrentItemRect);
                     break;
 
                 case Key.End:
                     NavigateToEnd();
-                    
+
                     BringIntoView(CurrentItemRect);
                     break;
                 case Key.Enter:
@@ -332,13 +324,13 @@ namespace Catalog.Wpf.Forms
 
                 case Key.PageUp:
                     NavigateByPage(FocusNavigationDirection.Up);
-                    
+
                     BringIntoView(CurrentItemRect);
                     break;
 
                 case Key.PageDown:
                     NavigateByPage(FocusNavigationDirection.Down);
-                    
+
                     BringIntoView(CurrentItemRect);
                     break;
 
@@ -388,7 +380,7 @@ namespace Catalog.Wpf.Forms
         }
 
         #region Rendering
-        
+
         private void BuildAtlas(ICollectionView collectionView)
         {
             var games = collectionView.SourceCollection.Cast<GameViewModel>();
@@ -540,27 +532,50 @@ namespace Catalog.Wpf.Forms
                 return;
             }
 
-            textBlock.Clear();
+            var term = HighlightedText;
 
-            if (highlightedTextRegex == null)
+            textBlock.Clear();
+            textBlock.AddText(text, textStyle);
+
+            // We add the pre-truncated text ourselves, since trying to style the full text yields unexpected results
+            // together with the automated truncation.
+            var truncatedText = text[..textBlock.MeasuredLength].Trim();
+
+            textBlock.Clear();
+            textBlock.AddText(truncatedText, textStyle);
+
+            if (truncatedText.Length < text.Length)
             {
-                textBlock.AddText(text, textStyle);
+                textBlock.AddText("…", textStyle);
             }
-            else
+
+            if (!string.IsNullOrWhiteSpace(term))
             {
                 var index = 0;
 
-                foreach (Match? match in highlightedTextRegex.Matches(text))
+                while (index < truncatedText.Length)
                 {
-                    if (match == null)
+                    var matchIndex = text.IndexOf(term, index, StringComparison.InvariantCultureIgnoreCase);
+
+                    if (matchIndex < 0)
                     {
-                        continue;
+                        break;
                     }
 
-                    textBlock.AddText(text.Substring(index, match.Index - index), textStyle);
-                    textBlock.AddText(match.Value, highlightTextStyle);
+                    if (matchIndex > truncatedText.Length)
+                    {
+                        break;
+                    }
 
-                    index = match.Index + match.Length;
+                    var len = Math.Min(term.Length, truncatedText.Length - matchIndex);
+
+                    textBlock.ApplyStyle(
+                        matchIndex,
+                        len,
+                        highlightTextStyle
+                    );
+
+                    index = matchIndex + len;
                 }
             }
 
@@ -735,12 +750,14 @@ namespace Catalog.Wpf.Forms
                     {
                         Games.MoveCurrentToPrevious();
                     }
+
                     break;
                 case FocusNavigationDirection.Right:
                     if (Games.CurrentPosition < Games.Count - 1)
                     {
                         Games.MoveCurrentToNext();
                     }
+
                     break;
                 case FocusNavigationDirection.Up:
                 {
@@ -800,6 +817,7 @@ namespace Catalog.Wpf.Forms
                     {
                         Games.MoveCurrentToLast();
                     }
+
                     break;
                 }
                 default:
