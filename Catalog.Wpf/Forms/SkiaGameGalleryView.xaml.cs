@@ -248,6 +248,8 @@ namespace Catalog.Wpf.Forms
         {
             base.OnMouseLeftButtonUp(e);
 
+            FocusManager.SetFocusedElement(this, this);
+
             var mousePos = Mouse.GetPosition(this);
 
             var position = ItemIndexAtPoint(mousePos);
@@ -258,6 +260,111 @@ namespace Catalog.Wpf.Forms
             }
 
             Games.MoveCurrentToPosition(position.Value);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            var handled = true;
+            var key = e.Key;
+
+            switch (key)
+            {
+                case Key.Up:
+                case Key.Left:
+                case Key.Down:
+                case Key.Right:
+                {
+                    var direction = key switch
+                    {
+                        Key.Up => FocusNavigationDirection.Up,
+                        Key.Down => FocusNavigationDirection.Down,
+                        Key.Left => FocusNavigationDirection.Left,
+                        Key.Right => FocusNavigationDirection.Right,
+                        _ => throw new ArgumentOutOfRangeException(nameof(key))
+                    };
+
+                    if (!NavigateByLine(direction))
+                    {
+                        handled = false;
+                    }
+                    
+                    BringIntoView(CurrentItemRect);
+
+                    break;
+                }
+                case Key.Home:
+                    NavigateToStart();
+                    
+                    BringIntoView(CurrentItemRect);
+                    break;
+
+                case Key.End:
+                    NavigateToEnd();
+                    
+                    BringIntoView(CurrentItemRect);
+                    break;
+                case Key.Enter:
+                {
+                    if (e.Key == Key.Enter && (bool)GetValue(KeyboardNavigation.AcceptsReturnProperty) == false)
+                    {
+                        handled = false;
+                        break;
+                    }
+
+                    // If ALT is down & Ctrl is up, then we shouldn't handle this. (system menu)
+                    if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Alt)) == ModifierKeys.Alt)
+                    {
+                        handled = false;
+                        break;
+                    }
+
+                    // Enter item.
+                }
+                    break;
+
+                case Key.PageUp:
+                    NavigateByPage(FocusNavigationDirection.Up);
+                    
+                    BringIntoView(CurrentItemRect);
+                    break;
+
+                case Key.PageDown:
+                    NavigateByPage(FocusNavigationDirection.Down);
+                    
+                    BringIntoView(CurrentItemRect);
+                    break;
+
+                default:
+                    handled = false;
+                    break;
+            }
+
+            if (handled)
+            {
+                e.Handled = true;
+            }
+            else
+            {
+                base.OnKeyDown(e);
+            }
+        }
+
+        public Rect CurrentItemRect
+        {
+            get
+            {
+                var index = Games.CurrentPosition;
+
+                var indexX = index % ItemsPerRow;
+                var indexY = index / ItemsPerRow;
+
+                return new Rect(
+                    indexX * ContainerWidth,
+                    indexY * ContainerHeight,
+                    ContainerWidth,
+                    ContainerHeight
+                );
+            }
         }
 
         #region Public Events
@@ -313,14 +420,14 @@ namespace Catalog.Wpf.Forms
                 StrokeWidth = 1.0f,
                 IsAntialias = true
             };
-            
+
             var textStyle = new Style
             {
                 FontFamily = "system",
                 FontSize = FONT_SIZE,
             };
             var highlightTextStyle = textStyle.Modify(backgroundColor: HighlightTextColor);
-            
+
             var textBlock = new TextBlock
             {
                 MaxLines = 1,
@@ -419,7 +526,14 @@ namespace Catalog.Wpf.Forms
             canvas.DrawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
         }
 
-        private void DrawText(SKCanvas canvas, string? text, SKPoint point, TextBlock textBlock, IStyle textStyle, IStyle highlightTextStyle)
+        private void DrawText(
+            SKCanvas canvas,
+            string? text,
+            SKPoint point,
+            TextBlock textBlock,
+            IStyle textStyle,
+            IStyle highlightTextStyle
+        )
         {
             if (text == null)
             {
@@ -431,7 +545,8 @@ namespace Catalog.Wpf.Forms
             if (highlightedTextRegex == null)
             {
                 textBlock.AddText(text, textStyle);
-            } else
+            }
+            else
             {
                 var index = 0;
 
@@ -448,7 +563,7 @@ namespace Catalog.Wpf.Forms
                     index = match.Index + match.Length;
                 }
             }
-            
+
             textBlock.Paint(canvas, point);
         }
 
@@ -472,6 +587,11 @@ namespace Catalog.Wpf.Forms
             return size;
         }
 
+        #region IScrollInfo
+
+        private const double LINE_SIZE = 16;
+        private const double WHEEL_SIZE = LINE_SIZE * 3;
+
         private void VerifyScrollData()
         {
             extent = new Size(
@@ -484,11 +604,6 @@ namespace Catalog.Wpf.Forms
 
             ScrollOwner?.InvalidateScrollInfo();
         }
-
-        #region IScrollInfo
-
-        private const double LINE_SIZE = 16;
-        private const double WHEEL_SIZE = LINE_SIZE * 3;
 
         public void LineUp()
         {
@@ -552,7 +667,19 @@ namespace Catalog.Wpf.Forms
 
         public Rect MakeVisible(Visual visual, Rect rectangle)
         {
-            throw new NotImplementedException();
+            if (rectangle.Top < offset.Y)
+            {
+                SetVerticalOffset(rectangle.Top);
+            }
+
+            if (rectangle.Bottom > ViewportHeight + offset.Y)
+            {
+                SetVerticalOffset(rectangle.Bottom - ViewportHeight);
+            }
+
+            Redraw();
+
+            return rectangle;
         }
 
         public void SetHorizontalOffset(double newOffset)
@@ -594,6 +721,101 @@ namespace Catalog.Wpf.Forms
 
         public double ViewportWidth => Surface.ActualWidth;
         public double ViewportHeight => Surface.ActualHeight;
+
+        #endregion
+
+        #region Keyboard Navigation
+
+        private bool NavigateByLine(FocusNavigationDirection direction)
+        {
+            switch (direction)
+            {
+                case FocusNavigationDirection.Left:
+                    if (Games.CurrentPosition > 0)
+                    {
+                        Games.MoveCurrentToPrevious();
+                    }
+                    break;
+                case FocusNavigationDirection.Right:
+                    if (Games.CurrentPosition < Games.Count - 1)
+                    {
+                        Games.MoveCurrentToNext();
+                    }
+                    break;
+                case FocusNavigationDirection.Up:
+                {
+                    var pos = Games.CurrentPosition - ItemsPerRow;
+                    if (pos >= 0)
+                    {
+                        Games.MoveCurrentToPosition(pos);
+                    }
+
+                    break;
+                }
+                case FocusNavigationDirection.Down:
+                {
+                    var pos = Games.CurrentPosition + ItemsPerRow;
+                    if (pos < Games.Count)
+                    {
+                        Games.MoveCurrentToPosition(pos);
+                    }
+
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+
+            return true;
+        }
+
+        private void NavigateByPage(FocusNavigationDirection direction)
+        {
+            var itemsPerPage = (int)(Math.Ceiling(ViewportHeight / ItemHeight) * ItemsPerRow);
+
+            switch (direction)
+            {
+                case FocusNavigationDirection.Up:
+                {
+                    var pos = Games.CurrentPosition - itemsPerPage;
+                    if (pos >= 0)
+                    {
+                        Games.MoveCurrentToPosition(pos);
+                    }
+                    else
+                    {
+                        Games.MoveCurrentToFirst();
+                    }
+
+                    break;
+                }
+                case FocusNavigationDirection.Down:
+                {
+                    var pos = Games.CurrentPosition + itemsPerPage;
+                    if (pos < Games.Count)
+                    {
+                        Games.MoveCurrentToPosition(pos);
+                    }
+                    else
+                    {
+                        Games.MoveCurrentToLast();
+                    }
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+        }
+
+        private void NavigateToStart()
+        {
+            Games.MoveCurrentToFirst();
+        }
+
+        private void NavigateToEnd()
+        {
+            Games.MoveCurrentToLast();
+        }
 
         #endregion
     }

@@ -255,8 +255,11 @@
                                     BorderThickness="1">
                                 <ScrollViewer CanContentScroll="True"
                                               VerticalScrollBarVisibility="Auto"
-                                              HorizontalScrollBarVisibility="Hidden">
-                                    <forms:SkiaGameGalleryView Games="{Binding FilteredGames}" HighlightedText="{Binding SearchTerm}" />
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              Focusable="False"
+                                              IsTabStop="False">
+                                    <forms:SkiaGameGalleryView Games="{Binding FilteredGames}"
+                                                               HighlightedText="{Binding SearchTerm}" />
                                 </ScrollViewer>
                             </Border>
                             <!-- <forms:GameGalleryView GameDoubleClick="GameView_OnGameDoubleClick" -->
