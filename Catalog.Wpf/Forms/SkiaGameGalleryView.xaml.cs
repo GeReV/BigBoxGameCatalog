@@ -15,8 +15,11 @@ using Catalog.Wpf.GlContexts;
 using Catalog.Wpf.GlContexts.Wgl;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
-using SkiaSharp.HarfBuzz;
 using SkiaSharp.Views.Desktop;
+using Topten.RichTextKit;
+using Style = Topten.RichTextKit.Style;
+using TextAlignment = Topten.RichTextKit.TextAlignment;
+using TextBlock = Topten.RichTextKit.TextBlock;
 
 namespace Catalog.Wpf.Forms
 {
@@ -310,22 +313,20 @@ namespace Catalog.Wpf.Forms
                 StrokeWidth = 1.0f,
                 IsAntialias = true
             };
-
-            using var textPaint = new SKPaint
-            {
-                Typeface = SKTypeface.Default,
-                TextSize = FONT_SIZE,
-                TextAlign = SKTextAlign.Center,
-                IsAntialias = true,
-                IsLinearText = true,
-            };
             
-            using var shaper = new SKShaper(textPaint.Typeface);
-
-            using var highlightTextPaint = new SKPaint
+            var textStyle = new Style
             {
-                Color = HighlightTextColor,
-                Style = SKPaintStyle.Fill
+                FontFamily = "system",
+                FontSize = FONT_SIZE,
+            };
+            var highlightTextStyle = textStyle.Modify(backgroundColor: HighlightTextColor);
+            
+            var textBlock = new TextBlock
+            {
+                MaxLines = 1,
+                MaxHeight = LINE_HEIGHT,
+                MaxWidth = (float)ThumbnailWidth,
+                Alignment = TextAlignment.Center,
             };
 
             var start = (int)(VerticalOffset / ContainerHeight) * ItemsPerRow;
@@ -384,11 +385,11 @@ namespace Catalog.Wpf.Forms
 
                 DrawText(
                     surface.Canvas,
-                    shaper,
                     game.Title,
-                    new SKPoint(contentLeft, (float)(contentTop + ThumbnailHeight)),
-                    textPaint,
-                    highlightTextPaint
+                    new SKPoint(contentLeft, (float)(contentTop + ThumbnailHeight + LINE_MARGIN)),
+                    textBlock,
+                    textStyle,
+                    highlightTextStyle
                 );
             }
 
@@ -418,53 +419,37 @@ namespace Catalog.Wpf.Forms
             canvas.DrawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
         }
 
-        private void DrawText(SKCanvas canvas, SKShaper shaper, string? text, SKPoint point, SKPaint paint, SKPaint highlightPaint)
+        private void DrawText(SKCanvas canvas, string? text, SKPoint point, TextBlock textBlock, IStyle textStyle, IStyle highlightTextStyle)
         {
             if (text == null)
             {
                 return;
             }
 
-            var fThumbnailWidth = (float)ThumbnailWidth;
-            var textBounds = SKRect.Empty;
+            textBlock.Clear();
 
-            paint.BreakText(text, fThumbnailWidth, out _, out var measuredText);
-            paint.MeasureText(measuredText, ref textBounds);
-
-            var textBottom = point.Y + LINE_HEIGHT;
-            var textCenter = point.X + (fThumbnailWidth - textBounds.Width) * 0.5f;
-
-            if (highlightedTextRegex != null)
+            if (highlightedTextRegex == null)
+            {
+                textBlock.AddText(text, textStyle);
+            } else
             {
                 var index = 0;
-                var leftPosition = textCenter - textBounds.Width * 0.5f;
 
-                foreach (Match? match in highlightedTextRegex.Matches(measuredText))
+                foreach (Match? match in highlightedTextRegex.Matches(text))
                 {
                     if (match == null)
                     {
                         continue;
                     }
 
-                    leftPosition += paint.MeasureText(measuredText.Substring(index, match.Index - index));
-
-                    var runWidth = paint.MeasureText(match.Value);
-
-                    canvas.DrawRect(
-                        leftPosition,
-                        textBottom - LINE_HEIGHT + LINE_MARGIN,
-                        runWidth,
-                        LINE_HEIGHT,
-                        highlightPaint
-                    );
-
-                    leftPosition += runWidth;
+                    textBlock.AddText(text.Substring(index, match.Index - index), textStyle);
+                    textBlock.AddText(match.Value, highlightTextStyle);
 
                     index = match.Index + match.Length;
                 }
             }
             
-            canvas.DrawShapedText(shaper, measuredText, textCenter, textBottom, paint);
+            textBlock.Paint(canvas, point);
         }
 
         #endregion
