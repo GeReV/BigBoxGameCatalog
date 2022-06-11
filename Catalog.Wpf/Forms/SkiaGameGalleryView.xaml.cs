@@ -226,7 +226,14 @@ namespace Catalog.Wpf.Forms
 
             var indexY = (int)(point.Y / ContainerHeight);
 
-            return indexY * ItemsPerRow + indexX;
+            var itemIndex = indexY * ItemsPerRow + indexX;
+
+            if (itemIndex >= Games.Count)
+            {
+                return null;
+            }
+
+            return itemIndex;
         }
 
         public SkiaGameGalleryView()
@@ -428,7 +435,7 @@ namespace Catalog.Wpf.Forms
                 Alignment = TextAlignment.Center,
             };
 
-            var start = (int)(VerticalOffset / ContainerHeight) * ItemsPerRow;
+            var start = Math.Min(Games.Count, (int)(VerticalOffset / ContainerHeight) * ItemsPerRow);
             var end = (int)Math.Min(Games.Count, start + (Math.Ceiling(ViewportHeight / ItemHeight) + 1) * ItemsPerRow);
 
             var total = end - start;
