@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,6 +10,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Catalog.Model;
 using Catalog.Wpf.GlContexts;
 using Catalog.Wpf.GlContexts.Wgl;
 using Catalog.Wpf.ViewModel;
@@ -25,6 +25,20 @@ namespace Catalog.Wpf.Forms
 {
     public sealed partial class SkiaGameGalleryView : UserControl, IScrollInfo
     {
+        public delegate void ItemMouseEventHandler(object sender, ItemMouseEventArgs e);
+
+        public class ItemMouseEventArgs : RoutedEventArgs
+        {
+            public object Item { get; }
+            public int ItemIndex { get; }
+
+            public ItemMouseEventArgs(RoutedEvent routedEvent, object item, int itemIndex) : base(routedEvent)
+            {
+                Item = item;
+                ItemIndex = itemIndex;
+            }
+        }
+
         public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
             nameof(GameContextMenu),
             typeof(ContextMenu),
@@ -75,6 +89,19 @@ namespace Catalog.Wpf.Forms
 
             view.InvalidateArrange();
             view.Surface.InvalidateVisual();
+        }
+
+        public static readonly DependencyProperty MouseOverItemProperty = DependencyProperty.Register(
+            nameof(MouseOverItem),
+            typeof(object),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(object?))
+        );
+
+        public object? MouseOverItem
+        {
+            get => GetValue(MouseOverItemProperty);
+            set => SetValue(MouseOverItemProperty, value);
         }
 
         public static readonly DependencyProperty HighlightedTextProperty = DependencyProperty.Register(
@@ -182,16 +209,7 @@ namespace Catalog.Wpf.Forms
                 DispatcherPriority.Render
             );
 
-        private readonly GlContext glContext = new WglContext();
-        private readonly GRContext grContext;
-
-        private SKSurface? surface;
-        private SKSizeI screenCanvasSize;
-
-        private Size extent;
-        private Vector offset;
-
-        private readonly SkiaTextureAtlas atlas = new();
+        #region Private Constants
 
         private static readonly SKColor ItemBorderColor = new(0xff70c0e7);
         private static readonly SKColor ItemMouseOverBackgroundColor = new(0xffe5f3fb);
@@ -205,6 +223,30 @@ namespace Catalog.Wpf.Forms
         private const float FONT_SIZE = 12f;
         private const float LINE_HEIGHT = 16f;
         private const float LINE_MARGIN = 4f;
+
+        #endregion
+
+        #region Private Members
+
+        private readonly GlContext glContext = new WglContext();
+        private readonly GRContext grContext;
+
+        private readonly SkiaTextureAtlas atlas = new();
+
+        private SKSurface? surface;
+        private SKSizeI screenCanvasSize;
+
+        private Size extent;
+        private Vector offset;
+
+        private DispatcherTimer? toolTipTimer;
+
+        private int currentMouseOverItemIndex = -1;
+
+        #endregion
+
+        #region Private Properties
+
         private double ThumbnailHeight => Math.Floor(ThumbnailWidth * ASPECT_RATIO);
         private double ItemWidth => ThumbnailWidth + ItemPadding.Left + ItemPadding.Right;
         private double ItemHeight => ThumbnailHeight + ItemPadding.Top + ItemPadding.Bottom + LINE_HEIGHT;
@@ -212,6 +254,18 @@ namespace Catalog.Wpf.Forms
         private double ContainerWidth => ItemWidth + ItemMargin.Left + ItemMargin.Right;
         private double ContainerHeight => ItemHeight + ItemMargin.Top + ItemMargin.Bottom;
         private int ItemsPerRow => (int)((ViewportWidth + ItemMargin.Left + ItemMargin.Right) / ContainerWidth);
+
+        private DispatcherTimer? ToolTipTimer
+        {
+            get => toolTipTimer;
+            set
+            {
+                ResetToolTipTimer();
+                toolTipTimer = value;
+            }
+        }
+
+        #endregion
 
         private int? ItemIndexAtPoint(Point point)
         {
@@ -236,19 +290,127 @@ namespace Catalog.Wpf.Forms
             return itemIndex;
         }
 
+        private void ResetToolTipTimer()
+        {
+            if (toolTipTimer == null)
+            {
+                return;
+            }
+
+            toolTipTimer.Stop();
+            toolTipTimer = null;
+        }
+
         public SkiaGameGalleryView()
         {
             glContext.MakeCurrent();
             grContext = GRContext.CreateGl();
 
             InitializeComponent();
+            
+            // ToolTipService.SetIsEnabled(this, false);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
+            var mousePos = e.GetPosition(this);
+
+            var mouseHoverItemIndex = ItemIndexAtPoint(mousePos);
+
+            if (currentMouseOverItemIndex != mouseHoverItemIndex)
+            {
+                if (currentMouseOverItemIndex >= 0 && currentMouseOverItemIndex < Games.Count)
+                {
+                    OnItemMouseLeave();
+                }
+
+                if (mouseHoverItemIndex.HasValue)
+                {
+                    OnItemMouseEnter(mouseHoverItemIndex.Value);
+                }
+
+                currentMouseOverItemIndex = mouseHoverItemIndex ?? -1;
+            }
+
             Surface.InvalidateVisual();
+        }
+
+        private void OnItemMouseEnter(int itemIndex)
+        {
+            var item = Games.GetItemAt(itemIndex);
+            
+            RaiseEvent(
+                new ItemMouseEventArgs(
+                    ItemMouseEnterEvent,
+                    item,
+                    itemIndex
+                )
+            );
+
+            MouseOverItem = item;
+
+            var indexX = itemIndex % ItemsPerRow;
+            var indexY = itemIndex / ItemsPerRow;
+
+            var containerRect = new Rect(
+                (float)(indexX * ContainerWidth),
+                (float)(indexY * ContainerHeight),
+                (float)ItemWidth,
+                (float)ItemHeight
+            );
+
+            ToolTipService.SetPlacementRectangle(this, containerRect);
+
+            if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
+            {
+                ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
+                {
+                    Interval = TimeSpan.FromMilliseconds(ToolTipService.GetInitialShowDelay(this)),
+                };
+            
+                ToolTipTimer.Tick += (_, _) => RaiseToolTipOpeningEvent(toolTip);
+                ToolTipTimer.Start();
+            }
+        }
+
+        private void RaiseToolTipOpeningEvent(ToolTip toolTip)
+        {
+            toolTip.IsOpen = true;
+
+            ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
+            {
+                Interval = TimeSpan.FromMilliseconds(ToolTipService.GetShowDuration(this))
+            };
+
+            ToolTipTimer.Tick += (_, _) => OnRaiseToolTipClosingEvent(toolTip);
+            ToolTipTimer.Start();
+        }
+
+        private void OnRaiseToolTipClosingEvent(ToolTip toolTip)
+        {
+            ResetToolTipTimer();
+            
+            toolTip.IsOpen = false;
+        }
+
+        private void OnItemMouseLeave()
+        {
+            RaiseEvent(
+                new ItemMouseEventArgs(
+                    ItemMouseLeaveEvent,
+                    Games.GetItemAt(currentMouseOverItemIndex),
+                    currentMouseOverItemIndex
+                )
+            );
+
+            if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
+            {
+                toolTip.IsOpen = false;
+            }
+            
+            MouseOverItem = null;
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -368,6 +530,32 @@ namespace Catalog.Wpf.Forms
             }
         }
 
+        public static readonly RoutedEvent ItemMouseEnterEvent = EventManager.RegisterRoutedEvent(
+            nameof(ItemMouseEnter),
+            RoutingStrategy.Bubble,
+            typeof(ItemMouseEventHandler),
+            typeof(SkiaGameGalleryView)
+        );
+
+        public event RoutedEventHandler ItemMouseEnter
+        {
+            add => AddHandler(ItemMouseEnterEvent, value);
+            remove => RemoveHandler(ItemMouseEnterEvent, value);
+        }
+
+        public static readonly RoutedEvent ItemMouseLeaveEvent = EventManager.RegisterRoutedEvent(
+            nameof(ItemMouseLeave),
+            RoutingStrategy.Bubble,
+            typeof(ItemMouseEventHandler),
+            typeof(SkiaGameGalleryView)
+        );
+
+        public event ItemMouseEventHandler ItemMouseLeave
+        {
+            add => AddHandler(ItemMouseLeaveEvent, value);
+            remove => RemoveHandler(ItemMouseLeaveEvent, value);
+        }
+
         #endregion
 
         private void Canvas_OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
@@ -461,7 +649,7 @@ namespace Catalog.Wpf.Forms
                 {
                     DrawRect(surface.Canvas, containerRect, paint, ItemSelectedBackgroundColor, ItemBorderColor);
                 }
-                else if (containerRect.Contains((float)mouse.X, (float)mouse.Y))
+                else if (i == currentMouseOverItemIndex)
                 {
                     DrawRect(surface.Canvas, containerRect, paint, ItemMouseOverBackgroundColor, ItemBorderColor);
                 }
