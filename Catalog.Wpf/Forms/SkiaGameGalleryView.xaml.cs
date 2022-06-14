@@ -176,8 +176,7 @@ namespace Catalog.Wpf.Forms
             {
                 var index = Games.CurrentPosition;
 
-                var indexX = index % ItemsPerRow;
-                var indexY = index / ItemsPerRow;
+                var (indexY, indexX) = index.DivRem(ItemsPerRow);
 
                 return new Rect(
                     indexX * ContainerWidth,
@@ -351,8 +350,7 @@ namespace Catalog.Wpf.Forms
 
             MouseOverItem = item;
 
-            var indexX = itemIndex % ItemsPerRow;
-            var indexY = itemIndex / ItemsPerRow;
+            var (indexY, indexX) = itemIndex.DivRem(ItemsPerRow);
 
             var containerRect = new Rect(
                 (float)(indexX * ContainerWidth),
@@ -635,8 +633,7 @@ namespace Catalog.Wpf.Forms
             {
                 var game = (GameViewModel)Games.GetItemAt(i);
 
-                var indexX = i % ItemsPerRow;
-                var indexY = i / ItemsPerRow;
+                var (indexY, indexX) = i.DivRem(ItemsPerRow);
 
                 var containerRect = SKRect.Create(
                     (float)(indexX * ContainerWidth),
