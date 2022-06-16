@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,16 +9,13 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Catalog.Model;
+using Catalog.Wpf.Gallery;
 using Catalog.Wpf.GlContexts;
 using Catalog.Wpf.GlContexts.Wgl;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
-using Topten.RichTextKit;
-using Style = Topten.RichTextKit.Style;
-using TextAlignment = Topten.RichTextKit.TextAlignment;
-using TextBlock = Topten.RichTextKit.TextBlock;
+using SkiaSharp.Views.WPF;
 
 namespace Catalog.Wpf.Forms
 {
@@ -83,7 +79,11 @@ namespace Catalog.Wpf.Forms
                 return;
             }
 
-            view.BuildAtlas(collectionView);
+            var games = collectionView.Cast<GameViewModel>().ToList();
+
+            view.BuildAtlas(games);
+
+            view.BuildGalleryItems(games);
 
             collectionView.CurrentChanged += view.CurrentItemChanged;
 
@@ -156,45 +156,133 @@ namespace Catalog.Wpf.Forms
             get => (Thickness)GetValue(ItemPaddingProperty);
             set => SetValue(ItemPaddingProperty, value);
         }
-
-        public static readonly DependencyProperty ItemMarginProperty = DependencyProperty.Register(
-            nameof(ItemMargin),
-            typeof(Thickness),
+        
+        public static readonly DependencyProperty ItemHorizontalSpacingProperty = DependencyProperty.Register(
+            nameof(ItemHorizontalSpacing),
+            typeof(double),
             typeof(SkiaGameGalleryView),
-            new PropertyMetadata(default(Thickness), RedrawCallback)
+            new PropertyMetadata(default(double), RedrawCallback)
         );
 
-        public Thickness ItemMargin
+        public double ItemHorizontalSpacing
         {
-            get => (Thickness)GetValue(ItemMarginProperty);
-            set => SetValue(ItemMarginProperty, value);
+            get => (double)GetValue(ItemHorizontalSpacingProperty);
+            set => SetValue(ItemHorizontalSpacingProperty, value);
         }
 
-        private Rect CurrentItemRect
+        public static readonly DependencyProperty ItemVerticalSpacingProperty = DependencyProperty.Register(
+            nameof(ItemVerticalSpacing),
+            typeof(double),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(double), RedrawCallback)
+        );
+
+        public double ItemVerticalSpacing
         {
-            get
-            {
-                var index = Games.CurrentPosition;
-
-                var (indexY, indexX) = index.DivRem(ItemsPerRow);
-
-                return new Rect(
-                    indexX * ContainerWidth,
-                    indexY * ContainerHeight,
-                    ContainerWidth,
-                    ContainerHeight
-                );
-            }
+            get => (double)GetValue(ItemVerticalSpacingProperty);
+            set => SetValue(ItemVerticalSpacingProperty, value);
         }
+
+        // private Rect CurrentItemRect
+        // {
+        //     get
+        //     {
+        //         var index = Games.CurrentPosition;
+        //
+        //         var (indexY, indexX) = index.DivRem(ItemsPerRow);
+        //
+        //         return new Rect(
+        //             indexX * ContainerWidth,
+        //             indexY * ContainerHeight,
+        //             ContainerWidth,
+        //             ContainerHeight
+        //         );
+        //     }
+        // }
 
         private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
         {
-            var control = (SkiaGameGalleryView)d;
+            var view = (SkiaGameGalleryView)d;
 
-            control.InvalidateArrange();
+            view.InvalidateArrange();
         }
 
-        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs _) => Redraw();
+        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                {
+                    if (e.NewItems == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var addedGame in e.NewItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Add(addedGame.GameCopyId, new GalleryItem(addedGame, atlas)
+                        {
+                            Padding = ItemPadding
+                        });
+                    }
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Remove:
+                {
+                    if (e.OldItems == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var removedGame in e.OldItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Remove(removedGame.GameCopyId);
+                    }
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Replace:
+                {
+                    if (e.OldItems == null || e.NewItems == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var removedGame in e.OldItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Remove(removedGame.GameCopyId);
+                    }
+
+                    foreach (var addedGame in e.NewItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Add(addedGame.GameCopyId, new GalleryItem(addedGame, atlas)
+                        {
+                            Padding = ItemPadding
+                        });
+                    }
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Reset:
+                {
+                    if (e.NewItems == null)
+                    {
+                        return;
+                    }
+
+                    BuildGalleryItems(e.NewItems.Cast<GameViewModel>());
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Move:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            Redraw();
+        }
 
         private void CurrentItemChanged(object? sender, EventArgs e) => Redraw();
 
@@ -215,14 +303,6 @@ namespace Catalog.Wpf.Forms
         private static readonly SKColor ItemSelectedBackgroundColor = new(0xffcbe8f6);
         private static readonly SKColor HighlightTextColor = new(0xffeee8aa);
 
-        private const float ASPECT_RATIO = 4f / 3f;
-
-        private const float CORNER_RADIUS = 2.0f;
-
-        private const float FONT_SIZE = 12f;
-        private const float LINE_HEIGHT = 16f;
-        private const float LINE_MARGIN = 4f;
-
         #endregion
 
         #region Private Members
@@ -231,6 +311,8 @@ namespace Catalog.Wpf.Forms
         private readonly GRContext grContext;
 
         private readonly SkiaTextureAtlas atlas = new();
+
+        private Dictionary<int, GalleryItem> galleryItems = new();
 
         private SKSurface? surface;
         private SKSizeI screenCanvasSize;
@@ -246,13 +328,8 @@ namespace Catalog.Wpf.Forms
 
         #region Private Properties
 
-        private double ThumbnailHeight => Math.Floor(ThumbnailWidth * ASPECT_RATIO);
         private double ItemWidth => ThumbnailWidth + ItemPadding.Left + ItemPadding.Right;
-        private double ItemHeight => ThumbnailHeight + ItemPadding.Top + ItemPadding.Bottom + LINE_HEIGHT;
-
-        private double ContainerWidth => ItemWidth + ItemMargin.Left + ItemMargin.Right;
-        private double ContainerHeight => ItemHeight + ItemMargin.Top + ItemMargin.Bottom;
-        private int ItemsPerRow => (int)((ViewportWidth + ItemMargin.Left + ItemMargin.Right) / ContainerWidth);
+        private int ItemsPerRow => (int)(Math.Floor(ExtentWidth + ItemHorizontalSpacing) / (ItemWidth + ItemHorizontalSpacing));
 
         private DispatcherTimer? ToolTipTimer
         {
@@ -266,28 +343,28 @@ namespace Catalog.Wpf.Forms
 
         #endregion
 
-        private int? ItemIndexAtPoint(Point point)
-        {
-            point.Y += VerticalOffset;
-
-            var indexX = (int)(point.X / ContainerWidth);
-
-            if (indexX >= ItemsPerRow)
-            {
-                return null;
-            }
-
-            var indexY = (int)(point.Y / ContainerHeight);
-
-            var itemIndex = indexY * ItemsPerRow + indexX;
-
-            if (itemIndex >= Games.Count)
-            {
-                return null;
-            }
-
-            return itemIndex;
-        }
+        // private int? ItemIndexAtPoint(Point point)
+        // {
+        //     point.Y += VerticalOffset;
+        //
+        //     var indexX = (int)(point.X / ContainerWidth);
+        //
+        //     if (indexX >= ItemsPerRow)
+        //     {
+        //         return null;
+        //     }
+        //
+        //     var indexY = (int)(point.Y / ContainerHeight);
+        //
+        //     var itemIndex = indexY * ItemsPerRow + indexX;
+        //
+        //     if (itemIndex >= Games.Count)
+        //     {
+        //         return null;
+        //     }
+        //
+        //     return itemIndex;
+        // }
 
         private void ResetToolTipTimer()
         {
@@ -306,7 +383,7 @@ namespace Catalog.Wpf.Forms
             grContext = GRContext.CreateGl();
 
             InitializeComponent();
-            
+
             // ToolTipService.SetIsEnabled(this, false);
         }
 
@@ -316,22 +393,22 @@ namespace Catalog.Wpf.Forms
 
             var mousePos = e.GetPosition(this);
 
-            var mouseHoverItemIndex = ItemIndexAtPoint(mousePos);
-
-            if (currentMouseOverItemIndex != mouseHoverItemIndex)
-            {
-                if (currentMouseOverItemIndex >= 0 && currentMouseOverItemIndex < Games.Count)
-                {
-                    OnItemMouseLeave();
-                }
-
-                if (mouseHoverItemIndex.HasValue)
-                {
-                    OnItemMouseEnter(mouseHoverItemIndex.Value);
-                }
-
-                currentMouseOverItemIndex = mouseHoverItemIndex ?? -1;
-            }
+            // var mouseHoverItemIndex = ItemIndexAtPoint(mousePos);
+            //
+            // if (currentMouseOverItemIndex != mouseHoverItemIndex)
+            // {
+            //     if (currentMouseOverItemIndex >= 0 && currentMouseOverItemIndex < Games.Count)
+            //     {
+            //         OnItemMouseLeave();
+            //     }
+            //
+            //     if (mouseHoverItemIndex.HasValue)
+            //     {
+            //         OnItemMouseEnter(mouseHoverItemIndex.Value);
+            //     }
+            //
+            //     currentMouseOverItemIndex = mouseHoverItemIndex ?? -1;
+            // }
 
             Surface.InvalidateVisual();
         }
@@ -339,7 +416,7 @@ namespace Catalog.Wpf.Forms
         private void OnItemMouseEnter(int itemIndex)
         {
             var item = Games.GetItemAt(itemIndex);
-            
+
             RaiseEvent(
                 new ItemMouseEventArgs(
                     ItemMouseEnterEvent,
@@ -352,25 +429,25 @@ namespace Catalog.Wpf.Forms
 
             var (indexY, indexX) = itemIndex.DivRem(ItemsPerRow);
 
-            var containerRect = new Rect(
-                (float)(indexX * ContainerWidth),
-                (float)(indexY * ContainerHeight),
-                (float)ItemWidth,
-                (float)ItemHeight
-            );
-
-            ToolTipService.SetPlacementRectangle(this, containerRect);
-
-            if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
-            {
-                ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
-                {
-                    Interval = TimeSpan.FromMilliseconds(ToolTipService.GetInitialShowDelay(this)),
-                };
-            
-                ToolTipTimer.Tick += (_, _) => RaiseToolTipOpeningEvent(toolTip);
-                ToolTipTimer.Start();
-            }
+            // var containerRect = new Rect(
+            //     (float)(indexX * ContainerWidth),
+            //     (float)(indexY * ContainerHeight),
+            //     (float)ItemWidth,
+            //     (float)ItemHeight
+            // );
+            //
+            // ToolTipService.SetPlacementRectangle(this, containerRect);
+            //
+            // if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
+            // {
+            //     ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
+            //     {
+            //         Interval = TimeSpan.FromMilliseconds(ToolTipService.GetInitialShowDelay(this)),
+            //     };
+            //
+            //     ToolTipTimer.Tick += (_, _) => RaiseToolTipOpeningEvent(toolTip);
+            //     ToolTipTimer.Start();
+            // }
         }
 
         private void RaiseToolTipOpeningEvent(ToolTip toolTip)
@@ -389,7 +466,7 @@ namespace Catalog.Wpf.Forms
         private void OnRaiseToolTipClosingEvent(ToolTip toolTip)
         {
             ResetToolTipTimer();
-            
+
             toolTip.IsOpen = false;
         }
 
@@ -407,7 +484,7 @@ namespace Catalog.Wpf.Forms
             {
                 toolTip.IsOpen = false;
             }
-            
+
             MouseOverItem = null;
         }
 
@@ -419,14 +496,14 @@ namespace Catalog.Wpf.Forms
 
             var mousePos = Mouse.GetPosition(this);
 
-            var position = ItemIndexAtPoint(mousePos);
-
-            if (!position.HasValue)
-            {
-                return;
-            }
-
-            Games.MoveCurrentToPosition(position.Value);
+            // var position = ItemIndexAtPoint(mousePos);
+            //
+            // if (!position.HasValue)
+            // {
+            //     return;
+            // }
+            //
+            // Games.MoveCurrentToPosition(position.Value);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -455,20 +532,20 @@ namespace Catalog.Wpf.Forms
                         handled = false;
                     }
 
-                    BringIntoView(CurrentItemRect);
+                    // BringIntoView(CurrentItemRect);
 
                     break;
                 }
                 case Key.Home:
                     NavigateToStart();
 
-                    BringIntoView(CurrentItemRect);
+                    // BringIntoView(CurrentItemRect);
                     break;
 
                 case Key.End:
                     NavigateToEnd();
 
-                    BringIntoView(CurrentItemRect);
+                    // BringIntoView(CurrentItemRect);
                     break;
                 case Key.Enter:
                 {
@@ -492,13 +569,13 @@ namespace Catalog.Wpf.Forms
                 case Key.PageUp:
                     NavigateByPage(FocusNavigationDirection.Up);
 
-                    BringIntoView(CurrentItemRect);
+                    // BringIntoView(CurrentItemRect);
                     break;
 
                 case Key.PageDown:
                     NavigateByPage(FocusNavigationDirection.Down);
 
-                    BringIntoView(CurrentItemRect);
+                    // BringIntoView(CurrentItemRect);
                     break;
 
                 default:
@@ -569,32 +646,48 @@ namespace Catalog.Wpf.Forms
                 screenCanvasSize = canvasSize;
             }
 
-            Render(e.Surface.Canvas);
+            if (surface == null)
+            {
+                return;
+            }
+
+            Render(surface.Canvas);
+            
+            e.Surface.Canvas.DrawSurface(surface, SKPoint.Empty);
         }
 
         #region Rendering
 
-        private void BuildAtlas(ICollectionView collectionView)
+        private void BuildAtlas(IEnumerable<GameViewModel> games)
         {
-            var games = collectionView.SourceCollection.Cast<GameViewModel>();
-
             var list = games.Select(g => g.CoverPath)
                 .OfType<string>();
 
             atlas.BuildAtlas(glContext, grContext, list);
         }
 
+        private void BuildGalleryItems(IEnumerable<GameViewModel> games)
+        {
+            galleryItems.Clear();
+            
+            foreach (var game in games)
+            {
+                galleryItems.Add(
+                    game.GameCopyId,
+                    new GalleryItem(game, atlas)
+                    {
+                        Padding = ItemPadding
+                    }
+                );
+            }
+        }
+
         private void Render(SKCanvas canvas)
         {
-            if (surface == null)
-            {
-                throw new Exception();
-            }
+            canvas.Clear(SKColors.White);
 
-            surface.Canvas.Clear(SKColors.White);
-
-            surface.Canvas.Save();
-            surface.Canvas.Translate(0, (float)-VerticalOffset);
+            canvas.Save();
+            canvas.Translate(0, (float)-VerticalOffset);
 
             var mouse = Mouse.GetPosition(this);
 
@@ -606,172 +699,68 @@ namespace Catalog.Wpf.Forms
                 IsAntialias = true
             };
 
-            var textStyle = new Style
-            {
-                FontFamily = "system",
-                FontSize = FONT_SIZE,
-            };
-            var highlightTextStyle = textStyle.Modify(backgroundColor: HighlightTextColor);
+            // var start = Math.Min(Games.Count, (int)(VerticalOffset / ContainerHeight) * ItemsPerRow);
+            // var end = (int)Math.Min(Games.Count, start + (Math.Ceiling(ViewportHeight / ItemHeight) + 1) * ItemsPerRow);
 
-            var textBlock = new TextBlock
-            {
-                MaxLines = 1,
-                MaxHeight = LINE_HEIGHT,
-                MaxWidth = (float)ThumbnailWidth,
-                Alignment = TextAlignment.Center,
-            };
-
-            var start = Math.Min(Games.Count, (int)(VerticalOffset / ContainerHeight) * ItemsPerRow);
-            var end = (int)Math.Min(Games.Count, start + (Math.Ceiling(ViewportHeight / ItemHeight) + 1) * ItemsPerRow);
+            var start = 0;
+            var end = Games.Count;
 
             var total = end - start;
 
-            var images = new List<string>(total);
-            var rects = new List<SKRect>(total);
+            var cursor = SKPoint.Empty;
+            var maxRowHeight = 0.0f;
 
             for (var i = start; i < end; i++)
             {
                 var game = (GameViewModel)Games.GetItemAt(i);
+                var galleryItem = galleryItems[game.GameCopyId];
 
                 var (indexY, indexX) = i.DivRem(ItemsPerRow);
 
-                var containerRect = SKRect.Create(
-                    (float)(indexX * ContainerWidth),
-                    (float)(indexY * ContainerHeight),
-                    (float)ItemWidth,
-                    (float)ItemHeight
-                );
+                // var point = new SKPoint(
+                //     (float)(indexX * ItemWidth + ItemHorizontalSpacing),
+                //     (float)(indexY * galleryItem.DesiredSize.Height + ItemVerticalSpacing)
+                // );
 
-                if (Games.CurrentItem == game)
+                var itemSize = galleryItem.DesiredSize;
+
+                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
+
+                if (cursor.X + itemSize.Width > ActualWidth)
                 {
-                    DrawRect(surface.Canvas, containerRect, paint, ItemSelectedBackgroundColor, ItemBorderColor);
-                }
-                else if (i == currentMouseOverItemIndex)
-                {
-                    DrawRect(surface.Canvas, containerRect, paint, ItemMouseOverBackgroundColor, ItemBorderColor);
-                }
+                    cursor.X = 0;
+                    cursor.Y += (float)(maxRowHeight + ItemVerticalSpacing);
 
-                var contentLeft = (float)(containerRect.Left + ItemPadding.Left);
-                var contentTop = (float)(containerRect.Top + ItemPadding.Top);
-
-                var thumbnailRect = SKRect.Create(
-                    contentLeft,
-                    contentTop,
-                    (float)ThumbnailWidth,
-                    (float)ThumbnailHeight
-                );
-
-                if (game.CoverPath != null)
-                {
-                    images.Add(game.CoverPath);
-                    rects.Add(thumbnailRect);
-                }
-                else
-                {
-                    paint.Color = SKColors.Gray;
-                    paint.Style = SKPaintStyle.Fill;
-
-                    surface.Canvas.DrawRect(thumbnailRect, paint);
+                    maxRowHeight = itemSize.Height;
                 }
 
-                DrawText(
-                    surface.Canvas,
-                    game.Title,
-                    new SKPoint(contentLeft, (float)(contentTop + ThumbnailHeight + LINE_MARGIN)),
-                    textBlock,
-                    textStyle,
-                    highlightTextStyle
-                );
+                if (cursor.Y >= ActualHeight)
+                {
+                    // Can't render any more lines.
+                    break;
+                }
+
+                galleryItem.Paint(canvas, cursor);
+
+                cursor.X += (float)(itemSize.Width + ItemHorizontalSpacing);
+
+                // var containerRect = SKRect.Create(
+                //     
+                //     (float)ItemWidth,
+                //     (float)ItemHeight
+                // );
+                //
+                // if (Games.CurrentItem == game)
+                // {
+                //     DrawRect(canvas, containerRect, paint, ItemSelectedBackgroundColor, ItemBorderColor);
+                // }
+                // else if (i == currentMouseOverItemIndex)
+                // {
+                //     DrawRect(canvas, containerRect, paint, ItemMouseOverBackgroundColor, ItemBorderColor);
+                // }
             }
 
-            atlas.DrawSprites(surface.Canvas, images.ToArray(), rects.ToArray());
-
-            surface.Canvas.Restore();
-
-            canvas.DrawSurface(surface, SKPoint.Empty);
-        }
-
-        private static void DrawRect(
-            SKCanvas canvas,
-            SKRect rect,
-            SKPaint paint,
-            SKColor backgroundColor,
-            SKColor borderColor
-        )
-        {
-            paint.Color = backgroundColor;
-            paint.Style = SKPaintStyle.Fill;
-
-            canvas.DrawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
-
-            paint.Color = borderColor;
-            paint.Style = SKPaintStyle.Stroke;
-
-            canvas.DrawRoundRect(rect, CORNER_RADIUS, CORNER_RADIUS, paint);
-        }
-
-        private void DrawText(
-            SKCanvas canvas,
-            string? text,
-            SKPoint point,
-            TextBlock textBlock,
-            IStyle textStyle,
-            IStyle highlightTextStyle
-        )
-        {
-            if (text == null)
-            {
-                return;
-            }
-
-            var term = HighlightedText;
-
-            textBlock.Clear();
-            textBlock.AddText(text, textStyle);
-
-            // We add the pre-truncated text ourselves, since trying to style the full text yields unexpected results
-            // together with the automated truncation.
-            var truncatedText = text[..textBlock.MeasuredLength].Trim();
-
-            textBlock.Clear();
-            textBlock.AddText(truncatedText, textStyle);
-
-            if (truncatedText.Length < text.Length)
-            {
-                textBlock.AddText("…", textStyle);
-            }
-
-            if (!string.IsNullOrWhiteSpace(term))
-            {
-                var index = 0;
-
-                while (index < truncatedText.Length)
-                {
-                    var matchIndex = text.IndexOf(term, index, StringComparison.InvariantCultureIgnoreCase);
-
-                    if (matchIndex < 0)
-                    {
-                        break;
-                    }
-
-                    if (matchIndex > truncatedText.Length)
-                    {
-                        break;
-                    }
-
-                    var len = Math.Min(term.Length, truncatedText.Length - matchIndex);
-
-                    textBlock.ApplyStyle(
-                        matchIndex,
-                        len,
-                        highlightTextStyle
-                    );
-
-                    index = matchIndex + len;
-                }
-            }
-
-            textBlock.Paint(canvas, point);
+            canvas.Restore();
         }
 
         #endregion
@@ -787,7 +776,43 @@ namespace Catalog.Wpf.Forms
 
         protected override Size ArrangeOverride(Size arrangeBounds)
         {
+            var itemConstraint = new SKSize((float)ItemWidth, float.PositiveInfinity);
+            
+            var result = SKSize.Empty;
+            var cursor = SKPoint.Empty;
+            var maxRowHeight = 0.0f;
+
+            foreach (var item in galleryItems.Values)
+            {
+                item.Measure(itemConstraint);
+
+                var itemSize = item.DesiredSize;
+
+                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
+
+                if (cursor.X + itemSize.Width > arrangeBounds.Width)
+                {
+                    cursor.X = 0;
+                    cursor.Y += (float)(maxRowHeight + ItemVerticalSpacing);
+                    
+                    result.Height = cursor.Y;
+                    
+                    maxRowHeight = itemSize.Height;
+                }
+
+                cursor.X += (float)(itemSize.Width + ItemHorizontalSpacing);
+                
+                result.Width = (float)Math.Max(result.Width, cursor.X - ItemHorizontalSpacing);
+            }
+            
+            result.Height += maxRowHeight;
+
+            extent = result.ToSize();
+
             var size = base.ArrangeOverride(arrangeBounds);
+
+            offset.X = Math.Max(0, Math.Min(offset.X, ExtentWidth - ViewportWidth));
+            offset.Y = Math.Max(0, Math.Min(offset.Y, ExtentHeight - ViewportHeight));
 
             VerifyScrollData();
 
@@ -801,14 +826,6 @@ namespace Catalog.Wpf.Forms
 
         private void VerifyScrollData()
         {
-            extent = new Size(
-                ContainerWidth * ItemsPerRow,
-                Math.Ceiling(Games.Count / (double)ItemsPerRow) * ContainerHeight
-            );
-
-            offset.X = Math.Max(0, Math.Min(offset.X, ExtentWidth - ViewportWidth));
-            offset.Y = Math.Max(0, Math.Min(offset.Y, ExtentHeight - ViewportHeight));
-
             ScrollOwner?.InvalidateScrollInfo();
         }
 
@@ -896,7 +913,7 @@ namespace Catalog.Wpf.Forms
             {
                 offset.X = newOffset;
 
-                InvalidateArrange();
+                // InvalidateArrange();
                 Surface.InvalidateVisual();
             }
         }
@@ -908,7 +925,7 @@ namespace Catalog.Wpf.Forms
             {
                 offset.Y = newOffset;
 
-                InvalidateArrange();
+                // InvalidateArrange();
                 Surface.InvalidateVisual();
             }
         }
@@ -980,41 +997,41 @@ namespace Catalog.Wpf.Forms
 
         private void NavigateByPage(FocusNavigationDirection direction)
         {
-            var itemsPerPage = (int)(Math.Ceiling(ViewportHeight / ItemHeight) * ItemsPerRow);
-
-            switch (direction)
-            {
-                case FocusNavigationDirection.Up:
-                {
-                    var pos = Games.CurrentPosition - itemsPerPage;
-                    if (pos >= 0)
-                    {
-                        Games.MoveCurrentToPosition(pos);
-                    }
-                    else
-                    {
-                        Games.MoveCurrentToFirst();
-                    }
-
-                    break;
-                }
-                case FocusNavigationDirection.Down:
-                {
-                    var pos = Games.CurrentPosition + itemsPerPage;
-                    if (pos < Games.Count)
-                    {
-                        Games.MoveCurrentToPosition(pos);
-                    }
-                    else
-                    {
-                        Games.MoveCurrentToLast();
-                    }
-
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-            }
+            // var itemsPerPage = (int)(Math.Ceiling(ViewportHeight / ItemHeight) * ItemsPerRow);
+            //
+            // switch (direction)
+            // {
+            //     case FocusNavigationDirection.Up:
+            //     {
+            //         var pos = Games.CurrentPosition - itemsPerPage;
+            //         if (pos >= 0)
+            //         {
+            //             Games.MoveCurrentToPosition(pos);
+            //         }
+            //         else
+            //         {
+            //             Games.MoveCurrentToFirst();
+            //         }
+            //
+            //         break;
+            //     }
+            //     case FocusNavigationDirection.Down:
+            //     {
+            //         var pos = Games.CurrentPosition + itemsPerPage;
+            //         if (pos < Games.Count)
+            //         {
+            //             Games.MoveCurrentToPosition(pos);
+            //         }
+            //         else
+            //         {
+            //             Games.MoveCurrentToLast();
+            //         }
+            //
+            //         break;
+            //     }
+            //     default:
+            //         throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            // }
         }
 
         private void NavigateToStart()
