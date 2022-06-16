@@ -157,7 +157,7 @@ namespace Catalog.Wpf
             }
         }
 
-        public void DrawSprites(SKCanvas canvas, string[] images, SKRect[] rects)
+        public void DrawSprites(SKCanvas canvas, IEnumerable<string> images, SKRect[] rects)
         {
             // Contract.Requires<ArgumentOutOfRangeException>(images.Length == rects.Length);
 
@@ -169,6 +169,15 @@ namespace Catalog.Wpf
 
                 canvas.DrawImage(atlas, sprites[i], dest);
             }
+        }
+
+        public void DrawSprite(SKCanvas canvas, string image, SKRect rect)
+        {
+            var sprite = (SKRect)atlasSprites[image];
+            
+            var dest = rect.AspectFit(sprite.Size);
+            
+            canvas.DrawImage(atlas, sprite, dest);
         }
 
         public void Dispose()
