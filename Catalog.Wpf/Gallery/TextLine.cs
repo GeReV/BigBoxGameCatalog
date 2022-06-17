@@ -4,13 +4,12 @@ using Topten.RichTextKit;
 
 namespace Catalog.Wpf.Gallery
 {
-    public class TextLine : IPaintable
+    public sealed class TextLine : ElementBase
     {
         private IStyle highlightTextStyle;
         private TextBlock textBlock;
         private SKColor highlightTextColor = SKColors.Goldenrod;
-
-        public SKSize DesiredSize { get; private set; }
+        
         public string Text { get; }
         public string? HighlightedText { get; set; }
         public Style TextStyle { get; set; }
@@ -38,7 +37,7 @@ namespace Catalog.Wpf.Gallery
             highlightTextStyle = TextStyle.Modify(backgroundColor: HighlightTextColor);
         }
 
-        public void Measure(SKSize constraint)
+        public override void Measure(SKSize constraint)
         {
             textBlock.MaxWidth = constraint.Width;
             textBlock.MaxHeight = constraint.Height;
@@ -49,7 +48,7 @@ namespace Catalog.Wpf.Gallery
             DesiredSize = new SKSize(textBlock.MeasuredWidth, textBlock.MeasuredHeight);
         }
 
-        public void Paint(SKCanvas canvas, SKPoint point)
+        public override void Paint(SKCanvas canvas, SKPoint point)
         {
             var term = HighlightedText;
 

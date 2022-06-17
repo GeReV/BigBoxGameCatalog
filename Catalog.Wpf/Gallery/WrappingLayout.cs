@@ -22,8 +22,6 @@ namespace Catalog.Wpf.Gallery
             {
                 var itemSize = item.DesiredSize;
 
-                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
-
                 if (cursor.X + itemSize.Width > DesiredSize.Width)
                 {
                     cursor.X = 0;
@@ -31,6 +29,8 @@ namespace Catalog.Wpf.Gallery
                     
                     maxRowHeight = itemSize.Height;
                 }
+                
+                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
 
                 if (cursor.Y >= DesiredSize.Height)
                 {
@@ -58,8 +58,6 @@ namespace Catalog.Wpf.Gallery
 
                 var itemSize = item.DesiredSize;
 
-                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
-
                 if (cursor.X + itemSize.Width > DesiredSize.Width)
                 {
                     cursor.X = 0;
@@ -69,6 +67,8 @@ namespace Catalog.Wpf.Gallery
                     
                     maxRowHeight = itemSize.Height;
                 }
+                
+                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
                 
                 cursor.X += itemSize.Width + HorizontalSpacing;
                 

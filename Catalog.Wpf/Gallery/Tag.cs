@@ -2,11 +2,10 @@
 using SkiaSharp;
 using Topten.RichTextKit;
 using Style = Topten.RichTextKit.Style;
-using TextAlignment = Topten.RichTextKit.TextAlignment;
 
 namespace Catalog.Wpf.Gallery
 {
-    public class Tag : IBox
+    public class Tag : ElementBase, IBox
     {
         private string text;
         public SKColor Color { get; set; }
@@ -27,9 +26,7 @@ namespace Catalog.Wpf.Gallery
                 UpdateTextBlock();
             }
         }
-        
-        public SKSize DesiredSize { get; private set; }
-        
+
         public Thickness Padding { get; init; }
 
         public Tag(string text, SKColor color)
@@ -50,10 +47,10 @@ namespace Catalog.Wpf.Gallery
         private void UpdateTextBlock()
         {
             textBlock.Clear();
-            // textBlock.AddText(Text, style.Modify(textColor: Color.GetLuminance() > 0.5f ? SKColors.Black : SKColors.White));
+            textBlock.AddText(Text, style.Modify(textColor: Color.GetLuminance() > 0.5f ? SKColors.Black : SKColors.White));
         }
 
-        public void Measure(SKSize constraint)
+        public override void Measure(SKSize constraint)
         {
             var horizontalPadding = Padding.Left + Padding.Right;
             
@@ -66,7 +63,7 @@ namespace Catalog.Wpf.Gallery
             );
         }
 
-        public void Paint(SKCanvas canvas, SKPoint point)
+        public override void Paint(SKCanvas canvas, SKPoint point)
         {
             var rect = new SKRect
             {

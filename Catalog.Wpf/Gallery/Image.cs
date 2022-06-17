@@ -3,11 +3,10 @@ using SkiaSharp;
 
 namespace Catalog.Wpf.Gallery
 {
-    public class Image : IPaintable
+    public sealed class Image : ElementBase
     {
         private readonly SkiaTextureAtlas atlas;
         private readonly string? imageKey;
-        public SKSize DesiredSize { get; private set; }
 
         public float AspectRatio { get; init; } = 4f / 3f;
 
@@ -17,7 +16,7 @@ namespace Catalog.Wpf.Gallery
             this.imageKey = imageKey;
         }
 
-        public void Measure(SKSize constraint)
+        public override void Measure(SKSize constraint)
         {
             DesiredSize = new SKSize(
                 constraint.Width,
@@ -25,7 +24,7 @@ namespace Catalog.Wpf.Gallery
             );
         }
 
-        public void Paint(SKCanvas canvas, SKPoint point)
+        public override void Paint(SKCanvas canvas, SKPoint point)
         {
             if (string.IsNullOrEmpty(imageKey))
             {
