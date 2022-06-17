@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,356 +16,94 @@ using Catalog.Wpf.GlContexts.Wgl;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
-using SkiaSharp.Views.WPF;
 
 namespace Catalog.Wpf.Forms
 {
     public sealed partial class SkiaGameGalleryView : UserControl, IScrollInfo
     {
+        #region Delegates
+
         public delegate void ItemMouseEventHandler(object sender, ItemMouseEventArgs e);
-
-        public class ItemMouseEventArgs : RoutedEventArgs
-        {
-            public object Item { get; }
-            public int ItemIndex { get; }
-
-            public ItemMouseEventArgs(RoutedEvent routedEvent, object item, int itemIndex) : base(routedEvent)
-            {
-                Item = item;
-                ItemIndex = itemIndex;
-            }
-        }
-
-        public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
-            nameof(GameContextMenu),
-            typeof(ContextMenu),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(default(ContextMenu))
-        );
-
-        public ContextMenu GameContextMenu
-        {
-            get => (ContextMenu)GetValue(GameContextMenuProperty);
-            set => SetValue(GameContextMenuProperty, value);
-        }
-
-        public static readonly DependencyProperty GamesProperty = DependencyProperty.Register(
-            nameof(Games),
-            typeof(CollectionView),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(null, GamesPropertyChangedCallback)
-        );
-
-        private static void GamesPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var view = (SkiaGameGalleryView)d;
-
-            if (e.OldValue is INotifyCollectionChanged oldCollection)
-            {
-                oldCollection.CollectionChanged -= view.GamesCollectionChanged;
-            }
-
-            if (e.OldValue is CollectionView oldCollectionView)
-            {
-                oldCollectionView.CurrentChanged -= view.CurrentItemChanged;
-            }
-
-            if (e.NewValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += view.GamesCollectionChanged;
-            }
-
-            if (e.NewValue is not CollectionView collectionView)
-            {
-                return;
-            }
-
-            var games = collectionView.Cast<GameViewModel>().ToList();
-
-            view.BuildAtlas(games);
-
-            view.BuildGalleryItems(games);
-
-            collectionView.CurrentChanged += view.CurrentItemChanged;
-
-            view.InvalidateArrange();
-            view.Surface.InvalidateVisual();
-        }
-
-        public static readonly DependencyProperty MouseOverItemProperty = DependencyProperty.Register(
-            nameof(MouseOverItem),
-            typeof(object),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(default(object?))
-        );
-
-        public object? MouseOverItem
-        {
-            get => GetValue(MouseOverItemProperty);
-            set => SetValue(MouseOverItemProperty, value);
-        }
-
-        public static readonly DependencyProperty HighlightedTextProperty = DependencyProperty.Register(
-            nameof(HighlightedText),
-            typeof(string),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(default(string), HighlightedTextPropertyChangedCallback)
-        );
-
-        private static void HighlightedTextPropertyChangedCallback(
-            DependencyObject d,
-            DependencyPropertyChangedEventArgs e
-        )
-        {
-            RedrawCallback(d, e);
-        }
-
-        public string HighlightedText
-        {
-            get => (string)GetValue(HighlightedTextProperty);
-            set => SetValue(HighlightedTextProperty, value);
-        }
-
-        public CollectionView Games
-        {
-            get => (CollectionView)GetValue(GamesProperty);
-            set => SetValue(GamesProperty, value);
-        }
-
-        public static readonly DependencyProperty ThumbnailWidthProperty = DependencyProperty.Register(
-            nameof(ThumbnailWidth),
-            typeof(double),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(120d, RedrawCallback)
-        );
-
-        public double ThumbnailWidth
-        {
-            get => (double)GetValue(ThumbnailWidthProperty);
-            set => SetValue(ThumbnailWidthProperty, value);
-        }
-
-        public static readonly DependencyProperty ItemPaddingProperty = DependencyProperty.Register(
-            nameof(ItemPadding),
-            typeof(Thickness),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(new Thickness(8.0f), RedrawCallback)
-        );
-
-        public Thickness ItemPadding
-        {
-            get => (Thickness)GetValue(ItemPaddingProperty);
-            set => SetValue(ItemPaddingProperty, value);
-        }
-        
-        public static readonly DependencyProperty ItemHorizontalSpacingProperty = DependencyProperty.Register(
-            nameof(ItemHorizontalSpacing),
-            typeof(double),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(default(double), RedrawCallback)
-        );
-
-        public double ItemHorizontalSpacing
-        {
-            get => (double)GetValue(ItemHorizontalSpacingProperty);
-            set => SetValue(ItemHorizontalSpacingProperty, value);
-        }
-
-        public static readonly DependencyProperty ItemVerticalSpacingProperty = DependencyProperty.Register(
-            nameof(ItemVerticalSpacing),
-            typeof(double),
-            typeof(SkiaGameGalleryView),
-            new PropertyMetadata(default(double), RedrawCallback)
-        );
-
-        public double ItemVerticalSpacing
-        {
-            get => (double)GetValue(ItemVerticalSpacingProperty);
-            set => SetValue(ItemVerticalSpacingProperty, value);
-        }
-
-        // private Rect CurrentItemRect
-        // {
-        //     get
-        //     {
-        //         var index = Games.CurrentPosition;
-        //
-        //         var (indexY, indexX) = index.DivRem(ItemsPerRow);
-        //
-        //         return new Rect(
-        //             indexX * ContainerWidth,
-        //             indexY * ContainerHeight,
-        //             ContainerWidth,
-        //             ContainerHeight
-        //         );
-        //     }
-        // }
-
-        private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
-        {
-            var view = (SkiaGameGalleryView)d;
-
-            view.InvalidateArrange();
-        }
-
-        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                {
-                    if (e.NewItems == null)
-                    {
-                        return;
-                    }
-
-                    foreach (var addedGame in e.NewItems.Cast<GameViewModel>())
-                    {
-                        galleryItems.Add(addedGame.GameCopyId, new GalleryItem(addedGame, atlas)
-                        {
-                            Padding = ItemPadding
-                        });
-                    }
-
-                    break;
-                }
-                case NotifyCollectionChangedAction.Remove:
-                {
-                    if (e.OldItems == null)
-                    {
-                        return;
-                    }
-
-                    foreach (var removedGame in e.OldItems.Cast<GameViewModel>())
-                    {
-                        galleryItems.Remove(removedGame.GameCopyId);
-                    }
-
-                    break;
-                }
-                case NotifyCollectionChangedAction.Replace:
-                {
-                    if (e.OldItems == null || e.NewItems == null)
-                    {
-                        return;
-                    }
-
-                    foreach (var removedGame in e.OldItems.Cast<GameViewModel>())
-                    {
-                        galleryItems.Remove(removedGame.GameCopyId);
-                    }
-
-                    foreach (var addedGame in e.NewItems.Cast<GameViewModel>())
-                    {
-                        galleryItems.Add(addedGame.GameCopyId, new GalleryItem(addedGame, atlas)
-                        {
-                            Padding = ItemPadding
-                        });
-                    }
-
-                    break;
-                }
-                case NotifyCollectionChangedAction.Reset:
-                {
-                    if (e.NewItems == null)
-                    {
-                        return;
-                    }
-
-                    BuildGalleryItems(e.NewItems.Cast<GameViewModel>());
-
-                    break;
-                }
-                case NotifyCollectionChangedAction.Move:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            Redraw();
-        }
-
-        private void CurrentItemChanged(object? sender, EventArgs e) => Redraw();
-
-        private void Redraw() =>
-            Dispatcher.InvokeAsync(
-                () =>
-                {
-                    InvalidateArrange();
-                    Surface.InvalidateVisual();
-                },
-                DispatcherPriority.Render
-            );
-
-        #region Private Constants
-
-        private static readonly SKColor ItemBorderColor = new(0xff70c0e7);
-        private static readonly SKColor ItemMouseOverBackgroundColor = new(0xffe5f3fb);
-        private static readonly SKColor ItemSelectedBackgroundColor = new(0xffcbe8f6);
-        private static readonly SKColor HighlightTextColor = new(0xffeee8aa);
 
         #endregion
 
-        #region Private Members
+        private readonly SkiaTextureAtlas atlas = new();
+
+        private readonly Dictionary<int, GalleryItem> galleryItems = new();
 
         private readonly GlContext glContext = new WglContext();
         private readonly GRContext grContext;
 
-        private readonly SkiaTextureAtlas atlas = new();
-
-        private Dictionary<int, GalleryItem> galleryItems = new();
-
-        private SKSurface? surface;
-        private SKSizeI screenCanvasSize;
-
-        private Size extent;
-        private Vector offset;
-
-        private DispatcherTimer? toolTipTimer;
+        private readonly List<float> rowVerticalOffsets = new();
 
         private int currentMouseOverItemIndex = -1;
 
-        #endregion
+        private Size extent;
+        private Vector offset;
+        private SKSizeI screenCanvasSize;
 
-        #region Private Properties
+        private bool skipArrangeItems;
 
-        private double ItemWidth => ThumbnailWidth + ItemPadding.Left + ItemPadding.Right;
-        private int ItemsPerRow => (int)(Math.Floor(ExtentWidth + ItemHorizontalSpacing) / (ItemWidth + ItemHorizontalSpacing));
+        private SKSurface? surface;
 
-        private DispatcherTimer? ToolTipTimer
+        private DispatcherTimer? toolTipTimer;
+
+        public SkiaGameGalleryView()
         {
-            get => toolTipTimer;
-            set
-            {
-                ResetToolTipTimer();
-                toolTipTimer = value;
-            }
+            glContext.MakeCurrent();
+            grContext = GRContext.CreateGl();
+
+            InitializeComponent();
+
+            // ToolTipService.SetIsEnabled(this, false);
         }
 
-        #endregion
+        private void Rearrange(bool shouldSkipArrangeItems = false)
+        {
+            skipArrangeItems = shouldSkipArrangeItems;
 
-        // private int? ItemIndexAtPoint(Point point)
-        // {
-        //     point.Y += VerticalOffset;
-        //
-        //     var indexX = (int)(point.X / ContainerWidth);
-        //
-        //     if (indexX >= ItemsPerRow)
-        //     {
-        //         return null;
-        //     }
-        //
-        //     var indexY = (int)(point.Y / ContainerHeight);
-        //
-        //     var itemIndex = indexY * ItemsPerRow + indexX;
-        //
-        //     if (itemIndex >= Games.Count)
-        //     {
-        //         return null;
-        //     }
-        //
-        //     return itemIndex;
-        // }
+            Dispatcher.InvokeAsync(
+                () =>
+                {
+                    InvalidateArrange();
+                    ScheduleRepaint();
+                },
+                DispatcherPriority.Render
+            );
+        }
+
+        private void ScheduleRepaint()
+        {
+            Surface.InvalidateVisual();
+        }
+
+        private GalleryItem GetGalleryItem(GameViewModel game)
+        {
+            return galleryItems[game.GameCopyId];
+        }
+
+        private int ItemIndexAtPoint(Point point)
+        {
+            point.Y += VerticalOffset;
+
+            var indexX = (int)((point.X - (ItemsPerRow - 1) * ItemHorizontalSpacing) / ItemWidth);
+
+            if (indexX >= ItemsPerRow)
+            {
+                return -1;
+            }
+
+            var rowIndex = rowVerticalOffsets.FindIndex(v => point.Y < v);
+
+            var itemIndex = rowIndex * ItemsPerRow + indexX;
+
+            if (itemIndex >= Games.Count)
+            {
+                return -1;
+            }
+
+            return itemIndex;
+        }
 
         private void ResetToolTipTimer()
         {
@@ -377,45 +116,35 @@ namespace Catalog.Wpf.Forms
             toolTipTimer = null;
         }
 
-        public SkiaGameGalleryView()
-        {
-            glContext.MakeCurrent();
-            grContext = GRContext.CreateGl();
-
-            InitializeComponent();
-
-            // ToolTipService.SetIsEnabled(this, false);
-        }
-
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
             var mousePos = e.GetPosition(this);
 
-            // var mouseHoverItemIndex = ItemIndexAtPoint(mousePos);
-            //
-            // if (currentMouseOverItemIndex != mouseHoverItemIndex)
-            // {
-            //     if (currentMouseOverItemIndex >= 0 && currentMouseOverItemIndex < Games.Count)
-            //     {
-            //         OnItemMouseLeave();
-            //     }
-            //
-            //     if (mouseHoverItemIndex.HasValue)
-            //     {
-            //         OnItemMouseEnter(mouseHoverItemIndex.Value);
-            //     }
-            //
-            //     currentMouseOverItemIndex = mouseHoverItemIndex ?? -1;
-            // }
+            var mouseHoverItemIndex = ItemIndexAtPoint(mousePos);
+
+            if (currentMouseOverItemIndex != mouseHoverItemIndex)
+            {
+                if (currentMouseOverItemIndex >= 0 && currentMouseOverItemIndex < Games.Count)
+                {
+                    OnItemMouseLeave();
+                }
+
+                if (mouseHoverItemIndex >= 0)
+                {
+                    OnItemMouseEnter(mouseHoverItemIndex);
+                }
+
+                currentMouseOverItemIndex = mouseHoverItemIndex;
+            }
 
             Surface.InvalidateVisual();
         }
 
         private void OnItemMouseEnter(int itemIndex)
         {
-            var item = Games.GetItemAt(itemIndex);
+            var item = (GameViewModel)Games.GetItemAt(itemIndex);
 
             RaiseEvent(
                 new ItemMouseEventArgs(
@@ -425,7 +154,8 @@ namespace Catalog.Wpf.Forms
                 )
             );
 
-            MouseOverItem = item;
+            currentMouseOverItemIndex = itemIndex;
+            GetGalleryItem(item).IsHighlighted = true;
 
             var (indexY, indexX) = itemIndex.DivRem(ItemsPerRow);
 
@@ -480,12 +210,14 @@ namespace Catalog.Wpf.Forms
                 )
             );
 
-            if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
-            {
-                toolTip.IsOpen = false;
-            }
+            // if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
+            // {
+            //     toolTip.IsOpen = false;
+            // }
 
-            MouseOverItem = null;
+            var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
+
+            GetGalleryItem(item).IsHighlighted = false;
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -496,14 +228,14 @@ namespace Catalog.Wpf.Forms
 
             var mousePos = Mouse.GetPosition(this);
 
-            // var position = ItemIndexAtPoint(mousePos);
-            //
-            // if (!position.HasValue)
-            // {
-            //     return;
-            // }
-            //
-            // Games.MoveCurrentToPosition(position.Value);
+            var position = ItemIndexAtPoint(mousePos);
+
+            if (position < 0)
+            {
+                return;
+            }
+
+            Games.MoveCurrentToPosition(position);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -532,20 +264,20 @@ namespace Catalog.Wpf.Forms
                         handled = false;
                     }
 
-                    // BringIntoView(CurrentItemRect);
+                    BringIntoView(CurrentItemRect);
 
                     break;
                 }
                 case Key.Home:
                     NavigateToStart();
 
-                    // BringIntoView(CurrentItemRect);
+                    BringIntoView(CurrentItemRect);
                     break;
 
                 case Key.End:
                     NavigateToEnd();
 
-                    // BringIntoView(CurrentItemRect);
+                    BringIntoView(CurrentItemRect);
                     break;
                 case Key.Enter:
                 {
@@ -559,7 +291,6 @@ namespace Catalog.Wpf.Forms
                     if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Alt)) == ModifierKeys.Alt)
                     {
                         handled = false;
-                        break;
                     }
 
                     // Enter item.
@@ -583,6 +314,8 @@ namespace Catalog.Wpf.Forms
                     break;
             }
 
+            ScheduleRepaint();
+
             if (handled)
             {
                 e.Handled = true;
@@ -592,6 +325,434 @@ namespace Catalog.Wpf.Forms
                 base.OnKeyDown(e);
             }
         }
+
+        private void Canvas_OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+        {
+            var canvasSize = new SKSizeI(e.Info.Width, e.Info.Height);
+
+            // check if we need to recreate the off-screen surface
+            if (screenCanvasSize != canvasSize)
+            {
+                surface?.Dispose();
+                surface = SKSurface.Create(grContext, true, new SKImageInfo(canvasSize.Width, canvasSize.Height));
+
+                screenCanvasSize = canvasSize;
+            }
+
+            if (surface == null)
+            {
+                return;
+            }
+
+            Render(surface.Canvas);
+
+            e.Surface.Canvas.DrawSurface(surface, SKPoint.Empty);
+        }
+
+        protected override Size MeasureOverride(Size constraint)
+        {
+            var size = base.MeasureOverride(constraint);
+
+            VerifyScrollData();
+
+            return size;
+        }
+
+        protected override Size ArrangeOverride(Size arrangeBounds)
+        {
+            // Scrolling requires an arrange, but there's no point in rearranging items when that happens, so we use 
+            // this marker to skip it once.
+            if (!skipArrangeItems)
+            {
+                var scrollSize = ArrangeItems(arrangeBounds);
+
+                extent = scrollSize;
+            }
+
+            skipArrangeItems = false;
+
+            var size = base.ArrangeOverride(arrangeBounds);
+
+            VerifyScrollData();
+
+            return size;
+        }
+
+        private Size ArrangeItems(Size arrangeBounds)
+        {
+            var itemConstraint = new SKSize((float)ItemWidth, float.PositiveInfinity);
+
+            var cursor = SKPoint.Empty;
+
+            var totalHeight = 0f;
+            var maxRowHeight = 0.0f;
+
+            var rowStartItemIndex = 0;
+
+            rowVerticalOffsets.Clear();
+
+            for (var i = 0; i < Games.Count; i++)
+            {
+                var game = (GameViewModel)Games.GetItemAt(i);
+                var galleryItem = GetGalleryItem(game);
+
+                galleryItem.Measure(itemConstraint);
+
+                var itemSize = galleryItem.DesiredSize;
+
+                if (cursor.X + itemSize.Width > arrangeBounds.Width)
+                {
+                    cursor.X = 0;
+                    cursor.Y += (float)(maxRowHeight + ItemVerticalSpacing);
+
+                    rowVerticalOffsets.Add(rowVerticalOffsets.LastOrDefault() + maxRowHeight);
+
+                    ArrangeLine(rowStartItemIndex, i, maxRowHeight);
+
+                    totalHeight = cursor.Y;
+
+                    rowStartItemIndex = i;
+
+                    maxRowHeight = itemSize.Height;
+                }
+
+                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
+
+                cursor.X += (float)(itemSize.Width + ItemHorizontalSpacing);
+            }
+
+            // Add final row.
+            rowVerticalOffsets.Add(rowVerticalOffsets.LastOrDefault() + maxRowHeight);
+
+            // Arrange remaining items.
+            ArrangeLine(rowStartItemIndex, Games.Count, maxRowHeight);
+
+            totalHeight += maxRowHeight;
+
+            return new Size(arrangeBounds.Width, totalHeight);
+        }
+
+        private void ArrangeLine(int rowStartItemIndex, int rowEndItemIndex, float itemHeight)
+        {
+            var finalItemSize = new SKSize((float)ItemWidth, itemHeight);
+
+            for (var j = rowStartItemIndex; j < rowEndItemIndex; j++)
+            {
+                var g = (GameViewModel)Games.GetItemAt(j);
+
+                GetGalleryItem(g).Arrange(finalItemSize);
+            }
+        }
+
+        #region Nested type: ItemMouseEventArgs
+
+        public class ItemMouseEventArgs : RoutedEventArgs
+        {
+            public object Item { get; }
+            public int ItemIndex { get; }
+
+            public ItemMouseEventArgs(RoutedEvent routedEvent, object item, int itemIndex) : base(routedEvent)
+            {
+                Item = item;
+                ItemIndex = itemIndex;
+            }
+        }
+
+        #endregion
+
+        #region Public Properties
+
+        public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
+            nameof(GameContextMenu),
+            typeof(ContextMenu),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(ContextMenu))
+        );
+
+        public ContextMenu GameContextMenu
+        {
+            get => (ContextMenu)GetValue(GameContextMenuProperty);
+            set => SetValue(GameContextMenuProperty, value);
+        }
+
+        public static readonly DependencyProperty GamesProperty = DependencyProperty.Register(
+            nameof(Games),
+            typeof(CollectionView),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(null, GamesPropertyChangedCallback)
+        );
+
+        public CollectionView Games
+        {
+            get => (CollectionView)GetValue(GamesProperty);
+            set => SetValue(GamesProperty, value);
+        }
+
+        private static void GamesPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var view = (SkiaGameGalleryView)d;
+
+            if (e.OldValue is INotifyCollectionChanged oldCollection)
+            {
+                oldCollection.CollectionChanged -= view.GamesCollectionChanged;
+            }
+
+            if (e.OldValue is CollectionView oldCollectionView)
+            {
+                oldCollectionView.CurrentChanging -= view.CurrentItemChanging;
+                oldCollectionView.CurrentChanged -= view.CurrentItemChanged;
+            }
+
+            if (e.NewValue is INotifyCollectionChanged newCollection)
+            {
+                newCollection.CollectionChanged += view.GamesCollectionChanged;
+            }
+
+            if (e.NewValue is not CollectionView collectionView)
+            {
+                return;
+            }
+
+            var games = collectionView.Cast<GameViewModel>().ToList();
+
+            view.BuildAtlas(games);
+
+            view.BuildGalleryItems(games);
+
+            collectionView.CurrentChanging += view.CurrentItemChanging;
+            collectionView.CurrentChanged += view.CurrentItemChanged;
+
+            view.InvalidateArrange();
+            view.Surface.InvalidateVisual();
+        }
+
+        public static readonly DependencyProperty HighlightedTextProperty = DependencyProperty.Register(
+            nameof(HighlightedText),
+            typeof(string),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(string), HighlightedTextPropertyChangedCallback)
+        );
+
+        private static void HighlightedTextPropertyChangedCallback(
+            DependencyObject d,
+            DependencyPropertyChangedEventArgs e
+        )
+        {
+            RedrawCallback(d, e);
+        }
+
+        public string HighlightedText
+        {
+            get => (string)GetValue(HighlightedTextProperty);
+            set => SetValue(HighlightedTextProperty, value);
+        }
+
+        public static readonly DependencyProperty ThumbnailWidthProperty = DependencyProperty.Register(
+            nameof(ThumbnailWidth),
+            typeof(double),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(120d, RedrawCallback)
+        );
+
+        public double ThumbnailWidth
+        {
+            get => (double)GetValue(ThumbnailWidthProperty);
+            set => SetValue(ThumbnailWidthProperty, value);
+        }
+
+        public static readonly DependencyProperty ItemPaddingProperty = DependencyProperty.Register(
+            nameof(ItemPadding),
+            typeof(Thickness),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(new Thickness(8.0f), RedrawCallback)
+        );
+
+        public Thickness ItemPadding
+        {
+            get => (Thickness)GetValue(ItemPaddingProperty);
+            set => SetValue(ItemPaddingProperty, value);
+        }
+
+        public static readonly DependencyProperty ItemHorizontalSpacingProperty = DependencyProperty.Register(
+            nameof(ItemHorizontalSpacing),
+            typeof(double),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(double), RedrawCallback)
+        );
+
+        public double ItemHorizontalSpacing
+        {
+            get => (double)GetValue(ItemHorizontalSpacingProperty);
+            set => SetValue(ItemHorizontalSpacingProperty, value);
+        }
+
+        public static readonly DependencyProperty ItemVerticalSpacingProperty = DependencyProperty.Register(
+            nameof(ItemVerticalSpacing),
+            typeof(double),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(double), RedrawCallback)
+        );
+
+        public double ItemVerticalSpacing
+        {
+            get => (double)GetValue(ItemVerticalSpacingProperty);
+            set => SetValue(ItemVerticalSpacingProperty, value);
+        }
+
+        private Rect CurrentItemRect
+        {
+            get
+            {
+                var index = Games.CurrentPosition;
+
+                var game = (GameViewModel)Games.CurrentItem;
+                var galleryItem = GetGalleryItem(game);
+
+                var (indexY, indexX) = index.DivRem(ItemsPerRow);
+
+                var offsetY = indexY > 0 ? rowVerticalOffsets[indexY - 1] : 0f;
+
+                return new Rect(
+                    indexX * (ItemWidth + ItemHorizontalSpacing),
+                    offsetY,
+                    galleryItem.DesiredSize.Width,
+                    galleryItem.DesiredSize.Height
+                );
+            }
+        }
+
+        private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
+        {
+            var view = (SkiaGameGalleryView)d;
+
+            view.InvalidateArrange();
+        }
+
+        private void GamesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                {
+                    if (e.NewItems == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var addedGame in e.NewItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Add(
+                            addedGame.GameCopyId,
+                            new GalleryItem(addedGame, atlas)
+                            {
+                                Padding = ItemPadding
+                            }
+                        );
+                    }
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Remove:
+                {
+                    if (e.OldItems == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var removedGame in e.OldItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Remove(removedGame.GameCopyId);
+                    }
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Replace:
+                {
+                    if (e.OldItems == null || e.NewItems == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var removedGame in e.OldItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Remove(removedGame.GameCopyId);
+                    }
+
+                    foreach (var addedGame in e.NewItems.Cast<GameViewModel>())
+                    {
+                        galleryItems.Add(
+                            addedGame.GameCopyId,
+                            new GalleryItem(addedGame, atlas)
+                            {
+                                Padding = ItemPadding
+                            }
+                        );
+                    }
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Reset:
+                {
+                    if (e.NewItems == null)
+                    {
+                        return;
+                    }
+
+                    BuildGalleryItems(e.NewItems.Cast<GameViewModel>());
+
+                    break;
+                }
+                case NotifyCollectionChangedAction.Move:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            Rearrange();
+        }
+
+        private void CurrentItemChanging(object sender, CurrentChangingEventArgs e)
+        {
+            if (Games.CurrentItem != null)
+            {
+                var oldSelectedGame = (GameViewModel)Games.CurrentItem;
+
+                GetGalleryItem(oldSelectedGame).IsSelected = false;
+            }
+        }
+
+        private void CurrentItemChanged(object? sender, EventArgs e)
+        {
+            if (Games.CurrentItem != null)
+            {
+                var newSelectedGame = (GameViewModel)Games.CurrentItem;
+
+                GetGalleryItem(newSelectedGame).IsSelected = true;
+            }
+
+            ScheduleRepaint();
+        }
+
+        #endregion
+
+        #region Private Properties
+
+        private double ItemWidth => ThumbnailWidth + ItemPadding.Left + ItemPadding.Right;
+
+        private int ItemsPerRow =>
+            (int)(Math.Floor(ExtentWidth + ItemHorizontalSpacing) / (ItemWidth + ItemHorizontalSpacing));
+
+        private DispatcherTimer? ToolTipTimer
+        {
+            get => toolTipTimer;
+            set
+            {
+                ResetToolTipTimer();
+                toolTipTimer = value;
+            }
+        }
+
+        #endregion
 
         #region Public Events
 
@@ -633,29 +794,6 @@ namespace Catalog.Wpf.Forms
 
         #endregion
 
-        private void Canvas_OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
-        {
-            var canvasSize = new SKSizeI(e.Info.Width, e.Info.Height);
-
-            // check if we need to recreate the off-screen surface
-            if (screenCanvasSize != canvasSize)
-            {
-                surface?.Dispose();
-                surface = SKSurface.Create(grContext, true, new SKImageInfo(canvasSize.Width, canvasSize.Height));
-
-                screenCanvasSize = canvasSize;
-            }
-
-            if (surface == null)
-            {
-                return;
-            }
-
-            Render(surface.Canvas);
-            
-            e.Surface.Canvas.DrawSurface(surface, SKPoint.Empty);
-        }
-
         #region Rendering
 
         private void BuildAtlas(IEnumerable<GameViewModel> games)
@@ -669,7 +807,7 @@ namespace Catalog.Wpf.Forms
         private void BuildGalleryItems(IEnumerable<GameViewModel> games)
         {
             galleryItems.Clear();
-            
+
             foreach (var game in games)
             {
                 galleryItems.Add(
@@ -699,125 +837,35 @@ namespace Catalog.Wpf.Forms
                 IsAntialias = true
             };
 
-            // var start = Math.Min(Games.Count, (int)(VerticalOffset / ContainerHeight) * ItemsPerRow);
-            // var end = (int)Math.Min(Games.Count, start + (Math.Ceiling(ViewportHeight / ItemHeight) + 1) * ItemsPerRow);
+            var startRowIndex = Math.Max(0, rowVerticalOffsets.FindIndex(v => VerticalOffset < v));
 
-            var start = 0;
-            var end = Games.Count;
+            var bottom = Math.Min(VerticalOffset + ViewportHeight, ExtentHeight);
+            var endRowIndex = rowVerticalOffsets.FindIndex(startRowIndex, v => bottom <= v) + 1;
 
-            var total = end - start;
-
-            var cursor = SKPoint.Empty;
-            var maxRowHeight = 0.0f;
+            var start = startRowIndex * ItemsPerRow;
+            var end = Math.Min(Games.Count, endRowIndex * ItemsPerRow);
 
             for (var i = start; i < end; i++)
             {
                 var game = (GameViewModel)Games.GetItemAt(i);
-                var galleryItem = galleryItems[game.GameCopyId];
+                var galleryItem = GetGalleryItem(game);
 
                 var (indexY, indexX) = i.DivRem(ItemsPerRow);
 
-                // var point = new SKPoint(
-                //     (float)(indexX * ItemWidth + ItemHorizontalSpacing),
-                //     (float)(indexY * galleryItem.DesiredSize.Height + ItemVerticalSpacing)
-                // );
+                var offsetY = indexY > 0 ? rowVerticalOffsets[indexY - 1] : 0f;
 
-                var itemSize = galleryItem.DesiredSize;
+                var point = new SKPoint(
+                    (float)(indexX * (ItemWidth + ItemHorizontalSpacing)),
+                    offsetY
+                );
 
-                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
-
-                if (cursor.X + itemSize.Width > ActualWidth)
-                {
-                    cursor.X = 0;
-                    cursor.Y += (float)(maxRowHeight + ItemVerticalSpacing);
-
-                    maxRowHeight = itemSize.Height;
-                }
-
-                if (cursor.Y >= ActualHeight)
-                {
-                    // Can't render any more lines.
-                    break;
-                }
-
-                galleryItem.Paint(canvas, cursor);
-
-                cursor.X += (float)(itemSize.Width + ItemHorizontalSpacing);
-
-                // var containerRect = SKRect.Create(
-                //     
-                //     (float)ItemWidth,
-                //     (float)ItemHeight
-                // );
-                //
-                // if (Games.CurrentItem == game)
-                // {
-                //     DrawRect(canvas, containerRect, paint, ItemSelectedBackgroundColor, ItemBorderColor);
-                // }
-                // else if (i == currentMouseOverItemIndex)
-                // {
-                //     DrawRect(canvas, containerRect, paint, ItemMouseOverBackgroundColor, ItemBorderColor);
-                // }
+                galleryItem.Paint(canvas, point);
             }
 
             canvas.Restore();
         }
 
         #endregion
-
-        protected override Size MeasureOverride(Size constraint)
-        {
-            var size = base.MeasureOverride(constraint);
-
-            VerifyScrollData();
-
-            return size;
-        }
-
-        protected override Size ArrangeOverride(Size arrangeBounds)
-        {
-            var itemConstraint = new SKSize((float)ItemWidth, float.PositiveInfinity);
-            
-            var result = SKSize.Empty;
-            var cursor = SKPoint.Empty;
-            var maxRowHeight = 0.0f;
-
-            foreach (var item in galleryItems.Values)
-            {
-                item.Measure(itemConstraint);
-
-                var itemSize = item.DesiredSize;
-
-                maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
-
-                if (cursor.X + itemSize.Width > arrangeBounds.Width)
-                {
-                    cursor.X = 0;
-                    cursor.Y += (float)(maxRowHeight + ItemVerticalSpacing);
-                    
-                    result.Height = cursor.Y;
-                    
-                    maxRowHeight = itemSize.Height;
-                }
-
-                cursor.X += (float)(itemSize.Width + ItemHorizontalSpacing);
-                
-                result.Width = (float)Math.Max(result.Width, cursor.X - ItemHorizontalSpacing);
-            }
-            
-            result.Height += maxRowHeight;
-
-            extent = result.ToSize();
-
-            var size = base.ArrangeOverride(arrangeBounds);
-
-            offset.X = Math.Max(0, Math.Min(offset.X, ExtentWidth - ViewportWidth));
-            offset.Y = Math.Max(0, Math.Min(offset.Y, ExtentHeight - ViewportHeight));
-
-            VerifyScrollData();
-
-            return size;
-        }
 
         #region IScrollInfo
 
@@ -826,6 +874,9 @@ namespace Catalog.Wpf.Forms
 
         private void VerifyScrollData()
         {
+            offset.X = Math.Max(0, Math.Min(offset.X, ExtentWidth - ViewportWidth));
+            offset.Y = Math.Max(0, Math.Min(offset.Y, ExtentHeight - ViewportHeight));
+
             ScrollOwner?.InvalidateScrollInfo();
         }
 
@@ -901,7 +952,7 @@ namespace Catalog.Wpf.Forms
                 SetVerticalOffset(rectangle.Bottom - ViewportHeight);
             }
 
-            Redraw();
+            Rearrange(true);
 
             return rectangle;
         }
@@ -913,8 +964,7 @@ namespace Catalog.Wpf.Forms
             {
                 offset.X = newOffset;
 
-                // InvalidateArrange();
-                Surface.InvalidateVisual();
+                Rearrange(true);
             }
         }
 
@@ -925,13 +975,11 @@ namespace Catalog.Wpf.Forms
             {
                 offset.Y = newOffset;
 
-                // InvalidateArrange();
-                Surface.InvalidateVisual();
+                Rearrange(true);
             }
         }
 
         public ScrollViewer? ScrollOwner { get; set; }
-
 
         public bool CanHorizontallyScroll { get; set; }
 
