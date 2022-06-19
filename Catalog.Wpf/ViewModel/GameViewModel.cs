@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Catalog.Model;
@@ -13,28 +10,19 @@ namespace Catalog.Wpf.ViewModel
 {
     public class GameViewModel : NotifyPropertyChangedBase
     {
+        private readonly ResettableLazy<IEnumerable<GameItemGroupViewModel>> gameStats;
         private GameCopy gameCopy;
-        private ResettableLazy<IEnumerable<GameItemGroupViewModel>> gameStats;
-
-        public GameViewModel()
-        {
-            gameCopy = new GameCopy();
-
-            gameStats = new ResettableLazy<IEnumerable<GameItemGroupViewModel>>(() =>
-                GameItemGrouping.GroupItems(GameCopy.Items));
-        }
-
-        public GameViewModel(GameCopy gameCopy) : this()
-        {
-            GameCopy = gameCopy;
-        }
 
         public GameCopy GameCopy
         {
             get => gameCopy;
             set
             {
-                if (Equals(value, gameCopy)) return;
+                if (Equals(value, gameCopy))
+                {
+                    return;
+                }
+
                 gameCopy = value;
 
                 gameStats.Reset();
@@ -45,7 +33,7 @@ namespace Catalog.Wpf.ViewModel
 
         public int GameCopyId => GameCopy.GameCopyId;
 
-        public string? Title => GameCopy.Title;
+        public string Title => GameCopy.Title;
 
         public bool IsSealed => GameCopy.Sealed;
 
@@ -61,7 +49,8 @@ namespace Catalog.Wpf.ViewModel
 
         public IEnumerable<GameItem> Items => GameCopy.Items;
 
-        public string? CoverPath => GameCopy.CoverImage != null ? HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage) : null;
+        public string? CoverPath =>
+            GameCopy.CoverImage != null ? HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage) : null;
 
         public ImageSource? Cover
         {
@@ -92,5 +81,20 @@ namespace Catalog.Wpf.ViewModel
         public IEnumerable<GameItemGroupViewModel> GameStats => gameStats.Value;
 
         public bool HasBigBox => GameStats.Any(group => group.ItemType.Equals(ItemTypes.BigBox) && !group.Missing);
+
+        public GameViewModel()
+        {
+            gameCopy = new GameCopy();
+
+            gameStats = new ResettableLazy<IEnumerable<GameItemGroupViewModel>>(
+                () =>
+                    GameItemGrouping.GroupItems(GameCopy.Items)
+            );
+        }
+
+        public GameViewModel(GameCopy gameCopy) : this()
+        {
+            GameCopy = gameCopy;
+        }
     }
 }
