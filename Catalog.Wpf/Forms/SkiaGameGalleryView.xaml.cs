@@ -375,6 +375,9 @@ namespace Catalog.Wpf.Forms
 
             VerifyScrollData();
 
+            // TODO: Since InvalidateVisual on the control doesn't re-render, we use this here for when children request an arrange. But should this be here?
+            ScheduleRepaint();
+
             return size;
         }
 
@@ -643,7 +646,7 @@ namespace Catalog.Wpf.Forms
                     {
                         galleryItems.Add(
                             addedGame.GameCopyId,
-                            new GalleryItem(addedGame, atlas)
+                            new GalleryItem(this, addedGame, atlas)
                             {
                                 Padding = ItemPadding
                             }
@@ -682,7 +685,7 @@ namespace Catalog.Wpf.Forms
                     {
                         galleryItems.Add(
                             addedGame.GameCopyId,
-                            new GalleryItem(addedGame, atlas)
+                            new GalleryItem(this, addedGame, atlas)
                             {
                                 Padding = ItemPadding
                             }
@@ -812,7 +815,7 @@ namespace Catalog.Wpf.Forms
             {
                 galleryItems.Add(
                     game.GameCopyId,
-                    new GalleryItem(game, atlas)
+                    new GalleryItem(this, game, atlas)
                     {
                         Padding = ItemPadding
                     }

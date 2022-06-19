@@ -9,7 +9,7 @@ namespace Catalog.Wpf.Gallery
         public float HorizontalSpacing { get; init; }
         public float VerticalSpacing { get; init; }
 
-        public WrappingLayout(IEnumerable<IPaintable> items) : base(items)
+        public WrappingLayout(IEnumerable<ElementBase> items) : base(items)
         {
         }
 
@@ -26,10 +26,10 @@ namespace Catalog.Wpf.Gallery
                 {
                     cursor.X = 0;
                     cursor.Y += maxRowHeight + VerticalSpacing;
-                    
+
                     maxRowHeight = itemSize.Height;
                 }
-                
+
                 maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
 
                 if (cursor.Y >= DesiredSize.Height)
@@ -37,9 +37,9 @@ namespace Catalog.Wpf.Gallery
                     // Can't render any more lines.
                     break;
                 }
-                
+
                 item.Paint(canvas, point + cursor);
-                
+
                 cursor.X += itemSize.Width + HorizontalSpacing;
             }
         }
@@ -51,7 +51,7 @@ namespace Catalog.Wpf.Gallery
             var maxRowHeight = 0.0f;
 
             DesiredSize = constraint;
-            
+
             foreach (var item in Items)
             {
                 item.Measure(constraint);
@@ -64,14 +64,14 @@ namespace Catalog.Wpf.Gallery
                     cursor.Y += maxRowHeight + VerticalSpacing;
 
                     result.Height = cursor.Y;
-                    
+
                     maxRowHeight = itemSize.Height;
                 }
-                
+
                 maxRowHeight = Math.Max(maxRowHeight, itemSize.Height);
-                
+
                 cursor.X += itemSize.Width + HorizontalSpacing;
-                
+
                 result.Width = Math.Max(result.Width, cursor.X - HorizontalSpacing);
 
                 if (cursor.Y >= DesiredSize.Height)

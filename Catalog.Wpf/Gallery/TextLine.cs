@@ -1,47 +1,100 @@
 ﻿using System;
+using System.Windows;
 using SkiaSharp;
 using Topten.RichTextKit;
+using Style = Topten.RichTextKit.Style;
+using TextAlignment = Topten.RichTextKit.TextAlignment;
 
 namespace Catalog.Wpf.Gallery
 {
     public sealed class TextLine : ElementBase
     {
-        private IStyle highlightTextStyle;
-        private TextBlock textBlock;
-        private SKColor highlightTextColor = SKColors.Goldenrod;
-        
-        public string Text { get; }
-        public string? HighlightedText { get; set; }
-        public Style TextStyle { get; set; }
-        public SKColor HighlightTextColor
+        public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
+            nameof(Text),
+            typeof(string),
+            typeof(TextLine),
+            new FrameworkPropertyMetadata(
+                default(string),
+                FrameworkPropertyMetadataOptions.AffectsMeasure |
+                FrameworkPropertyMetadataOptions.AffectsParentMeasure |
+                FrameworkPropertyMetadataOptions.AffectsParentArrange
+            )
+        );
+
+        public static readonly DependencyProperty TextStyleProperty = DependencyProperty.Register(
+            nameof(TextStyle),
+            typeof(Style),
+            typeof(TextLine),
+            new PropertyMetadata(default(Style), UpdateHighlightedTextStyle)
+        );
+
+        public static readonly DependencyProperty HighlightedTextProperty = DependencyProperty.Register(
+            nameof(HighlightedText),
+            typeof(string),
+            typeof(TextLine),
+            new FrameworkPropertyMetadata(default(string?), FrameworkPropertyMetadataOptions.AffectsRender)
+        );
+
+        public static readonly DependencyProperty HighlightedTextColorProperty = DependencyProperty.Register(
+            nameof(HighlightedTextColor),
+            typeof(SKColor),
+            typeof(TextLine),
+            new FrameworkPropertyMetadata(
+                SKColors.Goldenrod,
+                FrameworkPropertyMetadataOptions.AffectsRender,
+                UpdateHighlightedTextStyle
+            )
+        );
+
+        private readonly TextBlock textBlock;
+
+        private IStyle highlightTextStyle = new Style();
+
+        public Style TextStyle
         {
-            get => highlightTextColor;
-            set
-            {
-                highlightTextColor = value;
-                
-                highlightTextStyle = TextStyle.Modify(backgroundColor: value);
-            }
+            get => (Style)GetValue(TextStyleProperty);
+            set => SetValue(TextStyleProperty, value);
         }
 
-        public TextLine(string text, Style textStyle)
+        public string? HighlightedText
+        {
+            get => (string?)GetValue(HighlightedTextProperty);
+            set => SetValue(HighlightedTextProperty, value);
+        }
+
+        public SKColor HighlightedTextColor
+        {
+            get => (SKColor)GetValue(HighlightedTextColorProperty);
+            set => SetValue(HighlightedTextColorProperty, value);
+        }
+
+        public string Text
+        {
+            get => (string)GetValue(TextProperty);
+            set => SetValue(TextProperty, value);
+        }
+
+        public TextLine()
         {
             textBlock = new TextBlock
             {
                 MaxLines = 1,
-                Alignment = TextAlignment.Center,
+                Alignment = TextAlignment.Center
             };
+        }
 
-            Text = text;
-            TextStyle = textStyle;
-            highlightTextStyle = TextStyle.Modify(backgroundColor: HighlightTextColor);
+        private static void UpdateHighlightedTextStyle(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var textLine = (TextLine)d;
+
+            textLine.highlightTextStyle = textLine.TextStyle.Modify(textColor: textLine.HighlightedTextColor);
         }
 
         public override void Measure(SKSize constraint)
         {
             textBlock.MaxWidth = constraint.Width;
             textBlock.MaxHeight = constraint.Height;
-            
+
             textBlock.Clear();
             textBlock.AddText(Text, TextStyle);
 

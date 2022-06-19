@@ -1,64 +1,99 @@
-﻿using System.Windows;
+﻿using System;
+using System.Drawing;
+using System.Windows;
 using SkiaSharp;
+using SkiaSharp.Views.Desktop;
 using Topten.RichTextKit;
 using Style = Topten.RichTextKit.Style;
 
 namespace Catalog.Wpf.Gallery
 {
-    public class Tag : ElementBase, IBox
+    public sealed class Tag : BoxElement
     {
-        private string text;
-        public SKColor Color { get; set; }
+        public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
+            nameof(Text),
+            typeof(string),
+            typeof(Tag),
+            new FrameworkPropertyMetadata(
+                default(string),
+                FrameworkPropertyMetadataOptions.AffectsMeasure |
+                FrameworkPropertyMetadataOptions.AffectsParentMeasure |
+                FrameworkPropertyMetadataOptions.AffectsParentArrange,
+                UpdateTextCallback
+            )
+        );
 
-        private readonly TextBlock textBlock;
+        public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
+            nameof(Color),
+            typeof(object),
+            typeof(Tag),
+            new FrameworkPropertyMetadata(
+                SKColor.Empty,
+                FrameworkPropertyMetadataOptions.AffectsArrange,
+                UpdateTextCallback,
+                CoerceColorValueCallback
+            )
+        );
+
         private readonly Style style = new()
         {
             FontFamily = "system",
             FontSize = 10.0f
         };
 
+        private readonly TextBlock textBlock;
+
         public string Text
         {
-            get => text;
-            set
-            {
-                text = value;
-                UpdateTextBlock();
-            }
+            get => (string)GetValue(TextProperty);
+            set => SetValue(TextProperty, value);
         }
 
-        public Thickness Padding { get; init; }
-
-        public Tag(string text, SKColor color)
+        public SKColor Color
         {
-            this.text = text;
-            
-            Color = color;
-            Padding = new Thickness(2f, 0f, 2f, 0f);
+            get => (SKColor)GetValue(ColorProperty);
+            set => SetValue(ColorProperty, value);
+        }
 
+        static Tag()
+        {
+            PaddingProperty.OverrideMetadata(typeof(Tag), new FrameworkPropertyMetadata(new Thickness(2f, 0, 2f, 0)));
+        }
+
+        public Tag()
+        {
             textBlock = new TextBlock
             {
                 MaxLines = 1
             };
-
-            UpdateTextBlock();
         }
 
-        private void UpdateTextBlock()
+        private static void UpdateTextCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            textBlock.Clear();
-            textBlock.AddText(Text, style.Modify(textColor: Color.GetLuminance() > 0.5f ? SKColors.Black : SKColors.White));
+            var tag = (Tag)d;
+
+            tag.UpdateTextBlock();
+        }
+
+        private static object CoerceColorValueCallback(DependencyObject d, object value)
+        {
+            return value switch
+            {
+                Color c => c.ToSKColor(),
+                SKColor c => c,
+                _ => throw new ArgumentException("Expected color")
+            };
         }
 
         public override void Measure(SKSize constraint)
         {
-            var horizontalPadding = Padding.Left + Padding.Right;
-            
-            textBlock.MaxWidth = (float)(constraint.Width - horizontalPadding);
+            var horizontalPadding = (float)(Padding.Left + Padding.Right);
+
+            textBlock.MaxWidth = constraint.Width - horizontalPadding;
             textBlock.MaxHeight = constraint.Height;
 
             DesiredSize = new SKSize(
-                (float)(textBlock.MeasuredWidth + horizontalPadding),
+                textBlock.MeasuredWidth + horizontalPadding,
                 (float)(textBlock.MeasuredHeight + Padding.Top + Padding.Bottom)
             );
         }
@@ -77,14 +112,23 @@ namespace Catalog.Wpf.Gallery
             using var paint = new SKPaint
             {
                 Color = Color,
-                Style = SKPaintStyle.Fill,
+                Style = SKPaintStyle.Fill
             };
-            
+
             var offset = new SKPoint((float)Padding.Left, (float)Padding.Top);
-            
+
             canvas.DrawRoundRect(rect, 3.0f, 3.0f, paint);
 
             textBlock.Paint(canvas, point + offset);
+        }
+
+        private void UpdateTextBlock()
+        {
+            textBlock.Clear();
+            textBlock.AddText(
+                Text,
+                style.Modify(textColor: Color.GetLuminance() > 0.5f ? SKColors.Black : SKColors.White)
+            );
         }
     }
 }

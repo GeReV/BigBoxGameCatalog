@@ -3,21 +3,31 @@ using System.Linq;
 
 namespace Catalog.Wpf.Gallery
 {
-    public abstract class Layout : ElementBase
+    public abstract class Layout : BoxElement
     {
-        private readonly List<IPaintable> items;
-
-        protected Layout() : this(Enumerable.Empty<IPaintable>())
-        {
-        }
-
-        protected Layout(IEnumerable<IPaintable> items)
-        {
-            this.items = new List<IPaintable>(items);
-        }
-
-        public void AddItem(IPaintable item) => items.Add(item);
+        private readonly List<ElementBase> items;
 
         public IEnumerable<IPaintable> Items => items.AsReadOnly();
+
+        protected Layout() : this(Enumerable.Empty<ElementBase>())
+        {
+        }
+
+        protected Layout(IEnumerable<ElementBase> items)
+        {
+            this.items = new List<ElementBase>(items);
+
+            foreach (var item in this.items)
+            {
+                item.Parent = this;
+            }
+        }
+
+        public void AddItem(ElementBase item)
+        {
+            item.Parent = this;
+
+            items.Add(item);
+        }
     }
 }

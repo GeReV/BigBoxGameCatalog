@@ -9,18 +9,21 @@ namespace Catalog.Wpf.Gallery
     public sealed class StackingLayout : Layout
     {
         public float Spacing { get; set; }
-        
+
         public Orientation Orientation { get; set; }
 
-        public StackingLayout(Orientation orientation = Orientation.Horizontal) : this(orientation, Enumerable.Empty<IPaintable>())
+        public StackingLayout(Orientation orientation = Orientation.Horizontal) : this(
+            orientation,
+            Enumerable.Empty<ElementBase>()
+        )
         {
         }
 
-        public StackingLayout(IEnumerable<IPaintable> items) : base(items)
+        public StackingLayout(IEnumerable<ElementBase> items) : base(items)
         {
         }
-        
-        public StackingLayout(Orientation orientation, IEnumerable<IPaintable> items) : base(items)
+
+        public StackingLayout(Orientation orientation, IEnumerable<ElementBase> items) : base(items)
         {
             Orientation = orientation;
         }
@@ -29,7 +32,7 @@ namespace Catalog.Wpf.Gallery
         {
             var cursor = SKPoint.Empty;
             var maxOrthogonalDimension = 0.0f;
-            
+
             switch (Orientation)
             {
                 case Orientation.Horizontal:
@@ -48,7 +51,7 @@ namespace Catalog.Wpf.Gallery
                         }
 
                         item.Paint(canvas, point + cursor);
-                
+
                         cursor.X += itemSize.Width + Spacing;
                     }
 
@@ -70,7 +73,7 @@ namespace Catalog.Wpf.Gallery
                         }
 
                         item.Paint(canvas, point + cursor);
-                
+
                         cursor.Y += itemSize.Height + Spacing;
                     }
 
@@ -85,7 +88,7 @@ namespace Catalog.Wpf.Gallery
         {
             var result = SKSize.Empty;
             var cursor = SKPoint.Empty;
-            
+
             // The max row height if horizontal, the max column width if vertical.
             var maxOrthogonalDimension = 0.0f;
 
@@ -112,7 +115,7 @@ namespace Catalog.Wpf.Gallery
 
                         result.Width = Math.Max(result.Width, cursor.X - Spacing);
                     }
-                    
+
                     result.Height = maxOrthogonalDimension;
 
                     break;
