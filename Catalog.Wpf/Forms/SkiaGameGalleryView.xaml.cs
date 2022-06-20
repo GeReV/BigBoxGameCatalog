@@ -27,7 +27,7 @@ namespace Catalog.Wpf.Forms
 
         #endregion
 
-        private readonly SkiaTextureAtlas atlas = new();
+        private readonly SkiaTextureAtlas atlas;
 
         private readonly Dictionary<int, GalleryItem> galleryItems = new();
 
@@ -52,6 +52,8 @@ namespace Catalog.Wpf.Forms
         {
             glContext.MakeCurrent();
             grContext = GRContext.CreateGl();
+
+            atlas = new SkiaTextureAtlas();
 
             InitializeComponent();
 
@@ -804,7 +806,7 @@ namespace Catalog.Wpf.Forms
             var list = games.Select(g => g.CoverPath)
                 .OfType<string>();
 
-            atlas.BuildAtlas(glContext, grContext, list);
+            atlas.BuildAtlas(grContext, list);
         }
 
         private void BuildGalleryItems(IEnumerable<GameViewModel> games)

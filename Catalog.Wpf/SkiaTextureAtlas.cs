@@ -2,12 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Catalog.Wpf.GlContexts;
 using SkiaSharp;
 
 namespace Catalog.Wpf
 {
-    sealed class AtlasSprite : IDisposable
+    internal sealed class AtlasSprite : IDisposable
     {
         public SKSizeI AtlasSize { get; }
         public SKPointI AtlasPosition { get; set; }
@@ -26,23 +25,52 @@ namespace Catalog.Wpf
             AtlasSize = new SKSizeI(targetWidth, (int)(ImageInfo.Height * ratio));
         }
 
+        #region IDisposable Members
+
         public void Dispose()
         {
             Image.Dispose();
         }
+
+        #endregion
     }
 
-    sealed class AtlasBin : IEnumerable<AtlasSprite>, IDisposable
+    internal sealed class AtlasBin : IEnumerable<AtlasSprite>, IDisposable
     {
+        private readonly List<AtlasSprite> sprites = new();
         public SKRectI Bounds { get; }
         public int TotalHeight { get; private set; }
-
-        private readonly List<AtlasSprite> sprites = new();
 
         public AtlasBin(SKRectI bounds)
         {
             Bounds = bounds;
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            foreach (var sprite in this)
+            {
+                sprite.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region IEnumerable<AtlasSprite> Members
+
+        public IEnumerator<AtlasSprite> GetEnumerator()
+        {
+            return sprites.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
 
         public void PushSprite(AtlasSprite sprite)
         {
@@ -52,26 +80,14 @@ namespace Catalog.Wpf
 
             sprites.Add(sprite);
         }
-
-        public IEnumerator<AtlasSprite> GetEnumerator() => sprites.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public void Dispose()
-        {
-            foreach (var sprite in this)
-            {
-                sprite.Dispose();
-            }
-        }
     }
 
     public sealed class SkiaTextureAtlas : IDisposable
     {
-        private readonly int spriteWidth;
         private readonly int atlasSize;
 
         private readonly Dictionary<string, SKRectI> atlasSprites = new();
+        private readonly int spriteWidth;
         private SKImage? atlas;
 
         // private static bool IsPowerOf2(int n) => (n & (n - 1)) == 0;
@@ -97,14 +113,23 @@ namespace Catalog.Wpf
             this.atlasSize = atlasSize;
         }
 
-        public void BuildAtlas(GlContext glContext, GRContext grContext, IEnumerable<string> images)
-        {
-            var texture = glContext.CreateTexture(new SKSizeI(atlasSize, atlasSize));
+        #region IDisposable Members
 
-            var surface = SKSurface.CreateAsRenderTarget(
+        public void Dispose()
+        {
+            atlas?.Dispose();
+        }
+
+        #endregion
+
+        public void BuildAtlas(GRContext grContext, IEnumerable<string> images)
+        {
+            atlas?.Dispose();
+
+            var surface = SKSurface.Create(
                 grContext,
-                new GRBackendTexture(atlasSize, atlasSize, true, texture),
-                SKColorType.Rgba8888
+                true,
+                new SKImageInfo(atlasSize, atlasSize, SKColorType.Rgba8888)
             );
 
             var sprites = images
@@ -136,12 +161,7 @@ namespace Catalog.Wpf
             {
                 foreach (var sprite in bin)
                 {
-                    if (atlasSprites.ContainsKey(sprite.ImageKey))
-                    {
-                        continue;
-                    }
-
-                    atlasSprites.Add(sprite.ImageKey, sprite.AtlasBounds);
+                    atlasSprites.TryAdd(sprite.ImageKey, sprite.AtlasBounds);
 
                     surface.Canvas.DrawImage(sprite.Image, sprite.AtlasBounds);
                 }
@@ -174,15 +194,10 @@ namespace Catalog.Wpf
         public void DrawSprite(SKCanvas canvas, string image, SKRect rect)
         {
             var sprite = (SKRect)atlasSprites[image];
-            
-            var dest = rect.AspectFit(sprite.Size);
-            
-            canvas.DrawImage(atlas, sprite, dest);
-        }
 
-        public void Dispose()
-        {
-            atlas?.Dispose();
+            var dest = rect.AspectFit(sprite.Size);
+
+            canvas.DrawImage(atlas, sprite, dest);
         }
     }
 }
