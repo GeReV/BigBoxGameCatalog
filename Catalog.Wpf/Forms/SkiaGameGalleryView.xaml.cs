@@ -842,15 +842,9 @@ namespace Catalog.Wpf.Forms
                 IsAntialias = true
             };
 
-            var startRowIndex = Math.Max(0, rowVerticalOffsets.FindIndex(v => VerticalOffset < v));
+            var itemRange = GetItemIndicesInView();
 
-            var bottom = Math.Min(VerticalOffset + ViewportHeight, ExtentHeight);
-            var endRowIndex = rowVerticalOffsets.FindIndex(startRowIndex, v => bottom <= v) + 1;
-
-            var start = startRowIndex * ItemsPerRow;
-            var end = Math.Min(Games.Count, endRowIndex * ItemsPerRow);
-
-            for (var i = start; i < end; i++)
+            for (var i = itemRange.Start.Value; i < itemRange.End.Value; i++)
             {
                 var game = (GameViewModel)Games.GetItemAt(i);
                 var galleryItem = GetGalleryItem(game);
@@ -868,6 +862,19 @@ namespace Catalog.Wpf.Forms
             }
 
             canvas.Restore();
+        }
+
+        private Range GetItemIndicesInView()
+        {
+            var startRowIndex = Math.Max(0, rowVerticalOffsets.FindIndex(v => VerticalOffset < v));
+
+            var bottom = Math.Min(VerticalOffset + ViewportHeight, ExtentHeight);
+            var endRowIndex = rowVerticalOffsets.FindIndex(startRowIndex, v => bottom <= v) + 1;
+
+            var start = startRowIndex * ItemsPerRow;
+            var end = Math.Min(Games.Count, endRowIndex * ItemsPerRow);
+
+            return start..end;
         }
 
         #endregion
@@ -1050,41 +1057,45 @@ namespace Catalog.Wpf.Forms
 
         private void NavigateByPage(FocusNavigationDirection direction)
         {
-            // var itemsPerPage = (int)(Math.Ceiling(ViewportHeight / ItemHeight) * ItemsPerRow);
-            //
-            // switch (direction)
-            // {
-            //     case FocusNavigationDirection.Up:
-            //     {
-            //         var pos = Games.CurrentPosition - itemsPerPage;
-            //         if (pos >= 0)
-            //         {
-            //             Games.MoveCurrentToPosition(pos);
-            //         }
-            //         else
-            //         {
-            //             Games.MoveCurrentToFirst();
-            //         }
-            //
-            //         break;
-            //     }
-            //     case FocusNavigationDirection.Down:
-            //     {
-            //         var pos = Games.CurrentPosition + itemsPerPage;
-            //         if (pos < Games.Count)
-            //         {
-            //             Games.MoveCurrentToPosition(pos);
-            //         }
-            //         else
-            //         {
-            //             Games.MoveCurrentToLast();
-            //         }
-            //
-            //         break;
-            //     }
-            //     default:
-            //         throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
-            // }
+            var itemRange = GetItemIndicesInView();
+
+            var itemCount = itemRange.End.Value - itemRange.Start.Value;
+
+            switch (direction)
+            {
+                case FocusNavigationDirection.Up:
+                {
+                    var pos = Games.CurrentPosition - itemCount;
+                    if (pos >= 0)
+                    {
+                        Games.MoveCurrentToPosition(pos);
+                    }
+                    else
+                    {
+                        Games.MoveCurrentToFirst();
+                    }
+
+                    break;
+                }
+                case FocusNavigationDirection.Down:
+                {
+                    var pos = Games.CurrentPosition + itemCount;
+                    if (pos < Games.Count)
+                    {
+                        Games.MoveCurrentToPosition(pos);
+                    }
+                    else
+                    {
+                        Games.MoveCurrentToLast();
+                    }
+
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+            }
+
+            BringIntoView(CurrentItemRect);
         }
 
         private void NavigateToStart()
