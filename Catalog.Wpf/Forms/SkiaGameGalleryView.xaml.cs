@@ -37,8 +37,10 @@ namespace Catalog.Wpf.Forms
         private readonly List<float> rowVerticalOffsets = new();
 
         private int currentMouseOverItemIndex = -1;
+        private int currentTooltipItemIndex = -1;
 
         private Size extent;
+
         private Vector offset;
         private SKSizeI screenCanvasSize;
 
@@ -46,7 +48,18 @@ namespace Catalog.Wpf.Forms
 
         private SKSurface? surface;
 
-        private DispatcherTimer? toolTipTimer;
+        private DispatcherTimer? tooltipTimer;
+
+        private DispatcherTimer? ToolTipTimer
+        {
+            get => tooltipTimer;
+            set
+            {
+                tooltipTimer?.Stop();
+
+                tooltipTimer = value;
+            }
+        }
 
         public SkiaGameGalleryView()
         {
@@ -57,7 +70,31 @@ namespace Catalog.Wpf.Forms
 
             InitializeComponent();
 
-            // ToolTipService.SetIsEnabled(this, false);
+            SetupToolTip();
+        }
+
+        private void SetupToolTip()
+        {
+            ToolTipService.SetIsEnabled(this, false);
+
+            var toolTip = (ToolTip)ToolTip;
+
+            toolTip.PlacementTarget = this;
+            toolTip.Closed += TooltipOnClosed;
+        }
+
+        private void TooltipOnClosed(object sender, RoutedEventArgs e)
+        {
+            if (currentMouseOverItemIndex >= 0 && currentTooltipItemIndex != currentMouseOverItemIndex)
+            {
+                Dispatcher.InvokeAsync(() => OpenToolTip((ToolTip)sender), DispatcherPriority.Background);
+            }
+            else
+            {
+                currentTooltipItemIndex = -1;
+
+                ToolTipTimer = null;
+            }
         }
 
         private void Rearrange(bool shouldSkipArrangeItems = false)
@@ -107,17 +144,6 @@ namespace Catalog.Wpf.Forms
             return itemIndex;
         }
 
-        private void ResetToolTipTimer()
-        {
-            if (toolTipTimer == null)
-            {
-                return;
-            }
-
-            toolTipTimer.Stop();
-            toolTipTimer = null;
-        }
-
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -141,7 +167,29 @@ namespace Catalog.Wpf.Forms
                 currentMouseOverItemIndex = mouseHoverItemIndex;
             }
 
-            Surface.InvalidateVisual();
+            ScheduleRepaint();
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            if (currentMouseOverItemIndex >= 0)
+            {
+                var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
+
+                GetGalleryItem(item).IsHighlighted = false;
+            }
+
+            currentMouseOverItemIndex = -1;
+            currentTooltipItemIndex = -1;
+
+            if (ToolTip is ToolTip toolTip)
+            {
+                CloseToolToolTip(toolTip);
+            }
+
+            ScheduleRepaint();
         }
 
         private void OnItemMouseEnter(int itemIndex)
@@ -157,33 +205,34 @@ namespace Catalog.Wpf.Forms
             );
 
             currentMouseOverItemIndex = itemIndex;
+
             GetGalleryItem(item).IsHighlighted = true;
 
-            var (indexY, indexX) = itemIndex.DivRem(ItemsPerRow);
+            if (ToolTip is ToolTip toolTip)
+            {
+                toolTip.PlacementRectangle = GetItemRect(itemIndex);
 
-            // var containerRect = new Rect(
-            //     (float)(indexX * ContainerWidth),
-            //     (float)(indexY * ContainerHeight),
-            //     (float)ItemWidth,
-            //     (float)ItemHeight
-            // );
-            //
-            // ToolTipService.SetPlacementRectangle(this, containerRect);
-            //
-            // if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
-            // {
-            //     ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
-            //     {
-            //         Interval = TimeSpan.FromMilliseconds(ToolTipService.GetInitialShowDelay(this)),
-            //     };
-            //
-            //     ToolTipTimer.Tick += (_, _) => RaiseToolTipOpeningEvent(toolTip);
-            //     ToolTipTimer.Start();
-            // }
+                ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
+                {
+                    Interval = TimeSpan.FromMilliseconds(ToolTipService.GetInitialShowDelay(this))
+                };
+
+                ToolTipTimer.Tick += (_, _) => OpenToolTip(toolTip);
+                ToolTipTimer.Start();
+            }
         }
 
-        private void RaiseToolTipOpeningEvent(ToolTip toolTip)
+        private void OpenToolTip(ToolTip toolTip)
         {
+            if (currentMouseOverItemIndex < 0)
+            {
+                return;
+            }
+
+            currentTooltipItemIndex = currentMouseOverItemIndex;
+
+            ToolTipItem = (GameViewModel?)Games.GetItemAt(currentTooltipItemIndex);
+
             toolTip.IsOpen = true;
 
             ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
@@ -191,14 +240,12 @@ namespace Catalog.Wpf.Forms
                 Interval = TimeSpan.FromMilliseconds(ToolTipService.GetShowDuration(this))
             };
 
-            ToolTipTimer.Tick += (_, _) => OnRaiseToolTipClosingEvent(toolTip);
+            ToolTipTimer.Tick += (_, _) => CloseToolToolTip(toolTip);
             ToolTipTimer.Start();
         }
 
-        private void OnRaiseToolTipClosingEvent(ToolTip toolTip)
+        private void CloseToolToolTip(ToolTip toolTip)
         {
-            ResetToolTipTimer();
-
             toolTip.IsOpen = false;
         }
 
@@ -212,14 +259,14 @@ namespace Catalog.Wpf.Forms
                 )
             );
 
-            // if (ToolTipService.GetToolTip(this) is ToolTip toolTip)
-            // {
-            //     toolTip.IsOpen = false;
-            // }
-
             var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
 
             GetGalleryItem(item).IsHighlighted = false;
+
+            if (ToolTip is ToolTip toolTip)
+            {
+                CloseToolToolTip(toolTip);
+            }
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -238,6 +285,24 @@ namespace Catalog.Wpf.Forms
             }
 
             Games.MoveCurrentToPosition(position);
+        }
+
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        {
+            base.OnMouseDoubleClick(e);
+
+            var mousePos = Mouse.GetPosition(this);
+
+            var position = ItemIndexAtPoint(mousePos);
+
+            if (position < 0)
+            {
+                return;
+            }
+
+            OnGameDoubleClick(this, e);
+
+            ScheduleRepaint();
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -302,13 +367,13 @@ namespace Catalog.Wpf.Forms
                 case Key.PageUp:
                     NavigateByPage(FocusNavigationDirection.Up);
 
-                    // BringIntoView(CurrentItemRect);
+                    BringIntoView(CurrentItemRect);
                     break;
 
                 case Key.PageDown:
                     NavigateByPage(FocusNavigationDirection.Down);
 
-                    // BringIntoView(CurrentItemRect);
+                    BringIntoView(CurrentItemRect);
                     break;
 
                 default:
@@ -604,26 +669,36 @@ namespace Catalog.Wpf.Forms
             set => SetValue(ItemVerticalSpacingProperty, value);
         }
 
-        private Rect CurrentItemRect
+        public static readonly DependencyProperty ToolTipItemProperty = DependencyProperty.Register(
+            nameof(ToolTipItem),
+            typeof(GameViewModel),
+            typeof(SkiaGameGalleryView),
+            new PropertyMetadata(default(GameViewModel))
+        );
+
+        public GameViewModel? ToolTipItem
         {
-            get
-            {
-                var index = Games.CurrentPosition;
+            get => (GameViewModel?)GetValue(ToolTipItemProperty);
+            set => SetValue(ToolTipItemProperty, value);
+        }
 
-                var game = (GameViewModel)Games.CurrentItem;
-                var galleryItem = GetGalleryItem(game);
+        private Rect CurrentItemRect => GetItemRect(Games.CurrentPosition);
 
-                var (indexY, indexX) = index.DivRem(ItemsPerRow);
+        private Rect GetItemRect(int index)
+        {
+            var game = (GameViewModel)Games.CurrentItem;
+            var galleryItem = GetGalleryItem(game);
 
-                var offsetY = indexY > 0 ? rowVerticalOffsets[indexY - 1] : 0f;
+            var (indexY, indexX) = index.DivRem(ItemsPerRow);
 
-                return new Rect(
-                    indexX * (ItemWidth + ItemHorizontalSpacing),
-                    offsetY,
-                    galleryItem.DesiredSize.Width,
-                    galleryItem.DesiredSize.Height
-                );
-            }
+            var offsetY = indexY > 0 ? rowVerticalOffsets[indexY - 1] : 0f;
+
+            return new Rect(
+                indexX * (ItemWidth + ItemHorizontalSpacing),
+                offsetY,
+                galleryItem.DesiredSize.Width,
+                galleryItem.DesiredSize.Height
+            );
         }
 
         private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
@@ -746,16 +821,6 @@ namespace Catalog.Wpf.Forms
 
         private int ItemsPerRow =>
             (int)(Math.Floor(ExtentWidth + ItemHorizontalSpacing) / (ItemWidth + ItemHorizontalSpacing));
-
-        private DispatcherTimer? ToolTipTimer
-        {
-            get => toolTipTimer;
-            set
-            {
-                ResetToolTipTimer();
-                toolTipTimer = value;
-            }
-        }
 
         #endregion
 
@@ -1094,8 +1159,6 @@ namespace Catalog.Wpf.Forms
                 default:
                     throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
-
-            BringIntoView(CurrentItemRect);
         }
 
         private void NavigateToStart()

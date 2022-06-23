@@ -259,7 +259,8 @@
                                               Focusable="False"
                                               IsTabStop="False">
                                     <forms:SkiaGameGalleryView Games="{Binding FilteredGames}"
-                                                               HighlightedText="{Binding SearchTerm}" />
+                                                               HighlightedText="{Binding SearchTerm}"
+                                                               GameDoubleClick="GameView_OnGameDoubleClick" />
                                 </ScrollViewer>
                             </Border>
                             <!-- <forms:GameGalleryView GameDoubleClick="GameView_OnGameDoubleClick" -->

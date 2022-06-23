@@ -6,22 +6,20 @@
              xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
              xmlns:local="clr-namespace:Catalog.Wpf.Forms"
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
-             xmlns:model="clr-namespace:Catalog.Model;assembly=BBGC.Core"
-             xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
              Focusable="True"
              IsTabStop="True">
-    <UserControl.Resources>
-    </UserControl.Resources>
     <UserControl.ToolTip>
         <ToolTip>
             <ToolTip.ContentTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{Binding MouseOverItem.Title, RelativeSource={RelativeSource AncestorType=local:SkiaGameGalleryView}, FallbackValue={x:Null}}" />
-                        <controls:GameStats Margin="0,5,0,0" GameItemGroups="{Binding MouseOverItem.GameStats, RelativeSource={RelativeSource AncestorType=local:SkiaGameGalleryView}, FallbackValue={x:Null}}"/>
+                        <TextBlock
+                            Text="{Binding ToolTipItem.Title, RelativeSource={RelativeSource AncestorType=local:SkiaGameGalleryView}, FallbackValue={x:Null}}" />
+                        <controls:GameStats Margin="0,5,0,0"
+                                            GameItemGroups="{Binding ToolTipItem.GameStats, RelativeSource={RelativeSource AncestorType=local:SkiaGameGalleryView}, FallbackValue={x:Null}}" />
                     </StackPanel>
                 </DataTemplate>
             </ToolTip.ContentTemplate>
