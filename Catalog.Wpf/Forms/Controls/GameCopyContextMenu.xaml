@@ -69,7 +69,7 @@
                         <Trigger Property="Tag"
                                  Value="Create">
                             <Setter Property="Command"
-                                    Value="{Binding {Binding DataContext.AddTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}}" />
+                                    Value="{Binding DataContext.AddTagCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                             <Setter Property="CommandParameter"
                                     Value="{Binding DataContext.FilteredGames/, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
                         </Trigger>
