@@ -795,7 +795,7 @@ namespace Catalog.Wpf.Forms
 
         private Rect GetItemRect(int index)
         {
-            var game = (GameViewModel)Games.CurrentItem;
+            var game = (GameViewModel)Games.GetItemAt(index);
             var galleryItem = GetGalleryItem(game);
 
             var (indexY, indexX) = index.DivRem(ItemsPerRow);
