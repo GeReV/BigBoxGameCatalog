@@ -260,6 +260,8 @@
                                               IsTabStop="False">
                                     <forms:SkiaGameGalleryView Games="{Binding FilteredGames}"
                                                                HighlightedText="{Binding SearchTerm}"
+                                                               GameContextMenu="{DynamicResource GameCopyContextMenu}"
+                                                               SelectedItems="{Binding SelectedGames}"
                                                                GameDoubleClick="GameView_OnGameDoubleClick" />
                                 </ScrollViewer>
                             </Border>

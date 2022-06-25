@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -269,22 +271,49 @@ namespace Catalog.Wpf.Forms
             }
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-            base.OnMouseLeftButtonUp(e);
+            base.OnMouseUp(e);
 
-            FocusManager.SetFocusedElement(this, this);
+            switch (e.ChangedButton)
+            {
+                case MouseButton.Left:
+                case MouseButton.Right:
+                {
+                    FocusManager.SetFocusedElement(this, this);
 
-            var mousePos = Mouse.GetPosition(this);
+                    var mousePos = Mouse.GetPosition(this);
 
-            var position = ItemIndexAtPoint(mousePos);
+                    var itemIndex = ItemIndexAtPoint(mousePos);
 
-            if (position < 0)
+                    if (itemIndex < 0)
+                    {
+                        return;
+                    }
+
+                    Games.MoveCurrentToPosition(itemIndex);
+
+                    break;
+                }
+                default:
+                    return;
+            }
+        }
+
+        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseRightButtonUp(e);
+
+            if (GameContextMenu == null)
             {
                 return;
             }
 
-            Games.MoveCurrentToPosition(position);
+            GameContextMenu.DataContext = DataContext;
+            GameContextMenu.PlacementRectangle = GetItemRect(Games.CurrentPosition);
+            GameContextMenu.PlacementTarget = this;
+            GameContextMenu.Tag = DataContext;
+            GameContextMenu.IsOpen = true;
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
@@ -514,6 +543,19 @@ namespace Catalog.Wpf.Forms
             }
         }
 
+        /// <summary>
+        ///     Raise the SelectionChanged event.
+        /// </summary>
+        private void InvokeSelectionChanged(List<GameViewModel> unselectedInfos, List<GameViewModel> selectedInfos)
+        {
+            var selectionChanged = new SelectionChangedEventArgs(SelectionChangedEvent, unselectedInfos, selectedInfos)
+            {
+                Source = this
+            };
+
+            RaiseEvent(selectionChanged);
+        }
+
         #region Nested type: ItemMouseEventArgs
 
         public class ItemMouseEventArgs : RoutedEventArgs
@@ -532,6 +574,71 @@ namespace Catalog.Wpf.Forms
 
         #region Public Properties
 
+        public static readonly DependencyProperty SelectedItemsProperty =
+            DependencyProperty.Register(
+                nameof(SelectedItems),
+                typeof(IList),
+                typeof(SkiaGameGalleryView),
+                new FrameworkPropertyMetadata(
+                    new ObservableCollection<GameViewModel>(),
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    OnSelectedItemsChanged
+                )
+            );
+
+        private static void OnSelectedItemsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+        {
+            var view = (SkiaGameGalleryView)sender;
+
+            if (args.OldValue is INotifyCollectionChanged previousSelectedItems)
+            {
+                previousSelectedItems.CollectionChanged -= view.OnSelectedItemsCollectionChanged;
+            }
+
+            if (args.NewValue is INotifyCollectionChanged selectedItems)
+            {
+                selectedItems.CollectionChanged += view.OnSelectedItemsCollectionChanged;
+            }
+        }
+
+        private void OnSelectedItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            var unselectedItems = new List<GameViewModel>();
+            var selectedItems = new List<GameViewModel>();
+
+            if (e.OldItems != null)
+            {
+                var oldItems = e.OldItems.Cast<GameViewModel>().ToList();
+
+                foreach (var item in oldItems)
+                {
+                    GetGalleryItem(item).IsSelected = false;
+                }
+
+                unselectedItems.AddRange(oldItems);
+            }
+
+            if (e.NewItems != null)
+            {
+                var newItems = e.NewItems.Cast<GameViewModel>().ToList();
+
+                foreach (var item in newItems)
+                {
+                    GetGalleryItem(item).IsSelected = true;
+                }
+
+                selectedItems.AddRange(newItems);
+            }
+
+            InvokeSelectionChanged(unselectedItems, selectedItems);
+        }
+
+        public IList SelectedItems
+        {
+            get => (IList)GetValue(SelectedItemsProperty);
+            set => SetValue(SelectedItemsProperty, value);
+        }
+
         public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
             nameof(GameContextMenu),
             typeof(ContextMenu),
@@ -539,9 +646,9 @@ namespace Catalog.Wpf.Forms
             new PropertyMetadata(default(ContextMenu))
         );
 
-        public ContextMenu GameContextMenu
+        public ContextMenu? GameContextMenu
         {
-            get => (ContextMenu)GetValue(GameContextMenuProperty);
+            get => (ContextMenu?)GetValue(GameContextMenuProperty);
             set => SetValue(GameContextMenuProperty, value);
         }
 
@@ -797,7 +904,7 @@ namespace Catalog.Wpf.Forms
             {
                 var oldSelectedGame = (GameViewModel)Games.CurrentItem;
 
-                GetGalleryItem(oldSelectedGame).IsSelected = false;
+                SelectedItems.Remove(oldSelectedGame);
             }
         }
 
@@ -807,7 +914,7 @@ namespace Catalog.Wpf.Forms
             {
                 var newSelectedGame = (GameViewModel)Games.CurrentItem;
 
-                GetGalleryItem(newSelectedGame).IsSelected = true;
+                SelectedItems.Add(newSelectedGame);
             }
 
             ScheduleRepaint();
@@ -825,6 +932,26 @@ namespace Catalog.Wpf.Forms
         #endregion
 
         #region Public Events
+
+        /// <summary>
+        ///     An event fired when the selection changes.
+        /// </summary>
+        public static readonly RoutedEvent SelectionChangedEvent = EventManager.RegisterRoutedEvent(
+            nameof(SelectionChanged),
+            RoutingStrategy.Bubble,
+            typeof(SelectionChangedEventHandler),
+            typeof(SkiaGameGalleryView)
+        );
+
+        /// <summary>
+        ///     An event fired when the selection changes.
+        /// </summary>
+        [Category("Behavior")]
+        public event SelectionChangedEventHandler SelectionChanged
+        {
+            add => AddHandler(SelectionChangedEvent, value);
+            remove => RemoveHandler(SelectionChangedEvent, value);
+        }
 
         public event EventHandler<EventArgs>? GameDoubleClick;
 

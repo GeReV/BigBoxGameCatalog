@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -12,51 +13,51 @@ using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.Comparers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Catalog.Wpf.ViewModel
 {
     public class MainWindowViewModel : NotifyPropertyChangedBase
     {
-        private ObservableCollection<Tag> tags = new ObservableCollection<Tag>();
-        private ObservableCollection<GameViewModel> games = new ObservableCollection<GameViewModel>();
-        private IList selectedGames = new ArrayList();
-        private ListCollectionView filteredGames = new ListCollectionView(new ArrayList());
-        private string? searchTerm;
-        private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
-        private ICommand? editGameCommand;
         private ICommand? deleteGameCommand;
         private ICommand? duplicateGameCommand;
-        private ICommand? toggleGameTagCommand;
+        private ICommand? editGameCommand;
+        private ListCollectionView filteredGames = new(Array.Empty<GameViewModel>());
+        private ObservableCollection<GameViewModel> games = new();
         private ICommand? refreshGames;
-
-        public MainWindowViewModel()
-        {
-            RefreshTags();
-
-            RefreshGamesCollection();
-
-            PropertyChanged += RefreshFilteredGames;
-        }
+        private string? searchTerm;
+        private ObservableCollection<GameViewModel> selectedGames = new();
+        private ObservableCollection<Tag> tags = new();
+        private ICommand? toggleGameTagCommand;
+        private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
 
         public ListCollectionView FilteredGames
         {
             get => filteredGames;
             set
             {
-                if (Equals(value, filteredGames)) return;
+                if (Equals(value, filteredGames))
+                {
+                    return;
+                }
+
                 filteredGames = value;
                 OnPropertyChanged();
             }
         }
 
-        public IList SelectedGames
+        public ObservableCollection<GameViewModel> SelectedGames
         {
             get => selectedGames;
             set
             {
-                if (Equals(value, selectedGames)) return;
+                if (Equals(value, selectedGames))
+                {
+                    return;
+                }
+
                 selectedGames = value;
+                selectedGames.CollectionChanged += SelectedGamesOnCollectionChanged;
+
                 OnPropertyChanged();
             }
         }
@@ -66,7 +67,11 @@ namespace Catalog.Wpf.ViewModel
             get => games;
             set
             {
-                if (Equals(value, games)) return;
+                if (Equals(value, games))
+                {
+                    return;
+                }
+
                 games = value;
                 OnPropertyChanged();
             }
@@ -77,7 +82,11 @@ namespace Catalog.Wpf.ViewModel
             get => tags;
             set
             {
-                if (Equals(value, tags)) return;
+                if (Equals(value, tags))
+                {
+                    return;
+                }
+
                 tags = value;
                 OnPropertyChanged();
             }
@@ -88,7 +97,11 @@ namespace Catalog.Wpf.ViewModel
             get => searchTerm;
             set
             {
-                if (value == searchTerm) return;
+                if (value == searchTerm)
+                {
+                    return;
+                }
+
                 searchTerm = value;
                 OnPropertyChanged();
             }
@@ -99,7 +112,11 @@ namespace Catalog.Wpf.ViewModel
             get => viewMode;
             set
             {
-                if (Equals(value, viewMode)) return;
+                if (Equals(value, viewMode))
+                {
+                    return;
+                }
+
                 viewMode = value;
                 OnPropertyChanged();
             }
@@ -119,94 +136,123 @@ namespace Catalog.Wpf.ViewModel
         public ICommand ToggleGameTagCommand =>
             toggleGameTagCommand ??= new ToggleTagCommand(this);
 
-        public ICommand ChangeViewModeCommand => new DelegateCommand(param =>
-        {
-            if (param is not MainWindowViewMode mode)
+        public ICommand ChangeViewModeCommand => new DelegateCommand(
+            param =>
             {
-                throw new InvalidOperationException();
+                if (param is not MainWindowViewMode mode)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                ViewMode = mode;
             }
+        );
 
-            ViewMode = mode;
-        });
-
-        public ICommand AddTagCommand => new DelegateCommand((param) =>
-        {
-            if (param is not GameViewModel gameViewModel)
+        public ICommand AddTagCommand => new DelegateCommand(
+            param =>
             {
-                return;
+                if (param is not GameViewModel gameViewModel)
+                {
+                    return;
+                }
+
+                var addTagWindow = new EditTagWindow
+                {
+                    Owner = Application.Current.MainWindow
+                };
+
+                if (addTagWindow.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                using var database = Application.Current.Database();
+
+                Debug.Assert(addTagWindow.ResultTag != null, "addTagWindow.ResultTag != null");
+
+                database.Tags.Add(addTagWindow.ResultTag);
+
+                gameViewModel.GameCopy.GameCopyTags.Add(
+                    new GameCopyTag
+                    {
+                        Game = gameViewModel.GameCopy,
+                        Tag = addTagWindow.ResultTag
+                    }
+                );
+
+                database.SaveChanges();
+
+                RefreshTags();
+
+                RefreshGame(gameViewModel.GameCopy.GameCopyId);
             }
+        );
 
-            var addTagWindow = new EditTagWindow
+        public ICommand CreateTagCommand => new DelegateCommand(
+            _ =>
             {
-                Owner = Application.Current.MainWindow
-            };
+                var addTagWindow = new EditTagWindow
+                {
+                    Owner = Application.Current.MainWindow
+                };
 
-            if (addTagWindow.ShowDialog() != true)
-            {
-                return;
+                if (addTagWindow.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                using var database = Application.Current.Database();
+
+                Debug.Assert(addTagWindow.ResultTag != null, "addTagWindow.ResultTag != null");
+
+                database.Tags.Add(addTagWindow.ResultTag);
+
+                database.SaveChanges();
+
+                RefreshTags();
             }
+        );
 
-            using var database = Application.Current.Database();
-
-            Debug.Assert(addTagWindow.ResultTag != null, "addTagWindow.ResultTag != null");
-
-            database.Tags.Add(addTagWindow.ResultTag);
-
-            gameViewModel.GameCopy.GameCopyTags.Add(new GameCopyTag
+        public ICommand ManageTagsCommand => new DelegateCommand(
+            _ =>
             {
-                Game = gameViewModel.GameCopy,
-                Tag = addTagWindow.ResultTag
-            });
+                var manageTagsWindow = new ManageTagsWindow
+                {
+                    Owner = Application.Current.MainWindow
+                };
 
-            database.SaveChanges();
+                manageTagsWindow.ShowDialog();
 
-            RefreshTags();
+                RefreshTags();
 
-            RefreshGame(gameViewModel.GameCopy.GameCopyId);
-        });
-
-        public ICommand CreateTagCommand => new DelegateCommand(_ =>
-        {
-            var addTagWindow = new EditTagWindow
-            {
-                Owner = Application.Current.MainWindow
-            };
-
-            if (addTagWindow.ShowDialog() != true)
-            {
-                return;
+                RefreshGamesCollection();
             }
+        );
 
-            using var database = Application.Current.Database();
-
-            Debug.Assert(addTagWindow.ResultTag != null, "addTagWindow.ResultTag != null");
-
-            database.Tags.Add(addTagWindow.ResultTag);
-
-            database.SaveChanges();
-
-            RefreshTags();
-        });
-
-        public ICommand ManageTagsCommand => new DelegateCommand(_ =>
+        public MainWindowViewModel()
         {
-            var manageTagsWindow = new ManageTagsWindow
-            {
-                Owner = Application.Current.MainWindow
-            };
-
-            manageTagsWindow.ShowDialog();
-
             RefreshTags();
 
             RefreshGamesCollection();
-        });
 
-        private static IEnumerable<GameCopy> LoadGames(CatalogContext database) =>
-            database.Games
+            PropertyChanged += RefreshFilteredGames;
+
+            SelectedGames.CollectionChanged += SelectedGamesOnCollectionChanged;
+        }
+
+        private void SelectedGamesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            // Raise a PropertyChanged event for SelectedGames so the tag context menu updates.
+            OnPropertyChanged(nameof(SelectedGames));
+        }
+
+        private static IEnumerable<GameCopy> LoadGames(CatalogContext database)
+        {
+            return database.Games
                 .Include(g => g.Items)
                 .Include(g => g.GameCopyTags)
                 .ThenInclude(t => t.Tag);
+        }
 
         public void RefreshGame(int gameCopyId)
         {
@@ -246,18 +292,17 @@ namespace Catalog.Wpf.ViewModel
                 {
                     if (obj is GameViewModel game)
                     {
-                        return game.Title?.IndexOf(SearchTerm ?? string.Empty,
-                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
+                        return game.Title?.IndexOf(
+                            SearchTerm ?? string.Empty,
+                            StringComparison.InvariantCultureIgnoreCase
+                        ) >= 0;
                     }
 
                     return false;
                 }
             };
 
-            // TODO: Figure out how to get command to not lock after an update.
-            // SelectedGames = new ArrayList(Games
-            //     .Where(game => selectedItems.Contains(game.GameCopy.GameCopyId))
-            //     .ToList());
+            RefreshSelectedGames();
         }
 
         private void RefreshTags()
@@ -265,6 +310,16 @@ namespace Catalog.Wpf.ViewModel
             using var database = Application.Current.Database();
 
             Tags = new ObservableCollection<Tag>(database.Tags.OrderBy(t => t.Name));
+        }
+
+        private void RefreshSelectedGames()
+        {
+            var selectedIds = SelectedGames.Select(game => game.GameCopyId).ToImmutableHashSet();
+
+            SelectedGames =
+                new ObservableCollection<GameViewModel>(
+                    Games.Where(game => selectedIds.Contains(game.GameCopyId)).ToList()
+                );
         }
 
         private void RefreshFilteredGames(object? sender, PropertyChangedEventArgs e)
