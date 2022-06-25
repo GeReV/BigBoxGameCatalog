@@ -279,8 +279,8 @@ namespace Catalog.Wpf.ViewModel
                 .Select(gc => new GameViewModel(gc));
 
             Games = new ObservableCollection<GameViewModel>(updatedGames);
-            
-            FilteredGames = new ListCollectionView(Games)
+
+            var updatedFilteredGames = new ListCollectionView(Games)
             {
                 CustomSort = new GameComparer(),
                 Filter = obj =>
@@ -296,6 +296,10 @@ namespace Catalog.Wpf.ViewModel
                     return false;
                 }
             };
+
+            updatedFilteredGames.MoveCurrentToPosition(FilteredGames.CurrentPosition);
+
+            FilteredGames = updatedFilteredGames;
 
             RefreshSelectedGames();
         }

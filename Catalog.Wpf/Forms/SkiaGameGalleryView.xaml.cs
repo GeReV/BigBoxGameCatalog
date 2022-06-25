@@ -701,6 +701,11 @@ namespace Catalog.Wpf.Forms
             collectionView.CurrentChanging += view.CurrentItemChanging;
             collectionView.CurrentChanged += view.CurrentItemChanged;
 
+            if (collectionView.CurrentItem != null)
+            {
+                view.GetGalleryItem((GameViewModel)collectionView.CurrentItem).IsSelected = true;
+            }
+
             view.InvalidateArrange();
             view.Surface.InvalidateVisual();
         }
