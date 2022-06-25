@@ -278,13 +278,8 @@ namespace Catalog.Wpf.ViewModel
             var updatedGames = LoadGames(database)
                 .Select(gc => new GameViewModel(gc));
 
-            // var selectedItems = SelectedGames
-            //     .Cast<GameViewModel>()
-            //     .Select(game => game.GameCopy.GameCopyId)
-            //     .ToList();
-
             Games = new ObservableCollection<GameViewModel>(updatedGames);
-
+            
             FilteredGames = new ListCollectionView(Games)
             {
                 CustomSort = new GameComparer(),
@@ -292,10 +287,10 @@ namespace Catalog.Wpf.ViewModel
                 {
                     if (obj is GameViewModel game)
                     {
-                        return game.Title?.IndexOf(
+                        return game.Title.Contains(
                             SearchTerm ?? string.Empty,
                             StringComparison.InvariantCultureIgnoreCase
-                        ) >= 0;
+                        );
                     }
 
                     return false;

@@ -53,7 +53,7 @@ namespace Catalog.Wpf
             }
         }
 
-        private void GameView_OnGameDoubleClick(object sender, EventArgs e)
+        private void GameView_OnGameExpanded(object sender, EventArgs e)
         {
             var gameViewModel = (GameViewModel?) ViewModel.FilteredGames.CurrentItem;
 

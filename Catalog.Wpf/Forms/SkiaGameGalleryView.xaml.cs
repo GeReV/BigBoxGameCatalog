@@ -379,6 +379,8 @@ namespace Catalog.Wpf.Forms
                 {
                     if (e.Key == Key.Enter && (bool)GetValue(KeyboardNavigation.AcceptsReturnProperty) == false)
                     {
+                        GameExpanded?.Invoke(this, e);
+
                         handled = false;
                         break;
                     }
@@ -953,13 +955,13 @@ namespace Catalog.Wpf.Forms
             remove => RemoveHandler(SelectionChangedEvent, value);
         }
 
-        public event EventHandler<EventArgs>? GameDoubleClick;
+        public event EventHandler<EventArgs>? GameExpanded;
 
         private void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
-                GameDoubleClick?.Invoke(this, e);
+                GameExpanded?.Invoke(this, e);
             }
         }
 
