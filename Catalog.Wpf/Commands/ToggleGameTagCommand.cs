@@ -22,63 +22,68 @@ namespace Catalog.Wpf.Commands
             return parameter is object[] parameters && parameters[1] is ICollection { Count: > 0 };
         }
 
-        protected override async Task Perform(object? parameter)
+        protected override Task Perform(object? parameter)
         {
-            if (parameter is not object[] parameters)
-            {
-                return;
-            }
-
-            if (!(parameters[0] is Tag tag && parameters[1] is ICollection selectedItems))
-            {
-                return;
-            }
-
-            var gameIds = selectedItems.Cast<GameViewModel>().Select(item => item.GameCopy.GameCopyId);
-
-            await using var db = Application.Current.Database();
-
-            var games = await db.Games
-                .Include(game => game.GameCopyTags)
-                .Where(game => gameIds.Contains(game.GameCopyId))
-                .ToListAsync();
-
-            var gamesMissingTag = games
-                .Where(game => game.GameCopyTags.FirstOrDefault(gct => gct.TagId == tag.TagId) == null)
-                .ToList();
-
-            if (gamesMissingTag.Any())
-            {
-                foreach (var game in gamesMissingTag)
+            return Task.Run(
+                async () =>
                 {
-                    game.GameCopyTags.Add(
-                        new GameCopyTag
-                        {
-                            GameCopyId = game.GameCopyId,
-                            TagId = tag.TagId
-                        }
-                    );
-                }
-            }
-            else
-            {
-                foreach (var game in games)
-                {
-                    var gameCopyTag = game.GameCopyTags.FirstOrDefault(gct => gct.TagId == tag.TagId);
-
-                    if (gameCopyTag == null)
+                    if (parameter is not object[] parameters)
                     {
-                        continue;
+                        return;
                     }
 
-                    game.GameCopyTags.Remove(gameCopyTag);
+                    if (!(parameters[0] is Tag tag && parameters[1] is ICollection selectedItems))
+                    {
+                        return;
+                    }
+
+                    var gameIds = selectedItems.Cast<GameViewModel>().Select(item => item.GameCopy.GameCopyId);
+
+                    await using var db = Application.Current.Database();
+
+                    var games = await db.Games
+                        .Include(game => game.GameCopyTags)
+                        .Where(game => gameIds.Contains(game.GameCopyId))
+                        .ToListAsync();
+
+                    var gamesMissingTag = games
+                        .Where(game => game.GameCopyTags.FirstOrDefault(gct => gct.TagId == tag.TagId) == null)
+                        .ToList();
+
+                    if (gamesMissingTag.Any())
+                    {
+                        foreach (var game in gamesMissingTag)
+                        {
+                            game.GameCopyTags.Add(
+                                new GameCopyTag
+                                {
+                                    GameCopyId = game.GameCopyId,
+                                    TagId = tag.TagId
+                                }
+                            );
+                        }
+                    }
+                    else
+                    {
+                        foreach (var game in games)
+                        {
+                            var gameCopyTag = game.GameCopyTags.FirstOrDefault(gct => gct.TagId == tag.TagId);
+
+                            if (gameCopyTag == null)
+                            {
+                                continue;
+                            }
+
+                            game.GameCopyTags.Remove(gameCopyTag);
+                        }
+                    }
+
+                    await db.SaveChangesAsync();
+
+                    // TODO: Refresh just the relevant games.
+                    viewModel.RefreshGamesCollection();
                 }
-            }
-
-            await db.SaveChangesAsync();
-
-            // TODO: Refresh just the relevant games.
-            viewModel.RefreshGamesCollection();
+            );
         }
     }
 }
