@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace Catalog.Wpf.ViewModel
         private ObservableCollection<GameViewModel> games = new();
         private ICommand? refreshGames;
         private string? searchTerm;
-        private ObservableCollection<GameViewModel> selectedGames = new();
+        private IList selectedGames = new ArrayList();
         private ObservableCollection<Tag> tags = new();
         private ICommand? toggleGameTagCommand;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
@@ -45,7 +45,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ObservableCollection<GameViewModel> SelectedGames
+        public IList SelectedGames
         {
             get => selectedGames;
             set
@@ -56,8 +56,6 @@ namespace Catalog.Wpf.ViewModel
                 }
 
                 selectedGames = value;
-                selectedGames.CollectionChanged += SelectedGamesOnCollectionChanged;
-
                 OnPropertyChanged();
             }
         }
@@ -236,14 +234,6 @@ namespace Catalog.Wpf.ViewModel
             RefreshGamesCollection();
 
             PropertyChanged += RefreshFilteredGames;
-
-            SelectedGames.CollectionChanged += SelectedGamesOnCollectionChanged;
-        }
-
-        private void SelectedGamesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            // Raise a PropertyChanged event for SelectedGames so the tag context menu updates.
-            OnPropertyChanged(nameof(SelectedGames));
         }
 
         private static IEnumerable<GameCopy> LoadGames(CatalogContext database)
@@ -313,12 +303,9 @@ namespace Catalog.Wpf.ViewModel
 
         private void RefreshSelectedGames()
         {
-            var selectedIds = SelectedGames.Select(game => game.GameCopyId).ToImmutableHashSet();
+            var selectedIds = SelectedGames.Cast<GameViewModel>().Select(game => game.GameCopyId).ToImmutableHashSet();
 
-            SelectedGames =
-                new ObservableCollection<GameViewModel>(
-                    Games.Where(game => selectedIds.Contains(game.GameCopyId)).ToList()
-                );
+            SelectedGames = Games.Where(game => selectedIds.Contains(game.GameCopyId)).ToList();
         }
 
         private void RefreshFilteredGames(object? sender, PropertyChangedEventArgs e)

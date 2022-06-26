@@ -9,22 +9,30 @@ namespace Catalog.Wpf.Forms
 {
     public partial class GameDetailView : UserControl, IGameView
     {
-        private GridViewColumnHeader? listViewSortCol;
-        private SortAdorner? listViewSortAdorner;
-
         public static readonly DependencyProperty GameContextMenuProperty = DependencyProperty.Register(
-            nameof(GameContextMenu), typeof(ContextMenu), typeof(GameDetailView), new PropertyMetadata(default(ContextMenu)));
+            nameof(GameContextMenu),
+            typeof(ContextMenu),
+            typeof(GameDetailView),
+            new PropertyMetadata(default(ContextMenu))
+        );
 
-        public ContextMenu GameContextMenu
-        {
-            get => (ContextMenu) GetValue(GameContextMenuProperty);
-            set => SetValue(GameContextMenuProperty, value);
-        }
+        private SortAdorner? listViewSortAdorner;
+        private GridViewColumnHeader? listViewSortCol;
 
         public GameDetailView()
         {
             InitializeComponent();
         }
+
+        #region IGameView Members
+
+        public ContextMenu GameContextMenu
+        {
+            get => (ContextMenu)GetValue(GameContextMenuProperty);
+            set => SetValue(GameContextMenuProperty, value);
+        }
+
+        #endregion
 
         public event EventHandler<EventArgs>? GameDoubleClick;
 
@@ -36,9 +44,31 @@ namespace Catalog.Wpf.Forms
             }
         }
 
+        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+        {
+            base.OnContextMenuOpening(e);
+
+            if (e.OriginalSource is not UIElement element)
+            {
+                return;
+            }
+
+            if (element.FindAncestorOrSelf<ListViewItem>() is not { } listViewItem)
+            {
+                return;
+            }
+
+            if (listViewItem.ContextMenu is null)
+            {
+                return;
+            }
+
+            listViewItem.ContextMenu.DataContext = DataContext;
+        }
+
         private void ListViewHeader_OnClick(object sender, RoutedEventArgs e)
         {
-            if (!(sender is GridViewColumnHeader column))
+            if (sender is not GridViewColumnHeader column)
             {
                 return;
             }
@@ -48,11 +78,14 @@ namespace Catalog.Wpf.Forms
                 return;
             }
 
-            var sortBy = column.Tag.ToString();
+            var sortBy = column.Tag.ToString() ?? string.Empty;
 
             if (listViewSortCol != null)
             {
-                AdornerLayer.GetAdornerLayer(listViewSortCol)?.Remove(listViewSortAdorner);
+                if (listViewSortAdorner != null)
+                {
+                    AdornerLayer.GetAdornerLayer(listViewSortCol)?.Remove(listViewSortAdorner);
+                }
 
                 GamesList.Items.SortDescriptions.Clear();
             }

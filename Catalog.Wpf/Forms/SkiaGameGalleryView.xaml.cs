@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -118,9 +117,11 @@ namespace Catalog.Wpf.Forms
             Surface.InvalidateVisual();
         }
 
-        private GalleryItem GetGalleryItem(GameViewModel game)
+        private GalleryItem? GetGalleryItem(GameViewModel game)
         {
-            return galleryItems[game.GameCopyId];
+            galleryItems.TryGetValue(game.GameCopyId, out var galleryItem);
+
+            return galleryItem;
         }
 
         private int ItemIndexAtPoint(Point point)
@@ -176,11 +177,16 @@ namespace Catalog.Wpf.Forms
         {
             base.OnMouseLeave(e);
 
-            if (currentMouseOverItemIndex >= 0)
+            if (currentMouseOverItemIndex >= 0 && currentMouseOverItemIndex < Games.Count)
             {
                 var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
 
-                GetGalleryItem(item).IsHighlighted = false;
+                var galleryItem = GetGalleryItem(item);
+
+                if (galleryItem != null)
+                {
+                    galleryItem.IsHighlighted = false;
+                }
             }
 
             currentMouseOverItemIndex = -1;
@@ -208,7 +214,11 @@ namespace Catalog.Wpf.Forms
 
             currentMouseOverItemIndex = itemIndex;
 
-            GetGalleryItem(item).IsHighlighted = true;
+            var galleryItem = GetGalleryItem(item);
+            if (galleryItem != null)
+            {
+                galleryItem.IsHighlighted = true;
+            }
 
             if (ToolTip is ToolTip toolTip)
             {
@@ -226,7 +236,7 @@ namespace Catalog.Wpf.Forms
 
         private void OpenToolTip(ToolTip toolTip)
         {
-            if (currentMouseOverItemIndex < 0)
+            if (currentMouseOverItemIndex < 0 || currentMouseOverItemIndex > Games.Count)
             {
                 return;
             }
@@ -263,7 +273,11 @@ namespace Catalog.Wpf.Forms
 
             var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
 
-            GetGalleryItem(item).IsHighlighted = false;
+            var galleryItem = GetGalleryItem(item);
+            if (galleryItem != null)
+            {
+                galleryItem.IsHighlighted = false;
+            }
 
             if (ToolTip is ToolTip toolTip)
             {
@@ -291,7 +305,7 @@ namespace Catalog.Wpf.Forms
                         return;
                     }
 
-                    Games.MoveCurrentToPosition(itemIndex);
+                    Games?.MoveCurrentToPosition(itemIndex);
 
                     break;
                 }
@@ -309,10 +323,8 @@ namespace Catalog.Wpf.Forms
                 return;
             }
 
-            GameContextMenu.DataContext = DataContext;
             GameContextMenu.PlacementRectangle = GetItemRect(Games.CurrentPosition);
             GameContextMenu.PlacementTarget = this;
-            GameContextMenu.Tag = DataContext;
             GameContextMenu.IsOpen = true;
         }
 
@@ -495,7 +507,7 @@ namespace Catalog.Wpf.Forms
             for (var i = 0; i < Games.Count; i++)
             {
                 var game = (GameViewModel)Games.GetItemAt(i);
-                var galleryItem = GetGalleryItem(game);
+                var galleryItem = GetGalleryItem(game) ?? throw new ArgumentNullException();
 
                 galleryItem.Measure(itemConstraint);
 
@@ -541,14 +553,14 @@ namespace Catalog.Wpf.Forms
             {
                 var g = (GameViewModel)Games.GetItemAt(j);
 
-                GetGalleryItem(g).Arrange(finalItemSize);
+                GetGalleryItem(g)?.Arrange(finalItemSize);
             }
         }
 
         /// <summary>
         ///     Raise the SelectionChanged event.
         /// </summary>
-        private void InvokeSelectionChanged(List<GameViewModel> unselectedInfos, List<GameViewModel> selectedInfos)
+        private void InvokeSelectionChanged(IList unselectedInfos, IList selectedInfos)
         {
             var selectionChanged = new SelectionChangedEventArgs(SelectionChangedEvent, unselectedInfos, selectedInfos)
             {
@@ -582,7 +594,7 @@ namespace Catalog.Wpf.Forms
                 typeof(IList),
                 typeof(SkiaGameGalleryView),
                 new FrameworkPropertyMetadata(
-                    new ObservableCollection<GameViewModel>(),
+                    null,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                     OnSelectedItemsChanged
                 )
@@ -592,47 +604,31 @@ namespace Catalog.Wpf.Forms
         {
             var view = (SkiaGameGalleryView)sender;
 
-            if (args.OldValue is INotifyCollectionChanged previousSelectedItems)
+            var previousSelectedItems = args.OldValue switch
             {
-                previousSelectedItems.CollectionChanged -= view.OnSelectedItemsCollectionChanged;
+                IList l => l,
+                _ => Array.Empty<GameViewModel>()
+            };
+
+            var selectedItems = args.NewValue switch
+            {
+                IList l => l,
+                _ => Array.Empty<GameViewModel>()
+            };
+
+            foreach (var item in previousSelectedItems.Cast<GameViewModel>()
+                         .Select(view.GetGalleryItem)
+                         .OfType<GalleryItem>())
+            {
+                item.IsSelected = false;
             }
 
-            if (args.NewValue is INotifyCollectionChanged selectedItems)
+            foreach (var item in selectedItems.Cast<GameViewModel>().Select(view.GetGalleryItem).OfType<GalleryItem>())
             {
-                selectedItems.CollectionChanged += view.OnSelectedItemsCollectionChanged;
-            }
-        }
-
-        private void OnSelectedItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            var unselectedItems = new List<GameViewModel>();
-            var selectedItems = new List<GameViewModel>();
-
-            if (e.OldItems != null)
-            {
-                var oldItems = e.OldItems.Cast<GameViewModel>().ToList();
-
-                foreach (var item in oldItems)
-                {
-                    GetGalleryItem(item).IsSelected = false;
-                }
-
-                unselectedItems.AddRange(oldItems);
+                item.IsSelected = true;
             }
 
-            if (e.NewItems != null)
-            {
-                var newItems = e.NewItems.Cast<GameViewModel>().ToList();
-
-                foreach (var item in newItems)
-                {
-                    GetGalleryItem(item).IsSelected = true;
-                }
-
-                selectedItems.AddRange(newItems);
-            }
-
-            InvokeSelectionChanged(unselectedItems, selectedItems);
+            view.InvokeSelectionChanged(previousSelectedItems, selectedItems);
         }
 
         public IList SelectedItems
@@ -658,7 +654,7 @@ namespace Catalog.Wpf.Forms
             nameof(Games),
             typeof(CollectionView),
             typeof(SkiaGameGalleryView),
-            new PropertyMetadata(null, GamesPropertyChangedCallback)
+            new PropertyMetadata(null, GamesPropertyChangedCallback, GamesPropertyCoerceValueCallback)
         );
 
         public CollectionView Games
@@ -678,7 +674,6 @@ namespace Catalog.Wpf.Forms
 
             if (e.OldValue is CollectionView oldCollectionView)
             {
-                oldCollectionView.CurrentChanging -= view.CurrentItemChanging;
                 oldCollectionView.CurrentChanged -= view.CurrentItemChanged;
             }
 
@@ -698,16 +693,25 @@ namespace Catalog.Wpf.Forms
 
             view.BuildGalleryItems(games);
 
-            collectionView.CurrentChanging += view.CurrentItemChanging;
             collectionView.CurrentChanged += view.CurrentItemChanged;
 
             if (collectionView.CurrentItem != null)
             {
-                view.GetGalleryItem((GameViewModel)collectionView.CurrentItem).IsSelected = true;
+                var galleryItem = view.GetGalleryItem((GameViewModel)collectionView.CurrentItem);
+
+                if (galleryItem != null)
+                {
+                    galleryItem.IsSelected = true;
+                }
             }
 
             view.InvalidateArrange();
             view.Surface.InvalidateVisual();
+        }
+
+        private static object GamesPropertyCoerceValueCallback(DependencyObject d, object? basevalue)
+        {
+            return basevalue ?? new CollectionView(Enumerable.Empty<GameViewModel>());
         }
 
         public static readonly DependencyProperty HighlightedTextProperty = DependencyProperty.Register(
@@ -801,7 +805,7 @@ namespace Catalog.Wpf.Forms
         private Rect GetItemRect(int index)
         {
             var game = (GameViewModel)Games.GetItemAt(index);
-            var galleryItem = GetGalleryItem(game);
+            var galleryItem = GetGalleryItem(game) ?? throw new ArgumentNullException();
 
             var (indexY, indexX) = index.DivRem(ItemsPerRow);
 
@@ -905,24 +909,16 @@ namespace Catalog.Wpf.Forms
             Rearrange();
         }
 
-        private void CurrentItemChanging(object sender, CurrentChangingEventArgs e)
-        {
-            if (Games.CurrentItem != null)
-            {
-                var oldSelectedGame = (GameViewModel)Games.CurrentItem;
-
-                SelectedItems.Remove(oldSelectedGame);
-            }
-        }
-
         private void CurrentItemChanged(object? sender, EventArgs e)
         {
+            var selectedItems = new ArrayList();
+
             if (Games.CurrentItem != null)
             {
-                var newSelectedGame = (GameViewModel)Games.CurrentItem;
-
-                SelectedItems.Add(newSelectedGame);
+                selectedItems.Add(Games.CurrentItem);
             }
+
+            SelectedItems = selectedItems;
 
             ScheduleRepaint();
         }
@@ -1057,7 +1053,7 @@ namespace Catalog.Wpf.Forms
                     offsetY
                 );
 
-                galleryItem.Paint(canvas, point);
+                galleryItem?.Paint(canvas, point);
             }
 
             canvas.Restore();
