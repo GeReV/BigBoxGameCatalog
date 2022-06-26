@@ -34,13 +34,13 @@ namespace Catalog.Wpf.Forms
 
         #endregion
 
-        public event EventHandler<EventArgs>? GameDoubleClick;
+        public event EventHandler<EventArgs>? GameExpanded;
 
-        protected virtual void OnGameDoubleClick(object sender, MouseButtonEventArgs e)
+        private void OnGameExpanded(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
-                GameDoubleClick?.Invoke(this, e);
+                GameExpanded?.Invoke(this, e);
             }
         }
 

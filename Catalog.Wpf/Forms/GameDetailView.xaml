@@ -28,7 +28,7 @@
                 <Setter Property="Tag"
                         Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
                 <EventSetter Event="MouseDoubleClick"
-                             Handler="OnGameDoubleClick" />
+                             Handler="OnGameExpanded" />
             </Style>
         </ListView.ItemContainerStyle>
         <ListView.View>
