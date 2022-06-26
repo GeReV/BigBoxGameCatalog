@@ -121,11 +121,9 @@ namespace Catalog.Wpf.Forms
             Surface.InvalidateVisual();
         }
 
-        private GalleryItem? GetGalleryItem(GameViewModel game)
+        private GalleryItem GetGalleryItem(GameViewModel game)
         {
-            galleryItems.TryGetValue(game.GameCopyId, out var galleryItem);
-
-            return galleryItem;
+            return galleryItems[game.GameCopyId];
         }
 
         private int ItemIndexAtPoint(Point point)
@@ -185,12 +183,7 @@ namespace Catalog.Wpf.Forms
             {
                 var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
 
-                var galleryItem = GetGalleryItem(item);
-
-                if (galleryItem != null)
-                {
-                    galleryItem.IsHighlighted = false;
-                }
+                GetGalleryItem(item).IsHighlighted = false;
             }
 
             currentMouseOverItemIndex = -1;
@@ -218,11 +211,7 @@ namespace Catalog.Wpf.Forms
 
             currentMouseOverItemIndex = itemIndex;
 
-            var galleryItem = GetGalleryItem(item);
-            if (galleryItem != null)
-            {
-                galleryItem.IsHighlighted = true;
-            }
+            GetGalleryItem(item).IsHighlighted = true;
 
             if (ToolTip is ToolTip toolTip)
             {
@@ -277,11 +266,7 @@ namespace Catalog.Wpf.Forms
 
             var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
 
-            var galleryItem = GetGalleryItem(item);
-            if (galleryItem != null)
-            {
-                galleryItem.IsHighlighted = false;
-            }
+            GetGalleryItem(item).IsHighlighted = false;
 
             if (ToolTip is ToolTip toolTip)
             {
@@ -511,7 +496,7 @@ namespace Catalog.Wpf.Forms
             for (var i = 0; i < Games.Count; i++)
             {
                 var game = (GameViewModel)Games.GetItemAt(i);
-                var galleryItem = GetGalleryItem(game) ?? throw new ArgumentNullException();
+                var galleryItem = GetGalleryItem(game);
 
                 galleryItem.Measure(itemConstraint);
 
@@ -610,24 +595,24 @@ namespace Catalog.Wpf.Forms
 
             var previousSelectedItems = args.OldValue switch
             {
-                IList l => l,
-                _ => Array.Empty<GameViewModel>()
+                IList l => l.Cast<GameViewModel>().ToList(),
+                _ => new List<GameViewModel>()
             };
 
             var selectedItems = args.NewValue switch
             {
-                IList l => l,
-                _ => Array.Empty<GameViewModel>()
+                IList l => l.Cast<GameViewModel>().ToList(),
+                _ => new List<GameViewModel>()
             };
 
-            foreach (var item in previousSelectedItems.Cast<GameViewModel>()
-                         .Select(view.GetGalleryItem)
-                         .OfType<GalleryItem>())
+            foreach (var item in previousSelectedItems
+                         .Where(view.Games.Contains)
+                         .Select(view.GetGalleryItem))
             {
                 item.IsSelected = false;
             }
 
-            foreach (var item in selectedItems.Cast<GameViewModel>().Select(view.GetGalleryItem).OfType<GalleryItem>())
+            foreach (var item in selectedItems.Select(view.GetGalleryItem))
             {
                 item.IsSelected = true;
             }
@@ -699,14 +684,9 @@ namespace Catalog.Wpf.Forms
 
             collectionView.CurrentChanged += view.CurrentItemChanged;
 
-            if (collectionView.CurrentItem != null)
+            if (collectionView.CurrentItem is GameViewModel currentItem)
             {
-                var galleryItem = view.GetGalleryItem((GameViewModel)collectionView.CurrentItem);
-
-                if (galleryItem != null)
-                {
-                    galleryItem.IsSelected = true;
-                }
+                view.GetGalleryItem(currentItem).IsSelected = true;
             }
 
             view.InvalidateArrange();
@@ -809,7 +789,7 @@ namespace Catalog.Wpf.Forms
         private Rect GetItemRect(int index)
         {
             var game = (GameViewModel)Games.GetItemAt(index);
-            var galleryItem = GetGalleryItem(game) ?? throw new ArgumentNullException();
+            var galleryItem = GetGalleryItem(game);
 
             var (indexY, indexX) = index.DivRem(ItemsPerRow);
 
