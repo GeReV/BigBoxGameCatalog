@@ -69,6 +69,13 @@ namespace Catalog.Wpf.Forms
             InitializeComponent();
 
             SetupToolTip();
+
+            Unloaded += OnUnloaded;
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            surface?.Dispose();
         }
 
         private void SetupToolTip()
