@@ -12,8 +12,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Catalog.Wpf.Gallery;
-using Catalog.Wpf.GlContexts;
-using Catalog.Wpf.GlContexts.Wgl;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
@@ -28,12 +26,10 @@ namespace Catalog.Wpf.Forms
 
         #endregion
 
-        private readonly SkiaTextureAtlas atlas;
+        private static readonly string AtlasPropertyName = $"{nameof(SkiaGameGalleryView)}.Atlas";
+        private static readonly string GrContextPropertyName = $"{nameof(SkiaGameGalleryView)}.GrContext";
 
         private readonly Dictionary<int, GalleryItem> galleryItems = new();
-
-        private readonly GlContext glContext = new WglContext();
-        private readonly GRContext grContext;
 
         private readonly List<float> rowVerticalOffsets = new();
 
@@ -62,13 +58,14 @@ namespace Catalog.Wpf.Forms
             }
         }
 
+        private SkiaTextureAtlas Atlas =>
+            (SkiaTextureAtlas)(Application.Current.Properties[AtlasPropertyName] ??= new SkiaTextureAtlas());
+
+        private GRContext GrContext =>
+            (GRContext)(Application.Current.Properties[GrContextPropertyName] ??= GRContext.CreateGl());
+
         public SkiaGameGalleryView()
         {
-            glContext.MakeCurrent();
-            grContext = GRContext.CreateGl();
-
-            atlas = new SkiaTextureAtlas();
-
             InitializeComponent();
 
             SetupToolTip();
@@ -444,7 +441,7 @@ namespace Catalog.Wpf.Forms
             if (screenCanvasSize != canvasSize)
             {
                 surface?.Dispose();
-                surface = SKSurface.Create(grContext, true, new SKImageInfo(canvasSize.Width, canvasSize.Height));
+                surface = SKSurface.Create(GrContext, true, new SKImageInfo(canvasSize.Width, canvasSize.Height));
 
                 screenCanvasSize = canvasSize;
             }
@@ -841,7 +838,7 @@ namespace Catalog.Wpf.Forms
                     {
                         galleryItems.Add(
                             addedGame.GameCopyId,
-                            new GalleryItem(this, addedGame, atlas)
+                            new GalleryItem(this, addedGame, Atlas)
                             {
                                 Padding = ItemPadding
                             }
@@ -880,7 +877,7 @@ namespace Catalog.Wpf.Forms
                     {
                         galleryItems.Add(
                             addedGame.GameCopyId,
-                            new GalleryItem(this, addedGame, atlas)
+                            new GalleryItem(this, addedGame, Atlas)
                             {
                                 Padding = ItemPadding
                             }
@@ -999,9 +996,10 @@ namespace Catalog.Wpf.Forms
         private void BuildAtlas(IEnumerable<GameViewModel> games)
         {
             var list = games.Select(g => g.CoverPath)
-                .OfType<string>();
+                .OfType<string>()
+                .ToList();
 
-            atlas.BuildAtlas(grContext, list);
+            Atlas.BuildAtlas(GrContext, list);
         }
 
         private void BuildGalleryItems(IEnumerable<GameViewModel> games)
@@ -1012,7 +1010,7 @@ namespace Catalog.Wpf.Forms
             {
                 galleryItems.Add(
                     game.GameCopyId,
-                    new GalleryItem(this, game, atlas)
+                    new GalleryItem(this, game, Atlas)
                     {
                         Padding = ItemPadding
                     }

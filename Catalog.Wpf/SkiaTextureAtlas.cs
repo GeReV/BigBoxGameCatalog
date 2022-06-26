@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using SkiaSharp;
 
@@ -90,24 +91,24 @@ namespace Catalog.Wpf
         private readonly int spriteWidth;
         private SKImage? atlas;
 
-        // private static bool IsPowerOf2(int n) => (n & (n - 1)) == 0;
+        private int currentAtlasHash;
 
         public SkiaTextureAtlas(int spriteWidth = 256, int atlasSize = 8192)
         {
-            // Contract.Requires<ArgumentException>(
-            //     spriteWidth > 0,
-            //     $"Expected {nameof(spriteWidth)} to be greater than 0"
-            // );
-            // Contract.Requires<ArgumentException>(
-            //     IsPowerOf2(spriteWidth),
-            //     $"Expected {nameof(spriteWidth)} to be a power of 2"
-            // );
-            //
-            // Contract.Requires<ArgumentException>(atlasSize > 0, $"Expected {nameof(atlasSize)} to be greater than 0");
-            // Contract.Requires<ArgumentException>(
-            //     IsPowerOf2(atlasSize),
-            //     $"Expected {nameof(atlasSize)} to be a power of 2"
-            // );
+            Contract.Requires<ArgumentException>(
+                spriteWidth > 0,
+                $"Expected {nameof(spriteWidth)} to be greater than 0"
+            );
+            Contract.Requires<ArgumentException>(
+                IsPowerOf2(spriteWidth),
+                $"Expected {nameof(spriteWidth)} to be a power of 2"
+            );
+
+            Contract.Requires<ArgumentException>(atlasSize > 0, $"Expected {nameof(atlasSize)} to be greater than 0");
+            Contract.Requires<ArgumentException>(
+                IsPowerOf2(atlasSize),
+                $"Expected {nameof(atlasSize)} to be a power of 2"
+            );
 
             this.spriteWidth = spriteWidth;
             this.atlasSize = atlasSize;
@@ -122,8 +123,42 @@ namespace Catalog.Wpf
 
         #endregion
 
-        public void BuildAtlas(GRContext grContext, IEnumerable<string> images)
+        private static bool IsPowerOf2(int n)
         {
+            return (n & (n - 1)) == 0;
+        }
+
+        private static int HashImages(List<string> images)
+        {
+            var hash = new HashCode();
+
+            images.Sort();
+
+            foreach (var image in images)
+            {
+                hash.Add(image);
+            }
+
+            return hash.ToHashCode();
+        }
+
+        public void BuildAtlas(GRContext grContext, ICollection<string> images)
+        {
+            if (images.Count == 0)
+            {
+                return;
+            }
+
+            var newHash = HashImages(images.ToList());
+
+            // Same atlas requested, no need to rebuild.
+            if (currentAtlasHash == newHash)
+            {
+                return;
+            }
+
+            currentAtlasHash = newHash;
+
             atlas?.Dispose();
 
             var surface = SKSurface.Create(

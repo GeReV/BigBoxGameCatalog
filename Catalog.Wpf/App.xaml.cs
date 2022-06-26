@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using Catalog.Scrapers;
+using Catalog.Wpf.GlContexts;
+using Catalog.Wpf.GlContexts.Wgl;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf
@@ -21,6 +23,8 @@ namespace Catalog.Wpf
         private const string BACKUP_FILENAME_PATTERN = "*.sqlite";
         private const string BACKUP_FILENAME_DATE_PATTERN = "yyyyMMddhhmmss";
         private readonly TimeSpan BACKUP_AGE_THRESHOLD = TimeSpan.FromDays(7);
+        
+        private readonly GlContext glContext = new WglContext();
 
         public App()
         {
@@ -30,6 +34,8 @@ namespace Catalog.Wpf
             Current.Properties.Add(nameof(ApplicationHelpers.ScraperWebClient), new WebClient());
 
             InitializeDatabase();
+            
+            glContext.MakeCurrent();
         }
 
         private static string EnsureHomeDirectory()
