@@ -20,12 +20,6 @@ namespace Catalog.Wpf.Forms
 {
     public sealed partial class GameGalleryView : UserControl, IScrollInfo
     {
-        #region Delegates
-
-        public delegate void ItemMouseEventHandler(object sender, ItemMouseEventArgs e);
-
-        #endregion
-
         private static readonly string AtlasPropertyName = $"{nameof(GameGalleryView)}.{nameof(Atlas)}";
         private static readonly string GrContextPropertyName = $"{nameof(GameGalleryView)}.{nameof(GrContext)}";
 
@@ -100,6 +94,33 @@ namespace Catalog.Wpf.Forms
 
                 ToolTipTimer = null;
             }
+        }
+
+        private void OpenToolTip(ToolTip toolTip)
+        {
+            if (currentMouseOverItemIndex < 0 || currentMouseOverItemIndex > Games.Count)
+            {
+                return;
+            }
+
+            currentTooltipItemIndex = currentMouseOverItemIndex;
+
+            ToolTipItem = (GameViewModel?)Games.GetItemAt(currentTooltipItemIndex);
+
+            toolTip.IsOpen = true;
+
+            ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
+            {
+                Interval = TimeSpan.FromMilliseconds(ToolTipService.GetShowDuration(this))
+            };
+
+            ToolTipTimer.Tick += (_, _) => CloseToolToolTip(toolTip);
+            ToolTipTimer.Start();
+        }
+
+        private void CloseToolToolTip(ToolTip toolTip)
+        {
+            toolTip.IsOpen = false;
         }
 
         private void Rearrange(bool shouldSkipArrangeItems = false)
@@ -195,83 +216,6 @@ namespace Catalog.Wpf.Forms
             }
 
             ScheduleRepaint();
-        }
-
-        private void OnItemMouseEnter(int itemIndex)
-        {
-            var item = (GameViewModel)Games.GetItemAt(itemIndex);
-
-            RaiseEvent(
-                new ItemMouseEventArgs(
-                    ItemMouseEnterEvent,
-                    item,
-                    itemIndex
-                )
-            );
-
-            currentMouseOverItemIndex = itemIndex;
-
-            GetGalleryItem(item).IsHighlighted = true;
-
-            if (ToolTip is ToolTip toolTip)
-            {
-                toolTip.PlacementRectangle = GetItemRect(itemIndex);
-
-                ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
-                {
-                    Interval = TimeSpan.FromMilliseconds(ToolTipService.GetInitialShowDelay(this))
-                };
-
-                ToolTipTimer.Tick += (_, _) => OpenToolTip(toolTip);
-                ToolTipTimer.Start();
-            }
-        }
-
-        private void OpenToolTip(ToolTip toolTip)
-        {
-            if (currentMouseOverItemIndex < 0 || currentMouseOverItemIndex > Games.Count)
-            {
-                return;
-            }
-
-            currentTooltipItemIndex = currentMouseOverItemIndex;
-
-            ToolTipItem = (GameViewModel?)Games.GetItemAt(currentTooltipItemIndex);
-
-            toolTip.IsOpen = true;
-
-            ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
-            {
-                Interval = TimeSpan.FromMilliseconds(ToolTipService.GetShowDuration(this))
-            };
-
-            ToolTipTimer.Tick += (_, _) => CloseToolToolTip(toolTip);
-            ToolTipTimer.Start();
-        }
-
-        private void CloseToolToolTip(ToolTip toolTip)
-        {
-            toolTip.IsOpen = false;
-        }
-
-        private void OnItemMouseLeave()
-        {
-            RaiseEvent(
-                new ItemMouseEventArgs(
-                    ItemMouseLeaveEvent,
-                    Games.GetItemAt(currentMouseOverItemIndex),
-                    currentMouseOverItemIndex
-                )
-            );
-
-            var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
-
-            GetGalleryItem(item).IsHighlighted = false;
-
-            if (ToolTip is ToolTip toolTip)
-            {
-                CloseToolToolTip(toolTip);
-            }
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
@@ -425,6 +369,56 @@ namespace Catalog.Wpf.Forms
             }
         }
 
+        private void OnItemMouseEnter(int itemIndex)
+        {
+            var item = (GameViewModel)Games.GetItemAt(itemIndex);
+
+            RaiseEvent(
+                new ItemMouseEventArgs(
+                    ItemMouseEnterEvent,
+                    item,
+                    itemIndex
+                )
+            );
+
+            currentMouseOverItemIndex = itemIndex;
+
+            GetGalleryItem(item).IsHighlighted = true;
+
+            if (ToolTip is ToolTip toolTip)
+            {
+                toolTip.PlacementRectangle = GetItemRect(itemIndex);
+
+                ToolTipTimer = new DispatcherTimer(DispatcherPriority.Normal)
+                {
+                    Interval = TimeSpan.FromMilliseconds(ToolTipService.GetInitialShowDelay(this))
+                };
+
+                ToolTipTimer.Tick += (_, _) => OpenToolTip(toolTip);
+                ToolTipTimer.Start();
+            }
+        }
+
+        private void OnItemMouseLeave()
+        {
+            RaiseEvent(
+                new ItemMouseEventArgs(
+                    ItemMouseLeaveEvent,
+                    Games.GetItemAt(currentMouseOverItemIndex),
+                    currentMouseOverItemIndex
+                )
+            );
+
+            var item = (GameViewModel)Games.GetItemAt(currentMouseOverItemIndex);
+
+            GetGalleryItem(item).IsHighlighted = false;
+
+            if (ToolTip is ToolTip toolTip)
+            {
+                CloseToolToolTip(toolTip);
+            }
+        }
+
         private void Canvas_OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
         {
             var canvasSize = new SKSizeI(e.Info.Width, e.Info.Height);
@@ -542,7 +536,7 @@ namespace Catalog.Wpf.Forms
             {
                 var g = (GameViewModel)Games.GetItemAt(j);
 
-                GetGalleryItem(g)?.Arrange(finalItemSize);
+                GetGalleryItem(g).Arrange(finalItemSize);
             }
         }
 
@@ -558,22 +552,6 @@ namespace Catalog.Wpf.Forms
 
             RaiseEvent(selectionChanged);
         }
-
-        #region Nested type: ItemMouseEventArgs
-
-        public class ItemMouseEventArgs : RoutedEventArgs
-        {
-            public object Item { get; }
-            public int ItemIndex { get; }
-
-            public ItemMouseEventArgs(RoutedEvent routedEvent, object item, int itemIndex) : base(routedEvent)
-            {
-                Item = item;
-                ItemIndex = itemIndex;
-            }
-        }
-
-        #endregion
 
         #region Public Properties
 
@@ -678,7 +656,7 @@ namespace Catalog.Wpf.Forms
 
             var games = collectionView.Cast<GameViewModel>().ToList();
 
-            view.BuildAtlas(games);
+            BuildAtlas(games);
 
             view.BuildGalleryItems(games);
 
@@ -693,9 +671,9 @@ namespace Catalog.Wpf.Forms
             view.Surface.InvalidateVisual();
         }
 
-        private static object GamesPropertyCoerceValueCallback(DependencyObject d, object? basevalue)
+        private static object GamesPropertyCoerceValueCallback(DependencyObject d, object? value)
         {
-            return basevalue ?? new CollectionView(Enumerable.Empty<GameViewModel>());
+            return value ?? new CollectionView(Enumerable.Empty<GameViewModel>());
         }
 
         public static readonly DependencyProperty HighlightedTextProperty = DependencyProperty.Register(
@@ -801,6 +779,19 @@ namespace Catalog.Wpf.Forms
                 galleryItem.DesiredSize.Width,
                 galleryItem.DesiredSize.Height
             );
+        }
+
+        private Range GetItemIndicesInView()
+        {
+            var startRowIndex = Math.Max(0, rowVerticalOffsets.FindIndex(v => VerticalOffset < v));
+
+            var bottom = Math.Min(VerticalOffset + ViewportHeight, ExtentHeight);
+            var endRowIndex = rowVerticalOffsets.FindIndex(startRowIndex, v => bottom <= v) + 1;
+
+            var start = startRowIndex * ItemsPerRow;
+            var end = Math.Min(Games.Count, endRowIndex * ItemsPerRow);
+
+            return start..end;
         }
 
         private static void RedrawCallback(DependencyObject d, DependencyPropertyChangedEventArgs _)
@@ -980,7 +971,7 @@ namespace Catalog.Wpf.Forms
 
         #region Rendering
 
-        private void BuildAtlas(IEnumerable<GameViewModel> games)
+        private static void BuildAtlas(IEnumerable<GameViewModel> games)
         {
             var list = games.Select(g => g.CoverPath)
                 .OfType<string>()
@@ -1038,23 +1029,10 @@ namespace Catalog.Wpf.Forms
                     offsetY
                 );
 
-                galleryItem?.Paint(canvas, point);
+                galleryItem.Paint(canvas, point);
             }
 
             canvas.Restore();
-        }
-
-        private Range GetItemIndicesInView()
-        {
-            var startRowIndex = Math.Max(0, rowVerticalOffsets.FindIndex(v => VerticalOffset < v));
-
-            var bottom = Math.Min(VerticalOffset + ViewportHeight, ExtentHeight);
-            var endRowIndex = rowVerticalOffsets.FindIndex(startRowIndex, v => bottom <= v) + 1;
-
-            var start = startRowIndex * ItemsPerRow;
-            var end = Math.Min(Games.Count, endRowIndex * ItemsPerRow);
-
-            return start..end;
         }
 
         #endregion
@@ -1063,6 +1041,21 @@ namespace Catalog.Wpf.Forms
 
         private const double LINE_SIZE = 16;
         private const double WHEEL_SIZE = LINE_SIZE * 3;
+
+        public ScrollViewer? ScrollOwner { get; set; }
+
+        public bool CanHorizontallyScroll { get; set; }
+
+        public bool CanVerticallyScroll { get; set; }
+
+        public double ExtentWidth => extent.Width;
+        public double ExtentHeight => extent.Height;
+
+        public double HorizontalOffset => offset.X;
+        public double VerticalOffset => offset.Y;
+
+        public double ViewportWidth => Surface.ActualWidth;
+        public double ViewportHeight => Surface.ActualHeight;
 
         private void VerifyScrollData()
         {
@@ -1170,21 +1163,6 @@ namespace Catalog.Wpf.Forms
                 Rearrange(true);
             }
         }
-
-        public ScrollViewer? ScrollOwner { get; set; }
-
-        public bool CanHorizontallyScroll { get; set; }
-
-        public bool CanVerticallyScroll { get; set; }
-
-        public double ExtentWidth => extent.Width;
-        public double ExtentHeight => extent.Height;
-
-        public double HorizontalOffset => offset.X;
-        public double VerticalOffset => offset.Y;
-
-        public double ViewportWidth => Surface.ActualWidth;
-        public double ViewportHeight => Surface.ActualHeight;
 
         #endregion
 
