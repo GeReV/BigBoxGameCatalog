@@ -32,7 +32,7 @@ namespace Catalog.Model
 
         public int PublisherId { get; set; }
 
-        public Publisher Publisher { get; set; }
+        public Publisher? Publisher { get; set; }
 
         public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; } = new List<GameCopyDeveloper>();
 

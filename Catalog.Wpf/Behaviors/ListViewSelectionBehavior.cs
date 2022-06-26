@@ -8,22 +8,35 @@ using Microsoft.Xaml.Behaviors;
 namespace Catalog.Wpf.Behaviors
 {
     /// <summary>
-    /// Taken from: https://tyrrrz.me/blog/wpf-listbox-selecteditems-twoway-binding
+    ///     Taken from: https://tyrrrz.me/blog/wpf-listbox-selecteditems-twoway-binding
     /// </summary>
     public class ListViewSelectionBehavior : Behavior<ListView>
     {
         public static readonly DependencyProperty SelectedItemsProperty =
-            DependencyProperty.Register(nameof(SelectedItems), typeof(IList),
+            DependencyProperty.Register(
+                nameof(SelectedItems),
+                typeof(IList),
                 typeof(ListViewSelectionBehavior),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                    OnSelectedItemsChanged));
+                new FrameworkPropertyMetadata(
+                    null,
+                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                    OnSelectedItemsChanged
+                )
+            );
+
+        private bool modelHandled;
 
         private bool viewHandled;
-        private bool modelHandled;
+
+        public IList SelectedItems
+        {
+            get => (IList)GetValue(SelectedItemsProperty);
+            set => SetValue(SelectedItemsProperty, value);
+        }
 
         private static void OnSelectedItemsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
-            var behavior = (ListViewSelectionBehavior) sender;
+            var behavior = (ListViewSelectionBehavior)sender;
 
             if (behavior.modelHandled)
             {
@@ -42,13 +55,6 @@ namespace Catalog.Wpf.Behaviors
             behavior.modelHandled = false;
         }
 
-
-        public IList SelectedItems
-        {
-            get => (IList) GetValue(SelectedItemsProperty);
-            set => SetValue(SelectedItemsProperty, value);
-        }
-
         // Propagate selected items from model to view
         private void SelectItems()
         {
@@ -59,7 +65,9 @@ namespace Catalog.Wpf.Behaviors
             if (SelectedItems != null)
             {
                 foreach (var item in SelectedItems)
+                {
                     AssociatedObject.SelectedItems.Add(item);
+                }
             }
 
             viewHandled = false;
@@ -102,7 +110,7 @@ namespace Catalog.Wpf.Behaviors
             base.OnAttached();
 
             AssociatedObject.SelectionChanged += OnListViewSelectionChanged;
-            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged += OnListViewItemsChanged;
+            ((INotifyCollectionChanged)AssociatedObject.Items).CollectionChanged += OnListViewItemsChanged;
         }
 
         /// <inheritdoc />
@@ -117,7 +125,7 @@ namespace Catalog.Wpf.Behaviors
 
             AssociatedObject.SelectionChanged -= OnListViewSelectionChanged;
 
-            ((INotifyCollectionChanged) AssociatedObject.Items).CollectionChanged -= OnListViewItemsChanged;
+            ((INotifyCollectionChanged)AssociatedObject.Items).CollectionChanged -= OnListViewItemsChanged;
         }
     }
 }

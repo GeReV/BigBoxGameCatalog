@@ -1,7 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 using Catalog.Model;
 using Catalog.Wpf.ViewModel;
 using Microsoft.EntityFrameworkCore;
@@ -19,19 +19,17 @@ namespace Catalog.Wpf.Commands
 
         protected override bool CanExecuteImpl(object? parameter)
         {
-            return parameter is object[] parameters &&
-                   parameters[1] is object[] selectedItems &&
-                   selectedItems.Any();
+            return parameter is object[] parameters && parameters[1] is ICollection { Count: > 0 };
         }
 
         protected override async Task Perform(object? parameter)
         {
-            if (!(parameter is object[] parameters))
+            if (parameter is not object[] parameters)
             {
                 return;
             }
 
-            if (!(parameters[0] is Tag tag && parameters[1] is object[] selectedItems))
+            if (!(parameters[0] is Tag tag && parameters[1] is ICollection selectedItems))
             {
                 return;
             }
@@ -53,11 +51,13 @@ namespace Catalog.Wpf.Commands
             {
                 foreach (var game in gamesMissingTag)
                 {
-                    game.GameCopyTags.Add(new GameCopyTag
-                    {
-                        GameCopyId = game.GameCopyId,
-                        TagId = tag.TagId
-                    });
+                    game.GameCopyTags.Add(
+                        new GameCopyTag
+                        {
+                            GameCopyId = game.GameCopyId,
+                            TagId = tag.TagId
+                        }
+                    );
                 }
             }
             else

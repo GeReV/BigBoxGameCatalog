@@ -10,14 +10,16 @@ namespace Catalog.Wpf.Converters
 {
     public class ListIncludesToBooleanConverter : IMultiValueConverter
     {
+        #region IMultiValueConverter Members
+
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(values[0] is IModel model))
+            if (values[0] is not IModel model)
             {
                 return DependencyProperty.UnsetValue;
             }
 
-            if (!(values[1] is IList list))
+            if (values[1] is not IList list)
             {
                 return DependencyProperty.UnsetValue;
             }
@@ -34,11 +36,12 @@ namespace Catalog.Wpf.Converters
             {
                 return list
                     .OfType<IList>()
-                    .All(sublist =>
-                        sublist
-                            .OfType<IModel>()
-                            .ToList()
-                            .Exists(item => model.GetType() == item.GetType() && item.Id == model.Id)
+                    .All(
+                        sublist =>
+                            sublist
+                                .OfType<IModel>()
+                                .ToList()
+                                .Exists(item => model.GetType() == item.GetType() && item.Id == model.Id)
                     );
             }
 
@@ -49,5 +52,7 @@ namespace Catalog.Wpf.Converters
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }

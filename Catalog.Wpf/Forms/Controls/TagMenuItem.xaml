@@ -72,7 +72,7 @@
                           Data="{StaticResource Checkmark}"
                           FlowDirection="LeftToRight"
                           Visibility="Hidden"
-                          Height="11"
+                          Height="10"
                           Width="10">
                         <Path.Style>
                             <Style TargetType="Path">

@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:Catalog.Wpf.Forms"
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
              xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
              xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
@@ -27,9 +26,9 @@
                 <Setter Property="ToolTip"
                         Value="{Binding Title}" />
                 <Setter Property="Tag"
-                        Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                        Value="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
                 <EventSetter Event="MouseDoubleClick"
-                             Handler="OnGameDoubleClick" />
+                             Handler="OnGameExpanded" />
             </Style>
         </ListView.ItemContainerStyle>
         <ListView.View>

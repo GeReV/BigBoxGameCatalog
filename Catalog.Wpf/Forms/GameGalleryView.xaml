@@ -3,114 +3,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
              xmlns:local="clr-namespace:Catalog.Wpf.Forms"
              xmlns:controls="clr-namespace:Catalog.Wpf.Forms.Controls"
-             xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
-             xmlns:behaviors="clr-namespace:Catalog.Wpf.Behaviors"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             Name="GameGalleryViewControl"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance viewModel:MainWindowViewModel}">
-    <ListBox ItemsSource="{Binding FilteredGames}"
-             IsSynchronizedWithCurrentItem="True"
-             SelectionMode="Extended"
-             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-        <b:Interaction.Behaviors>
-            <behaviors:ListBoxSelectionBehavior SelectedItems="{Binding SelectedGames}" />
-        </b:Interaction.Behaviors>
-        <ListBox.ItemContainerStyle>
-            <Style TargetType="ListBoxItem">
-                <Setter Property="VerticalContentAlignment"
-                        Value="Top" />
-                <Setter Property="ToolTip">
-                    <Setter.Value>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding Title}" />
-                            <controls:GameStats Margin="0,5,0,0"
-                                                GameItemGroups="{Binding GameStats}" />
-                        </StackPanel>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="Tag"
-                        Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                <Setter Property="ContextMenu"
-                        Value="{Binding GameContextMenu, ElementName=GameGalleryViewControl}" />
-                <EventSetter Event="MouseDoubleClick"
-                             Handler="OnGameDoubleClick" />
-            </Style>
-        </ListBox.ItemContainerStyle>
-        <ListBox.ItemsPanel>
-            <ItemsPanelTemplate>
-                <WrapPanel />
-            </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
-        <ListBox.ItemTemplate>
-            <DataTemplate DataType="{x:Type viewModel:GameViewModel}">
-                <Grid Margin="5"
-                      Width="100"
-                      IsSharedSizeScope="True">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"
-                                       SharedSizeGroup="Image" />
-                        <RowDefinition Height="Auto"
-                                       SharedSizeGroup="Title" />
-                        <RowDefinition Height="Auto"
-                                       SharedSizeGroup="Stats" />
-                        <RowDefinition Height="Auto"
-                                       SharedSizeGroup="Labels" />
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="0">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Cover}"
-                                                 Value="{x:Null}">
-                                        <Setter Property="Background"
-                                                Value="LightGray" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <Image Name="CoverImage"
-                               Source="{Binding Cover}"
-                               Height="120" />
-                    </Border>
-                    <controls:HighlightedTextBlock Grid.Row="1"
-                                                   Text="{Binding Title}"
-                                                   HighlightedText="{Binding ViewModel.SearchTerm, ElementName=Main}"
-                                                   Margin="0,5,0,0"
-                                                   HorizontalAlignment="Center"
-                                                   TextWrapping="NoWrap"
-                                                   TextAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" />
-
-                    <Image Grid.Row="2"
-                           Width="16"
-                           ToolTip="Sealed"
-                           Source="{StaticResource IconPresent}"
-                           Visibility="{Binding IsSealed, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                    <ItemsControl Grid.Row="3"
-                                  ItemsSource="{Binding Tags}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel FlowDirection="LeftToRight"
-                                           HorizontalAlignment="Center"
-                                           IsItemsHost="True" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:Tag Text="{Binding Name}"
-                                              Color="{Binding Color}"
-                                              Margin="0,0,3,3" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </DataTemplate>
-        </ListBox.ItemTemplate>
-    </ListBox>
+             Focusable="True"
+             IsTabStop="True">
+    <UserControl.ToolTip>
+        <ToolTip>
+            <ToolTip.ContentTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock
+                            Text="{Binding ToolTipItem.Title, RelativeSource={RelativeSource AncestorType=local:GameGalleryView}, FallbackValue={x:Null}}" />
+                        <controls:GameStats Margin="0,5,0,0"
+                                            GameItemGroups="{Binding ToolTipItem.GameStats, RelativeSource={RelativeSource AncestorType=local:GameGalleryView}, FallbackValue={x:Null}}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ToolTip.ContentTemplate>
+        </ToolTip>
+    </UserControl.ToolTip>
+    <skia:SKElement Name="Surface"
+                    PaintSurface="Canvas_OnPaintSurface" />
 </UserControl>

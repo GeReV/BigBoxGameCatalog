@@ -251,13 +251,25 @@
                         </ResourceDictionary.MergedDictionaries>
                         <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.GalleryMode}"
                                       DataType="viewModel:MainWindowViewModel">
-                            <forms:GameGalleryView GameDoubleClick="GameView_OnGameDoubleClick"
-                                                   GameContextMenu="{DynamicResource GameCopyContextMenu}" />
+                            <Border BorderBrush="{x:Static SystemColors.ControlDarkBrush}"
+                                    BorderThickness="1">
+                                <ScrollViewer CanContentScroll="True"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              Focusable="False"
+                                              IsTabStop="False">
+                                    <forms:GameGalleryView Games="{Binding FilteredGames}"
+                                                           HighlightedText="{Binding SearchTerm}"
+                                                           GameContextMenu="{DynamicResource GameCopyContextMenu}"
+                                                           SelectedItems="{Binding SelectedGames}"
+                                                           GameExpanded="GameView_OnGameExpanded" />
+                                </ScrollViewer>
+                            </Border>
                         </DataTemplate>
                         <DataTemplate x:Key="{x:Static viewModel:MainWindowViewMode.DetailsMode}"
                                       DataType="viewModel:MainWindowViewModel">
-                            <forms:GameDetailView GameDoubleClick="GameView_OnGameDoubleClick"
-                                                  GameContextMenu="{DynamicResource GameCopyContextMenu}" />
+                            <forms:GameDetailView GameContextMenu="{DynamicResource GameCopyContextMenu}"
+                                                  GameExpanded="GameView_OnGameExpanded" />
                         </DataTemplate>
                     </ResourceDictionary>
                 </DockPanel.Resources>
