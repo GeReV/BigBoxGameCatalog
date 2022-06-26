@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using SkiaSharp;
 
@@ -95,20 +94,20 @@ namespace Catalog.Wpf
 
         public SkiaTextureAtlas(int spriteWidth = 256, int atlasSize = 8192)
         {
-            Contract.Requires<ArgumentException>(
-                spriteWidth > 0,
-                $"Expected {nameof(spriteWidth)} to be greater than 0"
-            );
-            Contract.Requires<ArgumentException>(
-                IsPowerOf2(spriteWidth),
-                $"Expected {nameof(spriteWidth)} to be a power of 2"
-            );
-
-            Contract.Requires<ArgumentException>(atlasSize > 0, $"Expected {nameof(atlasSize)} to be greater than 0");
-            Contract.Requires<ArgumentException>(
-                IsPowerOf2(atlasSize),
-                $"Expected {nameof(atlasSize)} to be a power of 2"
-            );
+            // Contract.Requires<ArgumentException>(
+            //     spriteWidth > 0,
+            //     $"Expected {nameof(spriteWidth)} to be greater than 0"
+            // );
+            // Contract.Requires<ArgumentException>(
+            //     IsPowerOf2(spriteWidth),
+            //     $"Expected {nameof(spriteWidth)} to be a power of 2"
+            // );
+            //
+            // Contract.Requires<ArgumentException>(atlasSize > 0, $"Expected {nameof(atlasSize)} to be greater than 0");
+            // Contract.Requires<ArgumentException>(
+            //     IsPowerOf2(atlasSize),
+            //     $"Expected {nameof(atlasSize)} to be a power of 2"
+            // );
 
             this.spriteWidth = spriteWidth;
             this.atlasSize = atlasSize;
