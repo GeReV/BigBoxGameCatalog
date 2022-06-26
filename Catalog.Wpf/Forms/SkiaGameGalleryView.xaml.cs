@@ -302,7 +302,7 @@ namespace Catalog.Wpf.Forms
                         return;
                     }
 
-                    Games?.MoveCurrentToPosition(itemIndex);
+                    Games.MoveCurrentToPosition(itemIndex);
 
                     break;
                 }
