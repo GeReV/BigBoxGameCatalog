@@ -58,10 +58,10 @@ namespace Catalog.Wpf.Forms
             }
         }
 
-        private SkiaTextureAtlas Atlas =>
+        private static SkiaTextureAtlas Atlas =>
             (SkiaTextureAtlas)(Application.Current.Properties[AtlasPropertyName] ??= new SkiaTextureAtlas());
 
-        private GRContext GrContext =>
+        private static GRContext GrContext =>
             (GRContext)(Application.Current.Properties[GrContextPropertyName] ??= GRContext.CreateGl());
 
         public GameGalleryView()
