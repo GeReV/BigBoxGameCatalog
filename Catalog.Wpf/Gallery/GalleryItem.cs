@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Catalog.Wpf.Forms;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
 using Style = Topten.RichTextKit.Style;
@@ -47,6 +48,14 @@ namespace Catalog.Wpf.Gallery
                 new Binding(nameof(GameViewModel.Title))
                 {
                     Source = game
+                }
+            );
+
+            textLine.SetBinding(
+                TextLine.HighlightedTextProperty,
+                new Binding(nameof(GameGalleryView.HighlightedText))
+                {
+                    Source = parent
                 }
             );
 

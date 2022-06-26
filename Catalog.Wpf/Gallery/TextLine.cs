@@ -40,7 +40,7 @@ namespace Catalog.Wpf.Gallery
             typeof(SKColor),
             typeof(TextLine),
             new FrameworkPropertyMetadata(
-                SKColors.Goldenrod,
+                SKColors.PaleGoldenrod,
                 FrameworkPropertyMetadataOptions.AffectsRender,
                 UpdateHighlightedTextStyle
             )
@@ -87,7 +87,7 @@ namespace Catalog.Wpf.Gallery
         {
             var textLine = (TextLine)d;
 
-            textLine.highlightTextStyle = textLine.TextStyle.Modify(textColor: textLine.HighlightedTextColor);
+            textLine.highlightTextStyle = textLine.TextStyle.Modify(backgroundColor: textLine.HighlightedTextColor);
         }
 
         public override void Measure(SKSize constraint)
