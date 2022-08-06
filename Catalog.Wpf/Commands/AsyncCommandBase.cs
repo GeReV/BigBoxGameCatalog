@@ -20,7 +20,7 @@ namespace Catalog.Wpf.Commands
 
                     RaiseCanExecuteChanged();
 
-                    await Task.Run(() => Perform(parameter));
+                    await Perform(parameter);
                 }
                 finally
                 {
