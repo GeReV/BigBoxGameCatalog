@@ -28,14 +28,13 @@ namespace Catalog.Wpf.ViewModel
         private ItemViewModel? currentGameItem;
         private string? developerSearchTerm;
 
-        private ObservableCollection<CultureInfo> gameLanguages = new ObservableCollection<CultureInfo>
-            {CultureInfo.GetCultureInfo("en")};
+        private ObservableCollection<CultureInfo> gameLanguages = new() { CultureInfo.GetCultureInfo("en") };
 
-        private ObservableCollection<Developer> gameDevelopers = new ObservableCollection<Developer>();
-        private ObservableCollection<Platform> gamePlatforms = new ObservableCollection<Platform>();
-        private ObservableCollection<string> gameLinks = new ObservableCollection<string>();
+        private ObservableCollection<Developer> gameDevelopers = new();
+        private ObservableCollection<Platform> gamePlatforms = new();
+        private ObservableCollection<string> gameLinks = new();
 
-        private ObservableCollection<ItemViewModel> gameItems = new ObservableCollection<ItemViewModel>
+        private ObservableCollection<ItemViewModel> gameItems = new()
         {
             new ItemViewModel
             {
@@ -43,8 +42,7 @@ namespace Catalog.Wpf.ViewModel
             }
         };
 
-        private ObservableCollection<ScreenshotViewModel> gameScreenshots =
-            new ObservableCollection<ScreenshotViewModel>();
+        private ObservableCollection<ScreenshotViewModel> gameScreenshots = new();
 
         private ScreenshotViewModel? gameCoverImage;
 
@@ -100,8 +98,10 @@ namespace Catalog.Wpf.ViewModel
                 {
                     if (obj is Developer developer)
                     {
-                        return developer.Name.IndexOf(DeveloperSearchTerm ?? string.Empty,
-                                   StringComparison.InvariantCultureIgnoreCase) >= 0;
+                        return developer.Name.Contains(
+                            DeveloperSearchTerm ?? string.Empty,
+                            StringComparison.InvariantCultureIgnoreCase
+                        );
                     }
 
                     return false;
@@ -115,7 +115,10 @@ namespace Catalog.Wpf.ViewModel
                 {
                     if (obj is CultureInfo cultureInfo)
                     {
-                        return cultureInfo.EnglishName.Contains(LanguageSearchTerm ?? string.Empty, StringComparison.InvariantCultureIgnoreCase);
+                        return cultureInfo.EnglishName.Contains(
+                            LanguageSearchTerm ?? string.Empty,
+                            StringComparison.InvariantCultureIgnoreCase
+                        );
                     }
 
                     return false;
@@ -133,7 +136,8 @@ namespace Catalog.Wpf.ViewModel
             GamePlatforms = new ObservableCollection<Platform>(game.Platforms.Distinct());
             GameLanguages =
                 new ObservableCollection<CultureInfo>(
-                    game.TwoLetterIsoLanguageName.Distinct().Select(lang => CultureInfo.GetCultureInfo(lang)));
+                    game.TwoLetterIsoLanguageName.Distinct().Select(CultureInfo.GetCultureInfo)
+                );
             GameItems = new ObservableCollection<ItemViewModel>(game.Items.Select(ItemViewModel.FromItem));
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>(
                 game.Screenshots
@@ -448,28 +452,30 @@ namespace Catalog.Wpf.ViewModel
         public IAsyncCommand SearchMobyGamesCommand =>
             searchMobyGamesCommand ??= new SearchMobyGamesCommand(this);
 
-        public IAsyncCommand SaveGameCommand => saveGameCommand ??= new AsyncDelegateCommand(async _ =>
-        {
-            var args = new SaveGameCommand.SaveGameArguments(
-                GameId,
-                this,
-                new Progress<int>(percentage => SaveProgress = percentage)
-            );
-
-            try
+        public IAsyncCommand SaveGameCommand => saveGameCommand ??= new AsyncDelegateCommand(
+            async _ =>
             {
-                await CommandExecutor.Execute(new SaveGameCommand(), args);
+                var args = new SaveGameCommand.SaveGameArguments(
+                    GameId,
+                    this,
+                    new Progress<int>(percentage => SaveProgress = percentage)
+                );
 
-                // TODO: Ideally this should be external to the viewmodel.
-                ParentWindow.DialogResult = true;
+                try
+                {
+                    await CommandExecutor.Execute(new SaveGameCommand(), args);
 
-                ParentWindow.Close();
+                    // TODO: Ideally this should be external to the viewmodel.
+                    ParentWindow.DialogResult = true;
+
+                    ParentWindow.Close();
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
-            catch (Exception e)
-            {
-                // ignored
-            }
-        });
+        );
 
         public IAsyncCommand SearchMobyGamesCoverCommand =>
             searchMobyGamesCoverCommand ??= new SearchMobyGamesCoverCommand(this);
@@ -477,20 +483,22 @@ namespace Catalog.Wpf.ViewModel
         public ICommand SelectCoverImageCommand =>
             selectCoverImageCommand ??= new SelectCoverImageCommand(this);
 
-        public ICommand RemoveScreenshotCommand => removeScreenshotCommand ??= new DelegateCommand(param =>
-        {
-            if (!(param is IList selectedItems))
+        public ICommand RemoveScreenshotCommand => removeScreenshotCommand ??= new DelegateCommand(
+            param =>
             {
-                return;
-            }
+                if (param is not IList selectedItems)
+                {
+                    return;
+                }
 
-            var items = selectedItems.Cast<ScreenshotViewModel>().ToList();
+                var items = selectedItems.Cast<ScreenshotViewModel>().ToList();
 
-            foreach (var selectedItem in items)
-            {
-                GameScreenshots.Remove(selectedItem);
+                foreach (var selectedItem in items)
+                {
+                    GameScreenshots.Remove(selectedItem);
+                }
             }
-        });
+        );
 
         #region Model Validation
 
