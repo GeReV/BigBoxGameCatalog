@@ -1,38 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Catalog</RootNamespace>
-    <PackageVersion>0.4.0</PackageVersion>
-    <Title>Big Box Game Catalog</Title>
-    <Copyright>Copyright © 2021</Copyright>
-    <Description>A cataloging software for Big Box game collections</Description>
-    <LangVersion>9</LangVersion>
-    <AssemblyName>BBGC.Core</AssemblyName>
-    <Nullable>enable</Nullable>
-    <PackageId>BigBoxGameCatalog.Core</PackageId>
-    <Authors>Amir Grozki</Authors>
-    <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <RootNamespace>Catalog</RootNamespace>
+        <PackageVersion>0.4.1</PackageVersion>
+        <Title>Big Box Game Catalog</Title>
+        <Copyright>Copyright © 2021</Copyright>
+        <Description>A cataloging software for Big Box game collections</Description>
+        <LangVersion>9</LangVersion>
+        <AssemblyName>BBGC.Core</AssemblyName>
+        <Nullable>enable</Nullable>
+        <PackageId>BigBoxGameCatalog.Core</PackageId>
+        <Authors>Amir Grozki</Authors>
+        <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
+        <PublishTrimmed>true</PublishTrimmed>
+        <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+    </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.38" />
-    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.21">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.21" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.38" />
+        <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.21">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.21" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations" />
-  </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Migrations" />
+    </ItemGroup>
 
 </Project>
