@@ -146,6 +146,12 @@ namespace Catalog.Wpf.Gallery
 
         public override void Arrange(SKSize finalSize)
         {
+            if (RenderSize == finalSize)
+            {
+                // Optimization: No need to rearrange anything if next size is the same.
+                return;
+            }
+
             base.Arrange(finalSize);
 
             var contentSize = new SKSize(
