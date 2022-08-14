@@ -189,6 +189,8 @@ namespace Catalog.Wpf
                 targetBin.PushSprite(sprite);
             }
 
+            atlasSprites.Clear();
+
             surface.Canvas.Clear(SKColors.White);
 
             foreach (var bin in bins)
