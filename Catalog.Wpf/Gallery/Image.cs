@@ -38,7 +38,13 @@ namespace Catalog.Wpf.Gallery
             }
             else
             {
-                atlas.DrawSprite(canvas, imageKey, SKRect.Create(point, DesiredSize));
+                using var paint = new SKPaint
+                {
+                    Color = SKColors.Transparent,
+                    Style = SKPaintStyle.Fill
+                };
+
+                atlas.DrawSprite(canvas, imageKey, SKRect.Create(point, DesiredSize), paint);
             }
         }
     }

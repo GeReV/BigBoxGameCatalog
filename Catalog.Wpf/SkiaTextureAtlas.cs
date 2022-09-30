@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SkiaSharp;
 
 namespace Catalog.Wpf
@@ -16,10 +17,20 @@ namespace Catalog.Wpf
 
         public string ImageKey { get; }
 
-        public AtlasSprite(string path, int targetWidth)
+        public static Task<AtlasSprite> Create(string path, int targetWidth) =>
+            Task.Run(
+                () =>
+                {
+                    var image = SKImage.FromBitmap(SKBitmap.Decode(path));
+
+                    return new AtlasSprite(path, image, targetWidth);
+                }
+            );
+
+        private AtlasSprite(string key, SKImage image, int targetWidth)
         {
-            ImageKey = path;
-            Image = SKImage.FromBitmap(SKBitmap.Decode(path));
+            ImageKey = key;
+            Image = image;
 
             var ratio = targetWidth / (float)ImageInfo.Width;
             AtlasSize = new SKSizeI(targetWidth, (int)(ImageInfo.Height * ratio));
@@ -141,7 +152,7 @@ namespace Catalog.Wpf
             return hash.ToHashCode();
         }
 
-        public void BuildAtlas(GRContext grContext, ICollection<string> images)
+        public async Task BuildAtlas(GRContext grContext, ICollection<string> images)
         {
             if (images.Count == 0)
             {
@@ -166,10 +177,12 @@ namespace Catalog.Wpf
                 new SKImageInfo(atlasSize, atlasSize, SKColorType.Rgba8888)
             );
 
-            var sprites = images
-                .Select(path => new AtlasSprite(path, spriteWidth))
-                .OrderByDescending(info => info.ImageInfo.Height)
-                .ToList();
+            var sprites = await Task.WhenAll(
+                images
+                    .Select(path => AtlasSprite.Create(path, spriteWidth))
+                    .OrderByDescending(info => info.Result.ImageInfo.Height)
+                    .ToArray()
+            );
 
             var bins = Enumerable.Range(0, atlasSize / spriteWidth)
                 .Select(i => new AtlasBin(SKRectI.Create(i * spriteWidth, 0, spriteWidth, atlasSize)))
@@ -227,9 +240,14 @@ namespace Catalog.Wpf
             }
         }
 
-        public void DrawSprite(SKCanvas canvas, string image, SKRect rect)
+        public void DrawSprite(SKCanvas canvas, string image, SKRect rect, SKPaint defaultPaint)
         {
-            var sprite = (SKRect)atlasSprites[image];
+            if (!atlasSprites.TryGetValue(image, out var sprite))
+            {
+                canvas.DrawRect(rect, defaultPaint);
+
+                return;
+            }
 
             var dest = rect.AspectFit(sprite.Size);
 

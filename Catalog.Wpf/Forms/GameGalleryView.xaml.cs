@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -656,8 +657,6 @@ namespace Catalog.Wpf.Forms
 
             var games = collectionView.Cast<GameViewModel>().ToList();
 
-            BuildAtlas(games);
-
             view.BuildGalleryItems(games);
 
             collectionView.CurrentChanged += view.CurrentItemChanged;
@@ -668,7 +667,19 @@ namespace Catalog.Wpf.Forms
             }
 
             view.InvalidateArrange();
-            view.Surface.InvalidateVisual();
+            view.ScheduleRepaint();
+
+            view.Dispatcher.InvokeAsync(
+                async () =>
+                {
+                    await BuildAtlas(games);
+
+                    view.BuildGalleryItems(games);
+
+                    view.InvalidateArrange();
+                    view.ScheduleRepaint();
+                }
+            );
         }
 
         private static object GamesPropertyCoerceValueCallback(DependencyObject d, object? value)
@@ -971,13 +982,13 @@ namespace Catalog.Wpf.Forms
 
         #region Rendering
 
-        private static void BuildAtlas(IEnumerable<GameViewModel> games)
+        private static async Task BuildAtlas(IEnumerable<GameViewModel> games)
         {
             var list = games.Select(g => g.CoverPath)
                 .OfType<string>()
                 .ToList();
 
-            Atlas.BuildAtlas(GrContext, list);
+            await Atlas.BuildAtlas(GrContext, list);
         }
 
         private void BuildGalleryItems(IEnumerable<GameViewModel> games)
