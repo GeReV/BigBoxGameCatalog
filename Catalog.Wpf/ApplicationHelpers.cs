@@ -8,11 +8,14 @@ namespace Catalog.Wpf
     public static class ApplicationHelpers
     {
         public static string HomeDirectory(this Application application) =>
-            application.Properties[nameof(HomeDirectory)]?.ToString() ?? throw new NullReferenceException("Expected a home directory to be set.");
+            application.Properties[nameof(HomeDirectory)]?.ToString() ??
+            throw new NullReferenceException("Expected a home directory to be set.");
 
         public static CatalogContext Database(this Application application) =>
-            new CatalogContext(Path.Combine(application.HomeDirectory(), "database.sqlite"));
+            new(Path.Combine(application.HomeDirectory(), "database.sqlite"));
 
-        public static IWebClient ScraperWebClient(this Application application) => (IWebClient)(application.Properties[nameof(ScraperWebClient)] ?? throw new NullReferenceException("Expected a ScraperWebClient."));
+        public static IWebClient ScraperWebClient(this Application application) =>
+            (IWebClient)(application.Properties[nameof(ScraperWebClient)] ??
+                         throw new NullReferenceException("Expected a ScraperWebClient."));
     }
 }

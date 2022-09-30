@@ -7,8 +7,7 @@ namespace Catalog.Wpf
 {
     public partial class MainWindow : Window
     {
-        public static readonly RoutedUICommand Exit = new RoutedUICommand
-        (
+        public static readonly RoutedUICommand Exit = new(
             "E_xit",
             "Exit",
             typeof(MainWindow),
@@ -19,7 +18,7 @@ namespace Catalog.Wpf
             }
         );
 
-        public static RoutedUICommand DuplicateGame = new RoutedUICommand(
+        public static readonly RoutedUICommand DuplicateGame = new(
             "_Duplicate Game",
             "Duplicate",
             typeof(MainWindow),
@@ -55,7 +54,7 @@ namespace Catalog.Wpf
 
         private void GameView_OnGameExpanded(object sender, EventArgs e)
         {
-            var gameViewModel = (GameViewModel?) ViewModel.FilteredGames.CurrentItem;
+            var gameViewModel = (GameViewModel?)ViewModel.FilteredGames.CurrentItem;
 
             CommandExecutor.Execute(ViewModel.EditGameCommand, gameViewModel?.GameCopy.GameCopyId);
         }
@@ -67,14 +66,14 @@ namespace Catalog.Wpf
 
         private void DuplicateGame_OnCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            var gameViewModel = (GameViewModel?) ViewModel.FilteredGames.CurrentItem;
+            var gameViewModel = (GameViewModel?)ViewModel.FilteredGames.CurrentItem;
 
             e.CanExecute = ViewModel.DuplicateGameCommand.CanExecute(gameViewModel?.GameCopyId);
         }
 
         private void DuplicateGame_OnExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            var gameViewModel = (GameViewModel?) ViewModel.FilteredGames.CurrentItem;
+            var gameViewModel = (GameViewModel?)ViewModel.FilteredGames.CurrentItem;
 
             CommandExecutor.Execute(ViewModel.DuplicateGameCommand, gameViewModel?.GameCopyId);
         }

@@ -56,7 +56,7 @@ namespace Catalog.Wpf.ViewModel
         {
             get
             {
-                if (GameCopy.CoverImage == null)
+                if (CoverPath == null)
                 {
                     return null;
                 }
