@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <RootNamespace>Catalog</RootNamespace>
-        <PackageVersion>0.4.3</PackageVersion>
+        <PackageVersion>0.4.4</PackageVersion>
         <Title>Big Box Game Catalog</Title>
         <Copyright>Copyright © 2022</Copyright>
         <Description>A cataloging software for Big Box game collections</Description>
