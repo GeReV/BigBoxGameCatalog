@@ -25,7 +25,6 @@ namespace Catalog.Model
 
         public string? ColorArgb { get; set; }
 
-
         public ICollection<GameCopyTag> GameCopyTags { get; set; } = new List<GameCopyTag>();
 
         public IEnumerable<GameCopy> Games => GameCopyTags.Select(gct => gct.Game);

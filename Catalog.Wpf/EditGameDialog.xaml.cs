@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using Catalog.Model;
 using Catalog.Wpf.ViewModel;
-using Microsoft.EntityFrameworkCore;
 using Application = System.Windows.Application;
 using Window = System.Windows.Window;
 
@@ -14,7 +10,7 @@ namespace Catalog.Wpf
 {
     public partial class EditGameDialog : Window
     {
-        public static RoutedUICommand DuplicateItemCommand = new RoutedUICommand(
+        public static readonly RoutedUICommand DuplicateItemCommand = new RoutedUICommand(
             "Duplicate Item",
             "Duplicate",
             typeof(EditGameDialog),
@@ -30,14 +26,17 @@ namespace Catalog.Wpf
 
             var database = Application.Current.Database();
 
-            ViewModel = new EditGameViewModel(this, gameCopyId.HasValue ? GamesRepository.LoadGame(database, gameCopyId.Value) : new GameCopy());
+            ViewModel = new EditGameViewModel(
+                this,
+                gameCopyId.HasValue ? GamesRepository.LoadGame(database, gameCopyId.Value) : new GameCopy()
+            );
 
             Title = ViewModel.IsNew ? "Add Game" : $"Edit Game: {ViewModel.Title}";
         }
 
         public EditGameViewModel ViewModel
         {
-            get => (EditGameViewModel) DataContext;
+            get => (EditGameViewModel)DataContext;
             set => DataContext = value;
         }
 

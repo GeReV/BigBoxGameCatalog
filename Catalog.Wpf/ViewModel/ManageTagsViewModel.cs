@@ -45,7 +45,11 @@ namespace Catalog.Wpf.ViewModel
                 return;
             }
 
-            var messageBoxResult = MessageBox.Show($"Are you sure you want to delete tag \"{tag.Title}\"? (This operation is irreversible)", "Delete Tag", MessageBoxButton.YesNo);
+            var messageBoxResult = MessageBox.Show(
+                $"Are you sure you want to delete tag \"{tag.Name}\"? (This operation is irreversible)",
+                "Delete Tag",
+                MessageBoxButton.YesNo
+            );
 
             if (messageBoxResult != MessageBoxResult.Yes)
             {
