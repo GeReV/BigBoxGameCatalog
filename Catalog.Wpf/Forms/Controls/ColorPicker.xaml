@@ -11,10 +11,16 @@
              d:DesignWidth="300"
              Name="ColorPickerControl"
              d:DataContext="{d:DesignInstance local:ColorPicker}">
+    <Validation.ErrorTemplate>
+        <ControlTemplate>
+            <AdornedElementPlaceholder />
+        </ControlTemplate>
+    </Validation.ErrorTemplate>
     <xctk:DropDownButton Grid.Column="1"
                          Margin="4,0,0,0"
                          Padding="4,0,4,0"
-                         SnapsToDevicePixels="True" DataContext="{Binding DataContext, ElementName=ColorPickerControl}">
+                         SnapsToDevicePixels="True"
+                         DataContext="{Binding DataContext, ElementName=ColorPickerControl}">
         <Border BorderThickness="1"
                 BorderBrush="#FF444444"
                 Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}"

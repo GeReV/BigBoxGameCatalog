@@ -56,7 +56,7 @@
                                     CornerRadius="3"
                                     Margin="0,0,4,0"
                                     Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" />
-                            <TextBlock Text="{Binding Title}" />
+                            <TextBlock Text="{Binding Name}" />
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

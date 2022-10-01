@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using Catalog.Model;
 using Catalog.Wpf.ViewModel;
@@ -9,7 +12,7 @@ namespace Catalog.Wpf
     {
         public TagViewModel ViewModel
         {
-            get => (TagViewModel) DataContext;
+            get => (TagViewModel)DataContext;
             set => DataContext = value;
         }
 
@@ -21,11 +24,18 @@ namespace Catalog.Wpf
 
             InitializeComponent();
 
-            Title = ViewModel.Tag.IsNew ? "Add Tag" : $"Edit Tag: {ViewModel.Title}";
+            Title = ViewModel.Tag.IsNew ? "Add Tag" : $"Edit Tag: {ViewModel.Name}";
         }
 
         private void OkButton_OnClick(object sender, RoutedEventArgs e)
         {
+            ViewModel.ValidateModel();
+
+            if (ViewModel.HasErrors)
+            {
+                return;
+            }
+
             DialogResult = true;
 
             ResultTag = ViewModel.Tag;

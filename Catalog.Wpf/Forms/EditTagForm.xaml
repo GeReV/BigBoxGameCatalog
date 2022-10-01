@@ -18,12 +18,36 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <TextBox Text="{Binding Title}"
-                 VerticalContentAlignment="Center" />
+        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                 VerticalContentAlignment="Center">
+            <TextBox.Style>
+                <Style TargetType="{x:Type TextBox}">
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError"
+                                 Value="true">
+                            <Setter Property="ToolTip"
+                                    Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)/ErrorContent}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
 
         <controls:ColorPicker Grid.Column="1"
-                              Colors="{Binding Colors}"
-                              Color="{Binding Color}"
-                              SelectCommand="{Binding SetColor}" />
+                              Colors="{x:Static viewModel:TagViewModel.Colors}"
+                              Color="{Binding Color, ValidatesOnNotifyDataErrors=True}"
+                              SelectCommand="{Binding SetColor}">
+            <Control.Style>
+                <Style TargetType="{x:Type controls:ColorPicker}">
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError"
+                                 Value="true">
+                            <Setter Property="ToolTip"
+                                    Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)/ErrorContent}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Control.Style>
+        </controls:ColorPicker>
     </Grid>
 </UserControl>

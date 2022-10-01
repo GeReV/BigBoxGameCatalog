@@ -33,10 +33,11 @@ namespace Catalog.Model
         public DateTime LastUpdated { get; set; }
 
         [NotMapped]
-        public Color Color
+        [Required]
+        public Color? Color
         {
-            get => Color.FromArgb(Convert.ToInt32(ColorArgb, 16));
-            set => ColorArgb = Convert.ToString(value.ToArgb(), 16);
+            get => ColorArgb == null ? null : System.Drawing.Color.FromArgb(Convert.ToInt32(ColorArgb, 16));
+            set => ColorArgb = value.HasValue ? Convert.ToString(value.Value.ToArgb(), 16) : null;
         }
 
         public int Id => TagId;
