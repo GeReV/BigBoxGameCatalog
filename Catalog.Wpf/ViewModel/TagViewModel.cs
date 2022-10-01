@@ -53,7 +53,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public static ObservableCollection<Color> Colors => new(TagColors.All);
+        public static IReadOnlyCollection<Color> Colors => new ReadOnlyCollection<Color>(TagColors.All);
 
         public ICommand SetColor => new DelegateCommand(
             param =>

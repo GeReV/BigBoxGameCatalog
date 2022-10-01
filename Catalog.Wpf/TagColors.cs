@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Catalog.Wpf
 {
-    public class TagColors
+    public static class TagColors
     {
         private const int DIVISIONS = 6;
 
