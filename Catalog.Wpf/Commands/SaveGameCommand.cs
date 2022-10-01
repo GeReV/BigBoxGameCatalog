@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
+using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 using Microsoft.EntityFrameworkCore;
 
@@ -101,7 +102,8 @@ namespace Catalog.Wpf.Commands
 
             var addGameDevelopers = nextGameDevelopers
                 .Where(gd => !currentGameDeveloperIds.Contains(gd.DeveloperId))
-                .Select(dev => new GameCopyDeveloper
+                .Select(
+                    dev => new GameCopyDeveloper
                     {
                         DeveloperId = dev.DeveloperId,
                         Developer = dev
@@ -217,7 +219,7 @@ namespace Catalog.Wpf.Commands
                 );
 
             return newScreenshots
-                .Select(HomeDirectoryHelpers.ToRelativePath)
+                .Select(HomeDirectoryExtensions.ToRelativePath)
                 .Concat(existingScreenshots)
                 .OrderBy(s => s);
         }
@@ -242,7 +244,7 @@ namespace Catalog.Wpf.Commands
             var path = await new ImageDownloader(Application.Current.ScraperWebClient())
                 .DownloadCoverArt(destinationDirectory, url);
 
-            return HomeDirectoryHelpers.ToRelativePath(path);
+            return HomeDirectoryExtensions.ToRelativePath(path);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Catalog.Wpf
 {
     public static class GameItemGrouping
     {
-        private static readonly GameItemGroupComparer GameItemGroupComparer = new GameItemGroupComparer();
+        private static readonly GameItemGroupComparer GameItemGroupComparer = new();
 
         public static IEnumerable<GameItemGroupViewModel> GroupItems(IEnumerable<GameItem> items)
         {
@@ -26,11 +26,14 @@ namespace Catalog.Wpf
                         }
                         else
                         {
-                            groups.Add(key, new GameItemGroupViewModel(item.ItemType)
-                            {
-                                Missing = item.Missing,
-                                Count = 1
-                            });
+                            groups.Add(
+                                key,
+                                new GameItemGroupViewModel(item.ItemType)
+                                {
+                                    Missing = item.Missing,
+                                    Count = 1
+                                }
+                            );
                         }
 
                         return groups;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf

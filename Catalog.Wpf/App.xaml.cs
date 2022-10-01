@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using Catalog.Scrapers;
+using Catalog.Wpf.Extensions;
 using Catalog.Wpf.GlContexts;
 using Catalog.Wpf.GlContexts.Wgl;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,7 @@ namespace Catalog.Wpf
         private const string BACKUP_FILENAME_PATTERN = "*.sqlite";
         private const string BACKUP_FILENAME_DATE_PATTERN = "yyyyMMddhhmmss";
         private readonly TimeSpan BACKUP_AGE_THRESHOLD = TimeSpan.FromDays(7);
-        
+
         private readonly GlContext glContext = new WglContext();
 
         public App()
@@ -34,7 +35,7 @@ namespace Catalog.Wpf
             Current.Properties.Add(nameof(ApplicationHelpers.ScraperWebClient), new WebClient());
 
             InitializeDatabase();
-            
+
             glContext.MakeCurrent();
         }
 
@@ -42,9 +43,11 @@ namespace Catalog.Wpf
         {
             var settingsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-            var homeDirectory = Path.Combine(settingsDirectory,
+            var homeDirectory = Path.Combine(
+                settingsDirectory,
                 Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()?.Title ??
-                FALLBACK_DIRECTORY_NAME);
+                FALLBACK_DIRECTORY_NAME
+            );
 
             if (!Directory.Exists(homeDirectory))
             {
@@ -58,8 +61,13 @@ namespace Catalog.Wpf
         {
             var basename = info.Name.Replace(info.Extension, string.Empty);
 
-            if (DateTime.TryParseExact(basename, BACKUP_FILENAME_DATE_PATTERN, null,
-                DateTimeStyles.None, out var result))
+            if (DateTime.TryParseExact(
+                    basename,
+                    BACKUP_FILENAME_DATE_PATTERN,
+                    null,
+                    DateTimeStyles.None,
+                    out var result
+                ))
             {
                 return result;
             }

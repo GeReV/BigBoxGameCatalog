@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using Catalog.Model;
+using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 using Application = System.Windows.Application;
 using Window = System.Windows.Window;

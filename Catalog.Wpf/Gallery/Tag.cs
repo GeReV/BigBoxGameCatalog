@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows;
+using Catalog.Wpf.Extensions;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using Topten.RichTextKit;

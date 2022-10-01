@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.Comparers;
+using Catalog.Wpf.Extensions;
 using Condition = Catalog.Model.Condition;
 
 namespace Catalog.Wpf.ViewModel
@@ -63,15 +64,13 @@ namespace Catalog.Wpf.ViewModel
         private readonly Dictionary<string, ICollection<string?>> validationErrors =
             new();
 
-
         public enum ViewStatus
         {
             [Description("Idle")] Idle,
 
             [Description("Downloading screenshots...")]
             DownloadingScreenshots,
-            [Description("Searching...")]
-            Searching,
+            [Description("Searching...")] Searching,
             Error,
         }
 
@@ -141,12 +140,12 @@ namespace Catalog.Wpf.ViewModel
             GameItems = new ObservableCollection<ItemViewModel>(game.Items.Select(ItemViewModel.FromItem));
             GameScreenshots = new ObservableCollection<ScreenshotViewModel>(
                 game.Screenshots
-                    .Select(HomeDirectoryHelpers.ToAbsolutePath)
+                    .Select(HomeDirectoryExtensions.ToAbsolutePath)
                     .Select(ScreenshotViewModel.FromPath)
             );
             GameCoverImage = game.CoverImage == null
                 ? null
-                : ScreenshotViewModel.FromPath(HomeDirectoryHelpers.ToAbsolutePath(game.CoverImage));
+                : ScreenshotViewModel.FromPath(HomeDirectoryExtensions.ToAbsolutePath(game.CoverImage));
         }
 
         private void RefreshFilteredDevelopers(object? sender, PropertyChangedEventArgs e)

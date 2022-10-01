@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 
-namespace Catalog.Wpf
+namespace Catalog.Wpf.Extensions
 {
     public static class DispatcherObjectExtensions
     {

@@ -6,6 +6,7 @@ using System.Windows;
 using Catalog.Model;
 using Catalog.Scrapers.MobyGames;
 using Catalog.Scrapers.MobyGames.Model;
+using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf.Commands
@@ -79,8 +80,10 @@ namespace Catalog.Wpf.Commands
                 {
                     var matchingRelease =
                         disambiguationDialog.SelectedResult.Releases
-                            .FirstOrDefault(release =>
-                                release.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase));
+                            .FirstOrDefault(
+                                release =>
+                                    release.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)
+                            );
 
                     if (matchingRelease == null || string.IsNullOrEmpty(matchingRelease.Url))
                     {
@@ -105,7 +108,9 @@ namespace Catalog.Wpf.Commands
 
             if (gameEntry.Publisher != null)
             {
-                var publisher = editGameViewModel.Publishers.FirstOrDefault(p => p.Slug == gameEntry.Publisher.Slug || p.Name == gameEntry.Publisher.Name);
+                var publisher = editGameViewModel.Publishers.FirstOrDefault(
+                    p => p.Slug == gameEntry.Publisher.Slug || p.Name == gameEntry.Publisher.Name
+                );
 
                 if (publisher == null)
                 {
@@ -142,8 +147,10 @@ namespace Catalog.Wpf.Commands
 
         private async void GetSpecs(GameEntry gameEntry)
         {
-            var specs = await Task.Run(() =>
-                new Scraper(Application.Current.ScraperWebClient()).GetGameSpecs(gameEntry.Slug));
+            var specs = await Task.Run(
+                () =>
+                    new Scraper(Application.Current.ScraperWebClient()).GetGameSpecs(gameEntry.Slug)
+            );
 
             var platforms = Enum
                 .GetValues(typeof(Platform))
@@ -159,9 +166,10 @@ namespace Catalog.Wpf.Commands
 
         private async void GetScreenshots(GameEntry gameEntry)
         {
-            IEnumerable<ScreenshotEntry> screenshotEntries = await Task.Run(() =>
-                new Scraper(Application.Current.ScraperWebClient())
-                    .GetGameScreenshots(gameEntry.Slug)
+            IEnumerable<ScreenshotEntry> screenshotEntries = await Task.Run(
+                () =>
+                    new Scraper(Application.Current.ScraperWebClient())
+                        .GetGameScreenshots(gameEntry.Slug)
             );
 
             // TODO: Get this from config.

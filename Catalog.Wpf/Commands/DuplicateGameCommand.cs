@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Catalog.Model;
+using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 using Microsoft.EntityFrameworkCore;
 

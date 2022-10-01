@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Catalog.Model;
+using Catalog.Wpf.Extensions;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -50,7 +51,7 @@ namespace Catalog.Wpf.ViewModel
         public IEnumerable<GameItem> Items => GameCopy.Items;
 
         public string? CoverPath =>
-            GameCopy.CoverImage != null ? HomeDirectoryHelpers.ToAbsolutePath(GameCopy.CoverImage) : null;
+            GameCopy.CoverImage != null ? HomeDirectoryExtensions.ToAbsolutePath(GameCopy.CoverImage) : null;
 
         public ImageSource? Cover
         {
@@ -74,7 +75,7 @@ namespace Catalog.Wpf.ViewModel
 
         public IEnumerable<ScreenshotViewModel> Screenshots =>
             GameCopy.Screenshots
-                .Select(HomeDirectoryHelpers.ToAbsolutePath)
+                .Select(HomeDirectoryExtensions.ToAbsolutePath)
                 .Select(ScreenshotViewModel.FromPath)
                 .ToList();
 

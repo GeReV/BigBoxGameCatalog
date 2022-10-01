@@ -12,6 +12,7 @@ using System.Windows.Input;
 using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.Comparers;
+using Catalog.Wpf.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf.ViewModel

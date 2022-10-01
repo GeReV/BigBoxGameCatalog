@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Catalog.Scrapers.MobyGames;
+using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 using Application = System.Windows.Application;
 
@@ -27,7 +28,8 @@ namespace Catalog.Wpf.Commands
             {
                 var scraper = new Scraper(Application.Current.ScraperWebClient());
 
-                Debug.Assert(editGameViewModel.GameMobyGamesSlug != null,
+                Debug.Assert(
+                    editGameViewModel.GameMobyGamesSlug != null,
                     "editGameViewModel.GameMobyGamesSlug != null"
                 );
 
@@ -40,7 +42,8 @@ namespace Catalog.Wpf.Commands
 
                 if (selectionDialog.ShowDialog() == true)
                 {
-                    editGameViewModel.GameCoverImage = new ScreenshotViewModel(selectionDialog.SelectedResult.Thumbnail,
+                    editGameViewModel.GameCoverImage = new ScreenshotViewModel(
+                        selectionDialog.SelectedResult.Thumbnail,
                         selectionDialog.SelectedResult.Url
                     );
                 }
