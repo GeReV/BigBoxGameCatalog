@@ -34,7 +34,10 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            var gameIds = selectedItems.Cast<GameViewModel>().Select(item => item.GameCopy.GameCopyId);
+            var gameIds = selectedItems
+                .Cast<GameViewModel>()
+                .Select(item => item.GameCopy.GameCopyId)
+                .ToHashSet();
 
             await using var db = Application.Current.Database();
 
@@ -77,8 +80,7 @@ namespace Catalog.Wpf.Commands
 
             await db.SaveChangesAsync();
 
-            // TODO: Refresh just the relevant games.
-            viewModel.RefreshGamesCollection();
+            viewModel.RefreshGameCollection(gameIds);
         }
     }
 }

@@ -879,10 +879,17 @@ namespace Catalog.Wpf.Forms
                 {
                     if (e.NewItems == null)
                     {
-                        return;
-                    }
+                        if (sender is not ListCollectionView listCollectionView)
+                        {
+                            throw new Exception($"Expected sender to be of type {nameof(ListCollectionView)}");
+                        }
 
-                    BuildGalleryItems(e.NewItems.Cast<GameViewModel>());
+                        BuildGalleryItems(listCollectionView.Cast<GameViewModel>());
+                    }
+                    else
+                    {
+                        BuildGalleryItems(e.NewItems.Cast<GameViewModel>());
+                    }
 
                     break;
                 }

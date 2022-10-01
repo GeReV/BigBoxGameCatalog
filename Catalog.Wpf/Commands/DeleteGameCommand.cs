@@ -42,7 +42,7 @@ namespace Catalog.Wpf.Commands
 
             database.SaveChanges();
 
-            mainWindowViewModel.RefreshGamesCollection();
+            mainWindowViewModel.InitializeGamesCollection();
         }
     }
 }

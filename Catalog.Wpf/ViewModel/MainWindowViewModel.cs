@@ -120,7 +120,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ICommand RefreshGames => refreshGames ??= new DelegateCommand(_ => RefreshGamesCollection());
+        public ICommand RefreshGames => refreshGames ??= new DelegateCommand(_ => RefreshGameCollection());
 
         public ICommand EditGameCommand =>
             editGameCommand ??= new EditGameCommand(this);
@@ -223,7 +223,7 @@ namespace Catalog.Wpf.ViewModel
 
                 RefreshTags();
 
-                RefreshGamesCollection();
+                RefreshGameCollection();
             }
         );
 
@@ -231,18 +231,16 @@ namespace Catalog.Wpf.ViewModel
         {
             RefreshTags();
 
-            RefreshGamesCollection();
+            InitializeGamesCollection();
 
             PropertyChanged += RefreshFilteredGames;
         }
 
-        private static IEnumerable<GameCopy> LoadGames(CatalogContext database)
-        {
-            return database.Games
+        private static IQueryable<GameCopy> LoadGames(CatalogContext database) =>
+            database.Games
                 .Include(g => g.Items)
                 .Include(g => g.GameCopyTags)
                 .ThenInclude(t => t.Tag);
-        }
 
         public void RefreshGame(int gameCopyId)
         {
@@ -261,7 +259,7 @@ namespace Catalog.Wpf.ViewModel
             Games.Add(new GameViewModel(game ?? throw new InvalidOperationException()));
         }
 
-        public void RefreshGamesCollection()
+        public void InitializeGamesCollection()
         {
             using var database = Application.Current.Database();
 
@@ -292,6 +290,30 @@ namespace Catalog.Wpf.ViewModel
             FilteredGames = updatedFilteredGames;
 
             RefreshSelectedGames();
+        }
+
+        public void RefreshGameCollection(ISet<int>? gameIds = null)
+        {
+            using var database = Application.Current.Database();
+
+            var updatedGames = LoadGames(database);
+            IEnumerable<GameViewModel> gameViewModels = Games;
+
+            if (gameIds != null)
+            {
+                updatedGames = updatedGames.Where(gc => gameIds.Contains(gc.GameCopyId));
+                gameViewModels = gameViewModels.Where(gc => gameIds.Contains(gc.GameCopyId));
+            }
+
+            var updatedGamesDict = updatedGames
+                .ToDictionary(gc => gc.GameCopyId);
+
+            foreach (var game in gameViewModels)
+            {
+                game.GameCopy = updatedGamesDict[game.GameCopyId];
+            }
+
+            FilteredGames.Refresh();
         }
 
         private void RefreshTags()
