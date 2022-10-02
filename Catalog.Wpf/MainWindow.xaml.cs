@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf
@@ -35,6 +36,15 @@ namespace Catalog.Wpf
             DataContext = ViewModel;
 
             InitializeComponent();
+
+            Dispatcher.InvokeAsync(
+                () =>
+                {
+                    ViewModel.InitializeGamesCollection();
+                    ViewModel.Status = MainWindowViewModel.ViewStatus.Idle;
+                },
+                DispatcherPriority.Background
+            );
         }
 
         public MainWindowViewModel ViewModel { get; }

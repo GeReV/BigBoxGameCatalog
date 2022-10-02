@@ -22,14 +22,28 @@ namespace Catalog.Wpf.ViewModel
         private ICommand? deleteGameCommand;
         private ICommand? duplicateGameCommand;
         private ICommand? editGameCommand;
-        private ListCollectionView filteredGames = new(Array.Empty<GameViewModel>());
-        private ObservableCollection<GameViewModel> games = new();
         private ICommand? refreshGames;
-        private string? searchTerm;
-        private IList selectedGames = new ArrayList();
-        private ObservableCollection<Tag> tags = new();
         private ICommand? toggleGameTagCommand;
+
+        private ObservableCollection<Tag> tags = new();
+
+        private ObservableCollection<GameViewModel> games = new();
+        private ListCollectionView filteredGames = new(Array.Empty<GameViewModel>());
+        private IList selectedGames = new ArrayList();
+
+        private string? searchTerm;
+
+        private ViewStatus viewStatus = ViewStatus.Loading;
         private MainWindowViewMode viewMode = MainWindowViewMode.GalleryMode;
+
+        private Exception? currentException;
+
+        public enum ViewStatus
+        {
+            [Description("Loading games...")] Loading,
+            Idle,
+            Error,
+        }
 
         public ListCollectionView FilteredGames
         {
@@ -106,6 +120,29 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
+        public ViewStatus Status
+        {
+            get => viewStatus;
+            set
+            {
+                if (value == viewStatus)
+                {
+                    return;
+                }
+
+                viewStatus = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(StatusDescription));
+            }
+        }
+
+        public string StatusDescription => Status switch
+        {
+            ViewStatus.Idle => $"{Games.Count:N0} items",
+            ViewStatus.Error => CurrentException == null ? "Unknown Error" : $"Error: {CurrentException.Message}",
+            var status => status.GetDescription()
+        };
+
         public MainWindowViewMode ViewMode
         {
             get => viewMode;
@@ -118,6 +155,22 @@ namespace Catalog.Wpf.ViewModel
 
                 viewMode = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public Exception? CurrentException
+        {
+            get => currentException;
+            set
+            {
+                if (Equals(value, currentException)) return;
+                currentException = value;
+                OnPropertyChanged();
+
+                if (Status == ViewStatus.Error)
+                {
+                    OnPropertyChanged(nameof(StatusDescription));
+                }
             }
         }
 
@@ -231,8 +284,6 @@ namespace Catalog.Wpf.ViewModel
         public MainWindowViewModel()
         {
             RefreshTags();
-
-            InitializeGamesCollection();
 
             PropertyChanged += RefreshFilteredGames;
         }
