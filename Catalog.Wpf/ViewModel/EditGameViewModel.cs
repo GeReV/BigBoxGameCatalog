@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -20,9 +19,9 @@ using Condition = Catalog.Model.Condition;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public sealed class EditGameViewModel : NotifyPropertyChangedBase, INotifyDataErrorInfo
+    public sealed class EditGameViewModel : ValidatableViewModelBase
     {
-        private GameCopy gameCopy;
+        private readonly GameCopy gameCopy;
 
         private int saveProgress;
         private ViewStatus viewStatus = ViewStatus.Idle;
@@ -60,9 +59,6 @@ namespace Catalog.Wpf.ViewModel
         private IAsyncCommand? searchMobyGamesCoverCommand;
 
         private Exception? currentException;
-
-        private readonly Dictionary<string, ICollection<string?>> validationErrors =
-            new();
 
         public enum ViewStatus
         {
@@ -174,6 +170,7 @@ namespace Catalog.Wpf.ViewModel
             set => gameCopy.GameCopyId = value;
         }
 
+        [Required]
         public string Title
         {
             get => gameCopy.Title;
@@ -454,6 +451,11 @@ namespace Catalog.Wpf.ViewModel
         public IAsyncCommand SaveGameCommand => saveGameCommand ??= new AsyncDelegateCommand(
             async _ =>
             {
+                if (!ValidateModel())
+                {
+                    return;
+                }
+
                 var args = new SaveGameCommand.SaveGameArguments(
                     GameId,
                     this,
@@ -498,58 +500,5 @@ namespace Catalog.Wpf.ViewModel
                 }
             }
         );
-
-        #region Model Validation
-
-        private void ValidateModelProperty(object? value, [CallerMemberName] string? propertyName = null)
-        {
-            if (propertyName == null)
-            {
-                return;
-            }
-
-            if (validationErrors.ContainsKey(propertyName))
-            {
-                validationErrors.Remove(propertyName);
-            }
-
-            ICollection<ValidationResult> validationResults = new List<ValidationResult>();
-
-            var validationContext = new ValidationContext(gameCopy, null, null)
-            {
-                MemberName = propertyName
-            };
-
-            if (!Validator.TryValidateProperty(value, validationContext, validationResults))
-            {
-                var errors = validationResults
-                    .Select(validationResult => validationResult.ErrorMessage)
-                    .ToList();
-
-                validationErrors.Add(propertyName, errors);
-            }
-
-            OnErrorsChanged(propertyName);
-        }
-
-        public IEnumerable GetErrors(string? propertyName)
-        {
-            if (string.IsNullOrEmpty(propertyName) || !validationErrors.ContainsKey(propertyName))
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return validationErrors[propertyName];
-        }
-
-        public bool HasErrors => validationErrors.Count > 0;
-        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
-
-        private void OnErrorsChanged([CallerMemberName] string? propertyName = null)
-        {
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 }

@@ -9,7 +9,7 @@ using Catalog.Wpf.Extensions;
 
 namespace Catalog.Wpf.ViewModel
 {
-    public class GameViewModel : NotifyPropertyChangedBase
+    public sealed class GameViewModel : NotifyPropertyChangedBase
     {
         private readonly ResettableLazy<IEnumerable<GameItemGroupViewModel>> gameStats;
         private GameCopy gameCopy;
