@@ -334,11 +334,7 @@ namespace Catalog.Wpf.ViewModel
                 if (Equals(value, currentException)) return;
                 currentException = value;
                 OnPropertyChanged();
-
-                if (Status == ViewStatus.Error)
-                {
-                    OnPropertyChanged(nameof(StatusDescription));
-                }
+                OnPropertyChanged(nameof(StatusDescription));
             }
         }
 
@@ -473,7 +469,7 @@ namespace Catalog.Wpf.ViewModel
                 }
                 catch (Exception)
                 {
-                    // ignored
+                    // Ignored. Handled by command.
                 }
             }
         );
