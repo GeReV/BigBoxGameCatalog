@@ -58,7 +58,7 @@ namespace Catalog.Wpf.Gallery
 
         static Tag()
         {
-            PaddingProperty.OverrideMetadata(typeof(Tag), new FrameworkPropertyMetadata(new Thickness(2f, 0, 2f, 0)));
+            PaddingProperty.OverrideMetadata(typeof(Tag), new FrameworkPropertyMetadata(new Thickness(2f, 0, 2f, 1f)));
         }
 
         public Tag()
