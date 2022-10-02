@@ -280,11 +280,33 @@
                                        Margin="0,0,0,5" />
                 <ContentControl Content="{Binding}"
                                 Name="GamesView">
+                    <ContentControl.Resources>
+                        <Style x:Key="DisabledGameViewStyle"
+                               TargetType="UserControl">
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled"
+                                         Value="False">
+                                    <Setter Property="Background"
+                                            Value="WhiteSmoke" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+
+                        <Style TargetType="{x:Type forms:GameGalleryView}"
+                               BasedOn="{StaticResource DisabledGameViewStyle}" />
+                        <Style TargetType="{x:Type forms:GameDetailView}"
+                               BasedOn="{StaticResource DisabledGameViewStyle}" />
+                    </ContentControl.Resources>
                     <ContentControl.Style>
                         <Style TargetType="{x:Type ContentControl}">
                             <Setter Property="ContentTemplate"
                                     Value="{StaticResource {x:Static viewModel:MainWindowViewMode.GalleryMode}}" />
                             <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status}"
+                                             Value="{x:Static viewModel:MainWindowViewModel+ViewStatus.Loading}">
+                                    <Setter Property="IsEnabled"
+                                            Value="False" />
+                                </DataTrigger>
                                 <DataTrigger Binding="{Binding ViewMode}"
                                              Value="{x:Static viewModel:MainWindowViewMode.GalleryMode}">
                                     <Setter Property="ContentTemplate"

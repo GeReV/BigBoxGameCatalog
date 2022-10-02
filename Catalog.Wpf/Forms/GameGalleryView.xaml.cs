@@ -17,6 +17,7 @@ using Catalog.Wpf.Gallery;
 using Catalog.Wpf.ViewModel;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
+using SkiaSharp.Views.WPF;
 
 namespace Catalog.Wpf.Forms
 {
@@ -1017,7 +1018,14 @@ namespace Catalog.Wpf.Forms
 
         private void Render(SKCanvas canvas)
         {
-            canvas.Clear(SKColors.White);
+            var backgroundColor = SKColors.White;
+
+            if (Background is SolidColorBrush solidColorBrush)
+            {
+                backgroundColor = solidColorBrush.Color.ToSKColor();
+            }
+
+            canvas.Clear(backgroundColor);
 
             canvas.Save();
             canvas.Translate(0, (float)-VerticalOffset);
