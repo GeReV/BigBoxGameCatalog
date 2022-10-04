@@ -676,11 +676,10 @@ namespace Catalog.Wpf.Forms
                 {
                     await BuildAtlas(games);
 
-                    view.BuildGalleryItems(games);
-
                     view.InvalidateArrange();
                     view.ScheduleRepaint();
-                }
+                },
+                DispatcherPriority.Background
             );
         }
 

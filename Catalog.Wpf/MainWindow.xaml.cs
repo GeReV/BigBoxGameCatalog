@@ -40,7 +40,7 @@ namespace Catalog.Wpf
             Dispatcher.InvokeAsync(
                 () =>
                 {
-                    ViewModel.InitializeGamesCollection();
+                    ViewModel.Initialize();
                     ViewModel.Status = MainWindowViewModel.ViewStatus.Idle;
                 },
                 DispatcherPriority.Background

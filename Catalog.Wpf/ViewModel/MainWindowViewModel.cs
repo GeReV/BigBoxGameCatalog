@@ -283,8 +283,6 @@ namespace Catalog.Wpf.ViewModel
 
         public MainWindowViewModel()
         {
-            RefreshTags();
-
             PropertyChanged += RefreshFilteredGames;
         }
 
@@ -311,7 +309,14 @@ namespace Catalog.Wpf.ViewModel
             Games.Add(new GameViewModel(game ?? throw new InvalidOperationException()));
         }
 
-        public void InitializeGamesCollection()
+        public void Initialize()
+        {
+            RefreshTags();
+
+            InitializeGamesCollection();
+        }
+
+        private void InitializeGamesCollection()
         {
             using var database = Application.Current.Database();
 
