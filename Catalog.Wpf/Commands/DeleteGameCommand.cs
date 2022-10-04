@@ -1,10 +1,11 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 
 namespace Catalog.Wpf.Commands
 {
-    public class DeleteGameCommand : CommandBase
+    public class DeleteGameCommand : AsyncCommandBase
     {
         private readonly MainWindowViewModel mainWindowViewModel;
 
@@ -13,12 +14,12 @@ namespace Catalog.Wpf.Commands
             this.mainWindowViewModel = mainWindowViewModel;
         }
 
-        public override bool CanExecute(object? parameter)
+        protected override bool CanExecuteImpl(object? parameter)
         {
             return parameter is GameViewModel;
         }
 
-        public override void Execute(object? parameter)
+        protected override async Task Perform(object? parameter)
         {
             if (parameter is not GameViewModel game)
             {
@@ -37,13 +38,13 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            using var database = Application.Current.Database();
+            await using var database = Application.Current.Database();
 
             database.Remove(game.GameCopy);
 
-            database.SaveChanges();
+            await database.SaveChangesAsync();
 
-            mainWindowViewModel.InitializeGamesCollection();
+            mainWindowViewModel.Games.Remove(game);
         }
     }
 }
