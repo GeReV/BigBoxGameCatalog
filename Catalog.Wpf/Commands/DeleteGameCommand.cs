@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
@@ -38,11 +39,22 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            await using var database = Application.Current.Database();
+            try
+            {
+                await using var database = Application.Current.Database();
 
-            database.Remove(game.GameCopy);
+                database.RemoveRange(game.GameCopy.GameCopyTags);
+                database.RemoveRange(game.GameCopy.GameCopyDevelopers);
+                database.RemoveRange(game.GameCopy.Items);
+                database.Remove(game.GameCopy);
 
-            await database.SaveChangesAsync();
+                await database.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                mainWindowViewModel.CurrentException = e;
+                mainWindowViewModel.Status = MainWindowViewModel.ViewStatus.Error;
+            }
 
             mainWindowViewModel.Games.Remove(game);
         }

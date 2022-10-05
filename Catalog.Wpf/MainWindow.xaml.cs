@@ -58,7 +58,8 @@ namespace Catalog.Wpf
 
             if (editGameDialog.ShowDialog() == true)
             {
-                CommandExecutor.Execute(ViewModel.RefreshGames);
+                // Need to reload all games, because we don't have the new game's ID at the moment.
+                CommandExecutor.Execute(ViewModel.ReloadGames);
             }
         }
 

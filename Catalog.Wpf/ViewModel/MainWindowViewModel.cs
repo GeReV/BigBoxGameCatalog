@@ -22,7 +22,7 @@ namespace Catalog.Wpf.ViewModel
         private ICommand? deleteGameCommand;
         private ICommand? duplicateGameCommand;
         private ICommand? editGameCommand;
-        private ICommand? refreshGames;
+        private ICommand? reloadGames;
         private ICommand? toggleGameTagCommand;
 
         private ObservableCollection<Tag> tags = new();
@@ -174,7 +174,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ICommand RefreshGames => refreshGames ??= new DelegateCommand(_ => RefreshGameCollection());
+        public ICommand ReloadGames => reloadGames ??= new DelegateCommand(_ => ReloadGameCollection());
 
         public ICommand EditGameCommand =>
             editGameCommand ??= new EditGameCommand(this);
@@ -234,7 +234,7 @@ namespace Catalog.Wpf.ViewModel
 
                 database.SaveChanges();
 
-                RefreshTags();
+                ReloadTags();
 
                 RefreshGame(gameViewModel.GameCopy.GameCopyId);
             }
@@ -261,7 +261,7 @@ namespace Catalog.Wpf.ViewModel
 
                 database.SaveChanges();
 
-                RefreshTags();
+                ReloadTags();
             }
         );
 
@@ -275,7 +275,7 @@ namespace Catalog.Wpf.ViewModel
 
                 manageTagsWindow.ShowDialog();
 
-                RefreshTags();
+                ReloadTags();
 
                 RefreshGameCollection();
             }
@@ -286,7 +286,7 @@ namespace Catalog.Wpf.ViewModel
             PropertyChanged += RefreshFilteredGames;
         }
 
-        private static IQueryable<GameCopy> LoadGames(CatalogContext database) =>
+        private static IQueryable<GameCopy> LoadGamesQuery(CatalogContext database) =>
             database.Games
                 .Include(g => g.Items)
                 .Include(g => g.GameCopyTags)
@@ -296,31 +296,26 @@ namespace Catalog.Wpf.ViewModel
         {
             using var database = Application.Current.Database();
 
-            var game = LoadGames(database)
-                .SingleOrDefault(g => g.GameCopyId == gameCopyId);
+            var game = LoadGamesQuery(database)
+                .Single(g => g.GameCopyId == gameCopyId);
 
-            var existingGame = Games.FirstOrDefault(g => g.GameCopy.GameCopyId == gameCopyId);
+            var existingGame = Games.First(g => g.GameCopy.GameCopyId == gameCopyId);
 
-            if (existingGame != null)
-            {
-                Games.Remove(existingGame);
-            }
-
-            Games.Add(new GameViewModel(game ?? throw new InvalidOperationException()));
+            existingGame.GameCopy = game;
         }
 
         public void Initialize()
         {
-            RefreshTags();
+            ReloadTags();
 
-            InitializeGamesCollection();
+            ReloadGameCollection();
         }
 
-        private void InitializeGamesCollection()
+        public void ReloadGameCollection()
         {
             using var database = Application.Current.Database();
 
-            var updatedGames = LoadGames(database)
+            var updatedGames = LoadGamesQuery(database)
                 .Select(gc => new GameViewModel(gc));
 
             Games = new ObservableCollection<GameViewModel>(updatedGames);
@@ -349,11 +344,18 @@ namespace Catalog.Wpf.ViewModel
             RefreshSelectedGames();
         }
 
+        private void ReloadTags()
+        {
+            using var database = Application.Current.Database();
+
+            Tags = new ObservableCollection<Tag>(database.Tags.OrderBy(t => t.Name));
+        }
+
         public void RefreshGameCollection(ISet<int>? gameIds = null)
         {
             using var database = Application.Current.Database();
 
-            var updatedGames = LoadGames(database);
+            var updatedGames = LoadGamesQuery(database);
             IEnumerable<GameViewModel> gameViewModels = Games;
 
             if (gameIds != null)
@@ -371,13 +373,6 @@ namespace Catalog.Wpf.ViewModel
             }
 
             FilteredGames.Refresh();
-        }
-
-        private void RefreshTags()
-        {
-            using var database = Application.Current.Database();
-
-            Tags = new ObservableCollection<Tag>(database.Tags.OrderBy(t => t.Name));
         }
 
         private void RefreshSelectedGames()
