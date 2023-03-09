@@ -16,5 +16,7 @@ public class Cover
 
     [JsonPropertyName("height")] public uint Height { get; set; }
 
-    [JsonPropertyName("scan_of")] public string? ScanOf { get; set; }
+    [JsonPropertyName("scan_of")]
+    [JsonConverter(typeof(JsonCoverScanConverter))]
+    public CoverScanOf? ScanOf { get; set; }
 }

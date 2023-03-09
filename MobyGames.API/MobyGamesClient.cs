@@ -1,6 +1,9 @@
-﻿using System.Net.Http.Json;
+﻿using System.Buffers;
+using System.Diagnostics;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Http.Extensions;
 using MobyGames.API.DataObjects;
 using MobyGames.API.Exceptions;
@@ -10,7 +13,18 @@ namespace MobyGames.API;
 public sealed class MobyGamesClient : IDisposable
 {
     private readonly string apiKey;
+
     private readonly HttpClient httpClient;
+
+    private readonly FixedWindowRateLimiter rateLimiter = new(
+        new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromMilliseconds(1500),
+            PermitLimit = 1,
+            QueueLimit = 10,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+        }
+    );
 
     public static readonly Uri MobyGamesApiUrl = new("https://api.mobygames.com/v1/");
 
@@ -68,7 +82,7 @@ public sealed class MobyGamesClient : IDisposable
 
     private async Task<IEnumerable<T>> GetList<T>(string path, string entityName, IMobyClientOptions? options = null)
     {
-        var result = await PerformRequest<JsonObject>(path, options);
+        var result = await PerformRequest<JsonNode>(path, options);
 
         if (result[entityName] is { } node)
         {
@@ -96,7 +110,15 @@ public sealed class MobyGamesClient : IDisposable
     {
         string? content;
 
-        using var response = await httpClient.GetAsync(BuildUrl(path, options));
+        using var lease = await rateLimiter.AcquireAsync();
+        if (!lease.IsAcquired)
+        {
+            throw new MobyGamesException("Failed to acquire rate limit lease");
+        }
+
+        var requestUri = BuildUrl(path, options);
+
+        using var response = await httpClient.GetAsync(requestUri);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -108,8 +130,11 @@ public sealed class MobyGamesClient : IDisposable
             }
 
             content = await response.Content.ReadAsStringAsync();
+
             throw new MobyGamesException($"An unknown API error has occurred:\n{content}");
         }
+
+        // Debug.WriteLine($"MobyGames request {requestUri}:\n{await response.Content.ReadAsStringAsync()}");
 
         var obj = await response.Content.ReadFromJsonAsync<T>();
 
@@ -125,5 +150,6 @@ public sealed class MobyGamesClient : IDisposable
     public void Dispose()
     {
         httpClient.Dispose();
+        rateLimiter.Dispose();
     }
 }

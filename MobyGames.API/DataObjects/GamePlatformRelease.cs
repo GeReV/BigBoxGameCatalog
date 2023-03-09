@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace MobyGames.API.DataObjects;
 
@@ -12,6 +13,5 @@ public class GamePlatformRelease
 
     [JsonPropertyName("description")] public string? Description { get; set; }
 
-    // TODO: Unknown type.
-    [JsonPropertyName("product_codes")] public List<object> ProductCodes { get; set; } = new();
+    [JsonPropertyName("product_codes")] public List<GameReleaseProductCode> ProductCodes { get; set; } = new();
 }

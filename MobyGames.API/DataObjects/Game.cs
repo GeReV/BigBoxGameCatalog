@@ -10,9 +10,9 @@ public class Game
 
     [JsonPropertyName("moby_url")] public Uri MobyUrl { get; set; }
 
-    [JsonPropertyName("moby_score")] public double MobyScore { get; set; }
+    [JsonPropertyName("moby_score")] public double? MobyScore { get; set; }
 
-    [JsonPropertyName("num_votes")] public uint NumVotes { get; set; }
+    [JsonPropertyName("num_votes")] public uint? NumVotes { get; set; }
 
     [JsonPropertyName("official_url")] public Uri? OfficialUrl { get; set; }
 
