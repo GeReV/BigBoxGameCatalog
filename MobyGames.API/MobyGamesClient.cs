@@ -1,6 +1,4 @@
-﻿using System.Buffers;
-using System.Diagnostics;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.RateLimiting;
@@ -16,10 +14,11 @@ public sealed class MobyGamesClient : IDisposable
 
     private readonly HttpClient httpClient;
 
-    private readonly FixedWindowRateLimiter rateLimiter = new(
-        new FixedWindowRateLimiterOptions
+    private readonly SlidingWindowRateLimiter rateLimiter = new(
+        new SlidingWindowRateLimiterOptions
         {
-            Window = TimeSpan.FromMilliseconds(1500),
+            Window = TimeSpan.FromMilliseconds(2000),
+            SegmentsPerWindow = 1,
             PermitLimit = 1,
             QueueLimit = 10,
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
@@ -108,6 +107,11 @@ public sealed class MobyGamesClient : IDisposable
 
     private async Task<T> PerformRequest<T>(string path, IMobyClientOptions? options = null)
     {
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            throw new MobyGamesException("Missing MobyGames API key");
+        }
+
         string? content;
 
         using var lease = await rateLimiter.AcquireAsync();
@@ -134,7 +138,9 @@ public sealed class MobyGamesClient : IDisposable
             throw new MobyGamesException($"An unknown API error has occurred:\n{content}");
         }
 
-        // Debug.WriteLine($"MobyGames request {requestUri}:\n{await response.Content.ReadAsStringAsync()}");
+        // Debug.WriteLine(
+        //     $"MobyGames request {requestUri}:\n{JsonSerializer.Deserialize<JsonNode>(await response.Content.ReadAsStringAsync())?.ToJsonString(new JsonSerializerOptions { WriteIndented = true })}\n\n"
+        // );
 
         var obj = await response.Content.ReadFromJsonAsync<T>();
 

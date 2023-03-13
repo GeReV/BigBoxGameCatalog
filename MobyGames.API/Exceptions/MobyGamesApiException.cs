@@ -2,7 +2,7 @@
 
 namespace MobyGames.API.Exceptions;
 
-public class MobyGamesApiException : MobyGamesException
+public sealed class MobyGamesApiException : MobyGamesException
 {
     public MobyGamesApiException(MobyGamesErrorResponse response) : base(response.Message)
     {
