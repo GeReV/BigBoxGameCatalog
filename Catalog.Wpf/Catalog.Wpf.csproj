@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <PackageId>BigBoxGameCatalog.Wpf</PackageId>
-        <PackageVersion>0.4.7</PackageVersion>
+        <PackageVersion>0.5.0</PackageVersion>
         <Authors>Amir Grozki</Authors>
         <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
         <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
@@ -14,7 +14,7 @@
         <Product>Big Box Game Catalog</Product>
         <AssemblyName>BBGC</AssemblyName>
         <Title>Big Box Game Catalog</Title>
-        <Copyright>Copyright © 2022</Copyright>
+        <Copyright>Copyright © 2023</Copyright>
         <PublishTrimmed>false</PublishTrimmed>
         <LangVersion>10</LangVersion>
         <TargetFramework>net6.0-windows</TargetFramework>
