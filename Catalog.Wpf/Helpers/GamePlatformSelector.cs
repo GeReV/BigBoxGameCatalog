@@ -12,11 +12,23 @@ public static class GamePlatformSelector
     public static GamePlatform SelectPreferredPlatform(Game mobyGame)
     {
         // Find the first release that matches our preferred platforms.
-        return mobyGame.Platforms.FirstOrDefault(
-            gamePlatform => Array.Exists(
+        var result = mobyGame.Platforms[0];
+        var index = PlatformPriorities.Length;
+
+        foreach (var gamePlatform in mobyGame.Platforms)
+        {
+            var i = Array.FindIndex(
                 PlatformPriorities,
-                platform => gamePlatform.Name.Contains(platform, StringComparison.InvariantCultureIgnoreCase)
-            )
-        ) ?? mobyGame.Platforms[0];
+                p => gamePlatform.Name.Contains(p, StringComparison.InvariantCultureIgnoreCase)
+            );
+
+            if (i >= 0 && i < index)
+            {
+                index = i;
+                result = gamePlatform;
+            }
+        }
+
+        return result;
     }
 }
