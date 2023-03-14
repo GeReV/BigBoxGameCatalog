@@ -198,6 +198,8 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
+        public uint? MobyGameId => gameCopy.MobyGamesId;
+
         public Game? MobyGame
         {
             get => mobyGame;

@@ -21,7 +21,7 @@ namespace Catalog.Wpf.Commands
         }
 
         protected override bool CanExecuteImpl(object? parameter) =>
-            editGameViewModel.MobyGame is not null;
+            editGameViewModel.MobyGameId is not null;
 
         protected override async Task Perform(object? parameter)
         {
@@ -32,20 +32,30 @@ namespace Catalog.Wpf.Commands
                 var client = Application.Current.MobyGamesClient();
 
                 Debug.Assert(
-                    editGameViewModel.MobyGame != null,
-                    "editGameViewModel.MobyGame != null"
+                    editGameViewModel.MobyGameId != null,
+                    "editGameViewModel.MobyGameId != null"
                 );
 
-                if (editGameViewModel.MobyGame is not { } mobyGame)
-                {
-                    return;
-                }
+                // Game object may be null if we loaded an existing game.
+                var mobyGame = editGameViewModel.MobyGame ?? await client.Game(editGameViewModel.MobyGameId.Value);
 
                 var selectedPlatform = GamePlatformSelector.SelectPreferredPlatform(mobyGame);
 
-                var covers = await Task.Run(() => client.GameCovers(mobyGame.Id, selectedPlatform.Id));
+                var covers = (await client.GameCovers(mobyGame.Id, selectedPlatform.Id)).ToList();
 
-                var selectionDialog = new CoverSelectionDialog(covers.ToList())
+                if (covers.Count == 0)
+                {
+                    MessageBox.Show(
+                        "No covers were found for this game",
+                        "No Results",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
+
+                    return;
+                }
+
+                var selectionDialog = new CoverSelectionDialog(covers)
                 {
                     Owner = editGameViewModel.ParentWindow
                 };
