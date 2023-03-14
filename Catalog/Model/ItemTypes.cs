@@ -5,21 +5,21 @@ namespace Catalog.Model
 {
     public static class ItemTypes
     {
-        public static ItemType BigBox = new ItemType("bigbox", "Big Box");
-        public static ItemType SmallBox = new ItemType("smallbox", "Small Box");
-        public static ItemType JewelCase = new ItemType("jewelcase", "Jewel Case");
-        public static ItemType DvdCase = new ItemType("dvdcase", "DVD Case");
-        public static ItemType Manual = new ItemType("manual", "Manual");
+        public static readonly ItemType BigBox = new("bigbox", "Big Box");
+        public static readonly ItemType SmallBox = new("smallbox", "Small Box");
+        public static readonly ItemType JewelCase = new("jewelcase", "Jewel Case");
+        public static readonly ItemType DvdCase = new("dvdcase", "DVD Case");
+        public static readonly ItemType Manual = new("manual", "Manual");
 
-        [Category("Media")] public static ItemType Floppy35 = new ItemType("floppy35", "3.5\" Floppy");
-        [Category("Media")] public static ItemType Floppy525 = new ItemType("floppy525", "5.25\" Floppy");
-        [Category("Media")] public static ItemType CdRom = new ItemType("cdrom", "CD-ROM");
-        [Category("Media")] public static ItemType DvdRom = new ItemType("dvdrom", "DVD-ROM");
-        [Category("Media")] public static ItemType Cassette = new ItemType("cassette", "Cassette");
+        [Category("Media")] public static readonly ItemType Floppy35 = new("floppy35", "3.5\" Floppy");
+        [Category("Media")] public static readonly ItemType Floppy525 = new("floppy525", "5.25\" Floppy");
+        [Category("Media")] public static readonly ItemType CdRom = new("cdrom", "CD-ROM");
+        [Category("Media")] public static readonly ItemType DvdRom = new("dvdrom", "DVD-ROM");
+        [Category("Media")] public static readonly ItemType Cassette = new("cassette", "Cassette");
 
-        public static ItemType Appendix = new ItemType("appendix", "Appendix");
+        public static readonly ItemType Appendix = new("appendix", "Appendix");
 
-        public static ItemType[] All =
+        public static readonly ItemType[] All =
         {
             BigBox,
             SmallBox,
