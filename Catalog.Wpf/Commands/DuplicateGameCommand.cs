@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using Catalog.Model;
 using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
@@ -43,6 +44,11 @@ namespace Catalog.Wpf.Commands
         private static GameCopy LoadGame(CatalogContext database, int gameCopyId)
         {
             var gameCopy = database.Games.Find(gameCopyId);
+
+            if (gameCopy is null)
+            {
+                throw new InvalidOperationException($"Could not find game with ID {gameCopyId}");
+            }
 
             var entry = database.Entry(gameCopy);
 
