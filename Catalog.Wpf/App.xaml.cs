@@ -88,8 +88,7 @@ namespace Catalog.Wpf
 
                 var latestBackup = backupDirectory
                     .EnumerateFiles(BACKUP_FILENAME_PATTERN)
-                    .OrderByDescending(info => info.CreationTime)
-                    .FirstOrDefault();
+                    .MaxBy(info => info.CreationTime);
 
                 if (latestBackup == null ||
                     sourceFileInfo.LastWriteTime > latestBackup.CreationTime &&
