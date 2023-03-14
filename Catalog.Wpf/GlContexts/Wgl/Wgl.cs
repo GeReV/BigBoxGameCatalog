@@ -188,7 +188,7 @@ namespace Catalog.Wpf.GlContexts.Wgl
 
         public static string? GetExtensionsStringARB(IntPtr dc)
         {
-            return Marshal.PtrToStringAnsi(wglGetExtensionsStringARB(dc));
+            return Marshal.PtrToStringAnsi(wglGetExtensionsStringARB?.Invoke(dc) ?? IntPtr.Zero);
         }
 
         public static string[] GetExtensionsARB(IntPtr dc)
@@ -279,7 +279,7 @@ namespace Catalog.Wpf.GlContexts.Wgl
     public delegate bool wglChoosePixelFormatARBDelegate(
         IntPtr dc,
         [In] int[] attribIList,
-        [In] float[] attribFList,
+        [In] float[]? attribFList,
         uint maxFormats,
         [Out] int[] pixelFormats,
         out uint numFormats
@@ -291,7 +291,7 @@ namespace Catalog.Wpf.GlContexts.Wgl
         int pixelFormat,
         int width,
         int height,
-        [In] int[] attribList
+        [In] int[]? attribList
     );
 
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
