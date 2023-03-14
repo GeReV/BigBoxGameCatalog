@@ -18,7 +18,7 @@ namespace Catalog.Wpf.GlContexts.Wgl
 		public IntPtr hCursor;
 		public IntPtr hbrBackground;
 		[MarshalAs(UnmanagedType.LPTStr)]
-		public string lpszMenuName;
+		public string? lpszMenuName;
 		[MarshalAs(UnmanagedType.LPTStr)]
 		public string lpszClassName;
 	}
