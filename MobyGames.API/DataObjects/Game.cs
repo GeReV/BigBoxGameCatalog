@@ -6,9 +6,9 @@ public class Game
 {
     [JsonPropertyName("game_id")] public uint Id { get; set; }
 
-    [JsonPropertyName("title")] public string Title { get; set; }
+    [JsonPropertyName("title")] public string Title { get; set; } = string.Empty;
 
-    [JsonPropertyName("moby_url")] public Uri MobyUrl { get; set; }
+    [JsonPropertyName("moby_url")] public Uri? MobyUrl { get; set; }
 
     [JsonPropertyName("moby_score")] public double? MobyScore { get; set; }
 

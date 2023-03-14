@@ -6,11 +6,11 @@ public class Attribute
 {
     [JsonPropertyName("attribute_id")] public uint Id { get; set; }
 
-    [JsonPropertyName("attribute_name")] public string Name { get; set; }
+    [JsonPropertyName("attribute_name")] public string Name { get; set; } = string.Empty;
 
     [JsonPropertyName("attribute_category_id")]
     public uint AttributeCategoryId { get; set; }
 
     [JsonPropertyName("attribute_category_name")]
-    public string AttributeCategoryName { get; set; }
+    public string AttributeCategoryName { get; set; } = string.Empty;
 }

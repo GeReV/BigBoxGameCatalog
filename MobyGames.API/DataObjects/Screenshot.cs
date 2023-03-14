@@ -4,11 +4,11 @@ namespace MobyGames.API.DataObjects;
 
 public class Screenshot
 {
-    [JsonPropertyName("caption")] public string Caption { get; set; }
+    [JsonPropertyName("caption")] public string Caption { get; set; } = string.Empty;
 
-    [JsonPropertyName("image")] public Uri Image { get; set; }
+    [JsonPropertyName("image")] public Uri? Image { get; set; }
 
-    [JsonPropertyName("thumbnail_image")] public Uri ThumbnailImage { get; set; }
+    [JsonPropertyName("thumbnail_image")] public Uri? ThumbnailImage { get; set; }
 
     [JsonPropertyName("width")] public uint Width { get; set; }
 

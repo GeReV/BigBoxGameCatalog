@@ -7,10 +7,10 @@ public class GamePlatform
 {
     [JsonPropertyName("platform_id")] public uint Id { get; set; }
 
-    [JsonPropertyName("platform_name")] public string Name { get; set; }
+    [JsonPropertyName("platform_name")] public string Name { get; set; } = string.Empty;
 
     [JsonPropertyName("first_release_date")]
-    public string FirstReleaseDate { get; set; }
+    public string FirstReleaseDate { get; set; } = string.Empty;
 
     [JsonPropertyName("game_id")] public uint? GameId { get; set; }
 

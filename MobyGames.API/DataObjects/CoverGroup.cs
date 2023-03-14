@@ -8,5 +8,5 @@ public class CoverGroup
 
     [JsonPropertyName("countries")] public List<string> Countries { get; set; } = new();
 
-    [JsonPropertyName("covers")] public List<Cover> Covers { get; set; }
+    [JsonPropertyName("covers")] public List<Cover> Covers { get; set; } = new();
 }

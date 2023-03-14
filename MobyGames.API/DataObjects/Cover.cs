@@ -8,9 +8,9 @@ public class Cover
 
     [JsonPropertyName("description")] public string? Description { get; set; }
 
-    [JsonPropertyName("image")] public Uri Image { get; set; }
+    [JsonPropertyName("image")] public Uri? Image { get; set; }
 
-    [JsonPropertyName("thumbnail_image")] public Uri ThumbnailImage { get; set; }
+    [JsonPropertyName("thumbnail_image")] public Uri? ThumbnailImage { get; set; }
 
     [JsonPropertyName("width")] public uint Width { get; set; }
 

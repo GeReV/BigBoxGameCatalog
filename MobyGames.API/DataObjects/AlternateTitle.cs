@@ -4,7 +4,7 @@ namespace MobyGames.API.DataObjects;
 
 public class AlternateTitle
 {
-    [JsonPropertyName("title")] public string Title { get; set; }
+    [JsonPropertyName("title")] public string Title { get; set; } = string.Empty;
 
-    [JsonPropertyName("description")] public string Description { get; set; }
+    [JsonPropertyName("description")] public string Description { get; set; } = string.Empty;
 }

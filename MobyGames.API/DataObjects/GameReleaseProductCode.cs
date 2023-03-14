@@ -8,7 +8,7 @@ public class GameReleaseProductCode
     public uint ProductCodeTypeId { get; set; }
 
     [JsonPropertyName("product_code_type")]
-    public string ProductCodeType { get; set; }
+    public string ProductCodeType { get; set; } = string.Empty;
 
-    [JsonPropertyName("product_code")] public string ProductCode { get; set; }
+    [JsonPropertyName("product_code")] public string ProductCode { get; set; } = string.Empty;
 }

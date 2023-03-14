@@ -5,7 +5,7 @@ namespace MobyGames.API.DataObjects;
 
 public class GamePlatformRelease
 {
-    [JsonPropertyName("release_date")] public string ReleaseDate { get; set; }
+    [JsonPropertyName("release_date")] public string ReleaseDate { get; set; } = string.Empty;
 
     [JsonPropertyName("companies")] public List<GamePlatformReleaseCompany> Companies { get; set; } = new();
 
