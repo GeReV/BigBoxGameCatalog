@@ -3,10 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:Catalog.Wpf"
         xmlns:viewModel="clr-namespace:Catalog.Wpf.ViewModel"
         mc:Ignorable="d"
-        Title="CoverSelectionDialog"
+        Title="Cover Selection Dialog"
         Height="450"
         Width="800"
         Style="{DynamicResource GlobalWindow}"
@@ -35,14 +34,16 @@
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type viewModel:CoverSelectionViewModel+Item}">
                     <StackPanel Orientation="Vertical"
-                                HorizontalAlignment="Center">
-                        <Image Width="96"
-                               Height="120">
+                                HorizontalAlignment="Center"
+                                Width="120">
+                        <Image Height="150">
                             <Image.Source>
                                 <BitmapImage UriSource="{Binding FrontCover.ThumbnailImage}" />
                             </Image.Source>
                         </Image>
-                        <TextBlock Text="{Binding Country}" />
+                        <TextBlock Text="{Binding Country}"
+                                   ToolTip="{Binding Country}"
+                                   TextTrimming="WordEllipsis" />
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
