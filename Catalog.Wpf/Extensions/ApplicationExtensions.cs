@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
+using Catalog.Wpf.Helpers;
 using MobyGames.API;
 
 namespace Catalog.Wpf.Extensions

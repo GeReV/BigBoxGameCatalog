@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace Catalog.Wpf;
+namespace Catalog.Wpf.Helpers;
 
 public static class AppSettingsHelper
 {
