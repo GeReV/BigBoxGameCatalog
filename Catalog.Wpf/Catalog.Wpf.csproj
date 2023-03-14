@@ -16,8 +16,8 @@
         <Title>Big Box Game Catalog</Title>
         <Copyright>Copyright © 2022</Copyright>
         <PublishTrimmed>false</PublishTrimmed>
-        <LangVersion>9</LangVersion>
-        <TargetFramework>net5.0-windows</TargetFramework>
+        <LangVersion>10</LangVersion>
+        <TargetFramework>net6.0-windows</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

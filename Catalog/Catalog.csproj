@@ -6,7 +6,7 @@
         <Title>Big Box Game Catalog</Title>
         <Copyright>Copyright © 2022</Copyright>
         <Description>A cataloging software for Big Box game collections</Description>
-        <LangVersion>9</LangVersion>
+        <LangVersion>10</LangVersion>
         <AssemblyName>BBGC.Core</AssemblyName>
         <Nullable>enable</Nullable>
         <PackageId>BigBoxGameCatalog.Core</PackageId>
@@ -14,7 +14,7 @@
         <PackageProjectUrl>https://github.com/GeReV/BigBoxGameCatalog</PackageProjectUrl>
         <RepositoryUrl>https://github.com/GeReV/BigBoxGameCatalog</RepositoryUrl>
         <PublishTrimmed>true</PublishTrimmed>
-        <TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -23,12 +23,12 @@
 
     <ItemGroup>
         <PackageReference Include="HtmlAgilityPack" Version="1.11.38" />
-        <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.21">
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.21" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.3" />
     </ItemGroup>
 
     <ItemGroup>
