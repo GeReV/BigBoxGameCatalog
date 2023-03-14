@@ -68,17 +68,27 @@ namespace Catalog.Wpf.Commands
                     return;
                 }
 
-                var disambiguationDialog = new GameDisambiguationDialog(entries)
-                {
-                    Owner = editGameViewModel.ParentWindow
-                };
+                Game gameEntry;
 
-                if (disambiguationDialog.ShowDialog() != true)
+                if (entries.Count > 1)
                 {
-                    return;
+                    var disambiguationDialog = new GameDisambiguationDialog(entries)
+                    {
+                        Owner = editGameViewModel.ParentWindow
+                    };
+
+                    if (disambiguationDialog.ShowDialog() != true)
+                    {
+                        return;
+                    }
+
+                    gameEntry = disambiguationDialog.SelectedResult;
+                }
+                else
+                {
+                    gameEntry = entries[0];
                 }
 
-                var gameEntry = disambiguationDialog.SelectedResult;
                 var preferredPlatform = GamePlatformSelector.SelectPreferredPlatform(gameEntry);
 
                 GetSpecs(gameEntry);
