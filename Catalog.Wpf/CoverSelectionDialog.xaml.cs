@@ -17,13 +17,10 @@ namespace Catalog.Wpf
                 Items = entries
                     .Where(entry => entry.Covers.Any(cover => cover.ScanOf == CoverScanOf.FrontCover))
                     .Select(
-                        entry =>
-                        {
-                            return new CoverSelectionViewModel.Item(
-                                string.Join(", ", entry.Countries),
-                                entry.Covers.First(cover => cover.ScanOf == CoverScanOf.FrontCover)
-                            );
-                        }
+                        entry => new CoverSelectionViewModel.Item(
+                            string.Join(", ", entry.Countries),
+                            entry.Covers.First(cover => cover.ScanOf == CoverScanOf.FrontCover)
+                        )
                     )
             };
 
