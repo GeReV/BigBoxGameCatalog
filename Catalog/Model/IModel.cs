@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Catalog.Model
+﻿namespace Catalog.Model
 {
     public interface IModel : ITimestamps
     {
