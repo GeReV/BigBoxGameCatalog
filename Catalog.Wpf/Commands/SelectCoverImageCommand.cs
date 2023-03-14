@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using Catalog.Wpf.ViewModel;
+﻿using Catalog.Wpf.ViewModel;
 using Microsoft.Win32;
 
 namespace Catalog.Wpf.Commands
@@ -28,7 +25,7 @@ namespace Catalog.Wpf.Commands
                 return;
             }
 
-            editGameViewModel.GameCoverImage = new ScreenshotViewModel(openFileDialog.FileName, openFileDialog.FileName);
+            editGameViewModel.GameCoverImage = ScreenshotViewModel.FromPath(openFileDialog.FileName);
         }
     }
 }

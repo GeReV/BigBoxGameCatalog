@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Catalog.Scrapers.MobyGames.Model;
+using MobyGames.API.DataObjects;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -7,16 +7,14 @@ namespace Catalog.Wpf.ViewModel
     {
         public record Item
         {
-            public Item(string platform, string? country, CoverArtEntry frontCover)
+            public Item(string? country, Cover frontCover)
             {
-                Platform = platform;
                 Country = country;
                 FrontCover = frontCover;
             }
 
-            public string Platform { get; set; }
             public string? Country { get; set; }
-            public CoverArtEntry FrontCover { get; set; }
+            public Cover FrontCover { get; set; }
         }
 
         public IEnumerable<Item> Items { get; set; } = new List<Item>();

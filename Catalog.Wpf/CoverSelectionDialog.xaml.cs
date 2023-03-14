@@ -1,29 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using Catalog.Scrapers.MobyGames.Model;
 using Catalog.Wpf.ViewModel;
+using MobyGames.API.DataObjects;
 
 namespace Catalog.Wpf
 {
     public partial class CoverSelectionDialog : Window
     {
-        public CoverSelectionDialog(ICollection<CoverArtCollectionEntry> entries)
+        public CoverSelectionDialog(ICollection<CoverGroup> entries)
         {
             InitializeComponent();
 
             DataContext = new CoverSelectionViewModel
             {
                 Items = entries
-                    .Where(entry => entry.Covers.Any(cover => cover.Type == CoverArtEntry.CoverArtType.Front))
-                    .Select(entry =>
-                    {
-                        return new CoverSelectionViewModel.Item(
-                            entry.Platform,
-                            entry.Country,
-                            entry.Covers.FirstOrDefault(cover => cover.Type == CoverArtEntry.CoverArtType.Front)!
-                        );
-                    })
+                    .Where(entry => entry.Covers.Any(cover => cover.ScanOf == CoverScanOf.FrontCover))
+                    .Select(
+                        entry =>
+                        {
+                            return new CoverSelectionViewModel.Item(
+                                string.Join(", ", entry.Countries),
+                                entry.Covers.First(cover => cover.ScanOf == CoverScanOf.FrontCover)
+                            );
+                        }
+                    )
             };
 
             ResultCount.Text = $"Found {entries.Count} covers:";
@@ -31,7 +32,7 @@ namespace Catalog.Wpf
             ResultList.Focus();
         }
 
-        public CoverArtEntry SelectedResult => ((CoverSelectionViewModel.Item) ResultList.SelectedItem).FrontCover;
+        public Cover SelectedResult => ((CoverSelectionViewModel.Item)ResultList.SelectedItem).FrontCover;
 
         private void Close(bool result)
         {

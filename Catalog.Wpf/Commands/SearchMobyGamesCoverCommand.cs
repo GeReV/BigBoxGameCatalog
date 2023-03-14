@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-using Catalog.Scrapers.MobyGames;
+using System.Windows;
 using Catalog.Wpf.Extensions;
+using Catalog.Wpf.Helpers;
 using Catalog.Wpf.ViewModel;
+using MobyGames.API.Exceptions;
 using Application = System.Windows.Application;
 
 namespace Catalog.Wpf.Commands
@@ -18,7 +21,7 @@ namespace Catalog.Wpf.Commands
         }
 
         protected override bool CanExecuteImpl(object? parameter) =>
-            !string.IsNullOrEmpty(editGameViewModel.GameMobyGamesSlug);
+            editGameViewModel.MobyGame is not null;
 
         protected override async Task Perform(object? parameter)
         {
@@ -26,16 +29,23 @@ namespace Catalog.Wpf.Commands
 
             try
             {
-                var scraper = new Scraper(Application.Current.ScraperWebClient());
+                var client = Application.Current.MobyGamesClient();
 
                 Debug.Assert(
-                    editGameViewModel.GameMobyGamesSlug != null,
-                    "editGameViewModel.GameMobyGamesSlug != null"
+                    editGameViewModel.MobyGame != null,
+                    "editGameViewModel.MobyGame != null"
                 );
 
-                var covers = await Task.Run(() => scraper.GetCoverArt(editGameViewModel.GameMobyGamesSlug));
+                if (editGameViewModel.MobyGame is not { } mobyGame)
+                {
+                    return;
+                }
 
-                var selectionDialog = new CoverSelectionDialog(covers)
+                var selectedPlatform = GamePlatformSelector.SelectPreferredPlatform(mobyGame);
+
+                var covers = await Task.Run(() => client.GameCovers(mobyGame.Id, selectedPlatform.Id));
+
+                var selectionDialog = new CoverSelectionDialog(covers.ToList())
                 {
                     Owner = editGameViewModel.ParentWindow
                 };
@@ -43,12 +53,21 @@ namespace Catalog.Wpf.Commands
                 if (selectionDialog.ShowDialog() == true)
                 {
                     editGameViewModel.GameCoverImage = new ScreenshotViewModel(
-                        selectionDialog.SelectedResult.Thumbnail,
-                        selectionDialog.SelectedResult.Url
+                        selectionDialog.SelectedResult.ThumbnailImage,
+                        selectionDialog.SelectedResult.Image
                     );
                 }
 
                 editGameViewModel.Status = EditGameViewModel.ViewStatus.Idle;
+            }
+            catch (MobyGamesMissingApiKeyException)
+            {
+                MessageBox.Show(
+                    "Application is missing MobyGames API key. Please add you API key to the App.config file and restart application.",
+                    "MobyGames API key missing",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
             }
             catch (Exception e)
             {

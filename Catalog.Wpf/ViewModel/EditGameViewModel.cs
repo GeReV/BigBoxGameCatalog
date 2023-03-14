@@ -15,13 +15,17 @@ using Catalog.Model;
 using Catalog.Wpf.Commands;
 using Catalog.Wpf.Comparers;
 using Catalog.Wpf.Extensions;
+using MobyGames.API.DataObjects;
 using Condition = Catalog.Model.Condition;
+using Platform = Catalog.Model.Platform;
 
 namespace Catalog.Wpf.ViewModel
 {
     public sealed class EditGameViewModel : ValidatableViewModelBase
     {
         private readonly GameCopy gameCopy;
+
+        private Game? mobyGame;
 
         private int saveProgress;
         private ViewStatus viewStatus = ViewStatus.Idle;
@@ -194,13 +198,20 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string? GameMobyGamesSlug
+        public Game? MobyGame
         {
-            get => gameCopy.MobyGamesSlug;
+            get => mobyGame;
             set
             {
-                if (value == gameCopy.MobyGamesSlug) return;
-                gameCopy.MobyGamesSlug = value;
+                if (value == mobyGame) return;
+
+                mobyGame = value;
+
+                gameCopy.MobyGamesId = value?.Id;
+                gameCopy.MobyGamesSlug = value?.MobyUrl.GetComponents(UriComponents.Path, UriFormat.Unescaped)
+                    .Split('/', StringSplitOptions.RemoveEmptyEntries)
+                    .Last();
+
                 OnPropertyChanged();
             }
         }
@@ -377,13 +388,12 @@ namespace Catalog.Wpf.ViewModel
                 coverImageSource = value;
                 OnPropertyChanged();
 
-                if (!(value is BitmapImage bitmapImage))
+                if (value is not BitmapImage bitmapImage)
                 {
                     return;
                 }
 
-                gameCoverImage =
-                    new ScreenshotViewModel(bitmapImage.UriSource.ToString(), bitmapImage.UriSource.ToString());
+                gameCoverImage = ScreenshotViewModel.FromPath(bitmapImage.UriSource);
 
                 OnPropertyChanged(nameof(GameCoverImage));
             }

@@ -35,6 +35,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Catalog\Catalog.csproj" />
+        <ProjectReference Include="..\MobyGames.API\MobyGames.API.csproj" />
     </ItemGroup>
 
     <ItemGroup>

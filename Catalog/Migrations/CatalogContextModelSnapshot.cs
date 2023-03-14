@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable disable
+
 namespace Catalog.Migrations
 {
     [DbContext(typeof(CatalogContext))]
@@ -13,8 +15,7 @@ namespace Catalog.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.6");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.3");
 
             modelBuilder.Entity("Catalog.Model.Developer", b =>
                 {
@@ -33,23 +34,17 @@ namespace Catalog.Migrations
                         .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<string>("Links")
+                        .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<uint>("MobyGamesCompanyId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.HasKey("DeveloperId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
 
                     b.ToTable("Developers");
                 });
@@ -63,16 +58,14 @@ namespace Catalog.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("GameItemId")
+                    b.Property<int>("GameItemId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Path")
-                        .HasColumnType("TEXT");
-
                     b.Property<byte[]>("Sha256Checksum")
+                        .IsRequired()
                         .HasColumnType("BLOB");
 
                     b.HasKey("FileId");
@@ -102,7 +95,11 @@ namespace Catalog.Migrations
                         .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<string>("Links")
+                        .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<uint?>("MobyGamesId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("MobyGamesSlug")
                         .HasColumnType("TEXT");
@@ -111,6 +108,7 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Platforms")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("PublisherId")
@@ -120,6 +118,7 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Screenshots")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Sealed")
@@ -130,9 +129,12 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TwoLetterIsoLanguageName")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("GameCopyId");
+
+                    b.HasIndex("MobyGamesId");
 
                     b.HasIndex("MobyGamesSlug");
 
@@ -190,7 +192,7 @@ namespace Catalog.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("GameCopyTag");
+                    b.ToTable("GameCopyTags");
                 });
 
             modelBuilder.Entity("Catalog.Model.GameItem", b =>
@@ -210,7 +212,7 @@ namespace Catalog.Migrations
                         .HasColumnType("TEXT")
                         .HasDefaultValueSql("DATETIME('now')");
 
-                    b.Property<int>("GameCopyId")
+                    b.Property<int?>("GameCopyId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ItemType")
@@ -244,13 +246,14 @@ namespace Catalog.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("GameItemId")
+                    b.Property<int>("GameItemId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Path")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("ImageId");
@@ -277,22 +280,19 @@ namespace Catalog.Migrations
                         .HasDefaultValueSql("DATETIME('now')");
 
                     b.Property<string>("Links")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Slug")
+                    b.Property<uint>("MobyGamesCompanyId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("PublisherId");
 
                     b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("Slug")
                         .IsUnique();
 
                     b.ToTable("Publishers");
@@ -329,12 +329,45 @@ namespace Catalog.Migrations
                     b.ToTable("Tags");
                 });
 
+            modelBuilder.Entity("DeveloperGameCopy", b =>
+                {
+                    b.Property<int>("DevelopersDeveloperId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("GamesGameCopyId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("DevelopersDeveloperId", "GamesGameCopyId");
+
+                    b.HasIndex("GamesGameCopyId");
+
+                    b.ToTable("DeveloperGameCopy");
+                });
+
+            modelBuilder.Entity("GameCopyTag", b =>
+                {
+                    b.Property<int>("GamesGameCopyId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TagsTagId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("GamesGameCopyId", "TagsTagId");
+
+                    b.HasIndex("TagsTagId");
+
+                    b.ToTable("GameCopyTag");
+                });
+
             modelBuilder.Entity("Catalog.Model.File", b =>
                 {
                     b.HasOne("Catalog.Model.GameItem", "GameItem")
                         .WithMany("Files")
                         .HasForeignKey("GameItemId")
-                        .OnDelete(DeleteBehavior.ClientCascade);
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("GameItem");
                 });
 
             modelBuilder.Entity("Catalog.Model.GameCopy", b =>
@@ -344,6 +377,8 @@ namespace Catalog.Migrations
                         .HasForeignKey("PublisherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Publisher");
                 });
 
             modelBuilder.Entity("Catalog.Model.GameCopyDeveloper", b =>
@@ -359,6 +394,10 @@ namespace Catalog.Migrations
                         .HasForeignKey("GameCopyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Developer");
+
+                    b.Navigation("Game");
                 });
 
             modelBuilder.Entity("Catalog.Model.GameCopyTag", b =>
@@ -374,15 +413,19 @@ namespace Catalog.Migrations
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("Catalog.Model.GameItem", b =>
                 {
                     b.HasOne("Catalog.Model.GameCopy", "Game")
                         .WithMany("Items")
-                        .HasForeignKey("GameCopyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GameCopyId");
+
+                    b.Navigation("Game");
                 });
 
             modelBuilder.Entity("Catalog.Model.Image", b =>
@@ -390,7 +433,71 @@ namespace Catalog.Migrations
                     b.HasOne("Catalog.Model.GameItem", "GameItem")
                         .WithMany("Scans")
                         .HasForeignKey("GameItemId")
-                        .OnDelete(DeleteBehavior.ClientCascade);
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("GameItem");
+                });
+
+            modelBuilder.Entity("DeveloperGameCopy", b =>
+                {
+                    b.HasOne("Catalog.Model.Developer", null)
+                        .WithMany()
+                        .HasForeignKey("DevelopersDeveloperId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Model.GameCopy", null)
+                        .WithMany()
+                        .HasForeignKey("GamesGameCopyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("GameCopyTag", b =>
+                {
+                    b.HasOne("Catalog.Model.GameCopy", null)
+                        .WithMany()
+                        .HasForeignKey("GamesGameCopyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Model.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsTagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Catalog.Model.Developer", b =>
+                {
+                    b.Navigation("GameCopyDevelopers");
+                });
+
+            modelBuilder.Entity("Catalog.Model.GameCopy", b =>
+                {
+                    b.Navigation("GameCopyDevelopers");
+
+                    b.Navigation("GameCopyTags");
+
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Catalog.Model.GameItem", b =>
+                {
+                    b.Navigation("Files");
+
+                    b.Navigation("Scans");
+                });
+
+            modelBuilder.Entity("Catalog.Model.Publisher", b =>
+                {
+                    b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("Catalog.Model.Tag", b =>
+                {
+                    b.Navigation("GameCopyTags");
                 });
 #pragma warning restore 612, 618
         }

@@ -25,9 +25,9 @@ namespace Catalog.Model
 
         public string? ColorArgb { get; set; }
 
-        public ICollection<GameCopyTag> GameCopyTags { get; set; } = new List<GameCopyTag>();
+        public List<GameCopyTag> GameCopyTags { get; set; } = new();
 
-        public IEnumerable<GameCopy> Games => GameCopyTags.Select(gct => gct.Game);
+        public List<GameCopy> Games => GameCopyTags.Select(gct => gct.Game).ToList();
 
         public DateTime DateCreated { get; set; }
         public DateTime LastUpdated { get; set; }

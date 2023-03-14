@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using Catalog.Scrapers;
+using MobyGames.API;
 
 namespace Catalog.Wpf.Extensions
 {
@@ -14,8 +14,12 @@ namespace Catalog.Wpf.Extensions
         public static CatalogContext Database(this Application application) =>
             new(Path.Combine(application.HomeDirectory(), "database.sqlite"));
 
-        public static IWebClient ScraperWebClient(this Application application) =>
-            (IWebClient)(application.Properties[nameof(ScraperWebClient)] ??
-                         throw new NullReferenceException("Expected a ScraperWebClient."));
+        public static MobyGamesClient MobyGamesClient(this Application application)
+        {
+            application.Properties[nameof(MobyGamesClient)] ??=
+                new MobyGamesClient(AppSettingsHelper.Current.MobyGamesApiKey());
+
+            return (MobyGamesClient)application.Properties[nameof(MobyGamesClient)]!;
+        }
     }
 }

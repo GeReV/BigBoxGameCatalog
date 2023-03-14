@@ -39,12 +39,10 @@
                         <Image Width="96"
                                Height="120">
                             <Image.Source>
-                                <BitmapImage UriSource="{Binding FrontCover.Thumbnail}" />
+                                <BitmapImage UriSource="{Binding FrontCover.ThumbnailImage}" />
                             </Image.Source>
                         </Image>
                         <TextBlock Text="{Binding Country}" />
-                        <TextBlock Text="{Binding Platform}"
-                                   FontSize="9" />
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

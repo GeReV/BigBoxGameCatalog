@@ -174,7 +174,7 @@ namespace Catalog.Migrations
                 table: "Developers",
                 column: "Name",
                 unique: true);
-
+            
             migrationBuilder.CreateIndex(
                 name: "IX_Developers_Slug",
                 table: "Developers",

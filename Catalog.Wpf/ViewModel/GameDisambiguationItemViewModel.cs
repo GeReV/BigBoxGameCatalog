@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Catalog.Scrapers.MobyGames.Model;
+using System.Linq;
+using MobyGames.API.DataObjects;
 
 namespace Catalog.Wpf.ViewModel
 {
@@ -7,7 +8,7 @@ namespace Catalog.Wpf.ViewModel
     {
         public class Item
         {
-            public Item(string name, string releases, SearchResult result)
+            public Item(string name, string releases, Game result)
             {
                 Name = name;
                 Releases = releases;
@@ -17,9 +18,9 @@ namespace Catalog.Wpf.ViewModel
             public string Name { get; set; }
             public string Releases { get; set; }
 
-            public SearchResult Result { get; set; }
+            public Game Result { get; set; }
         }
 
-        public IEnumerable<Item> Items { get; set; } = new List<Item>();
+        public IEnumerable<Item> Items { get; set; } = Enumerable.Empty<Item>();
     }
 }

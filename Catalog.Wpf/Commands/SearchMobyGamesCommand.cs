@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 using Catalog.Model;
-using Catalog.Scrapers.MobyGames;
-using Catalog.Scrapers.MobyGames.Model;
 using Catalog.Wpf.Extensions;
+using Catalog.Wpf.Helpers;
 using Catalog.Wpf.ViewModel;
+using MobyGames.API;
+using MobyGames.API.DataObjects;
+using MobyGames.API.Exceptions;
+using Platform = Catalog.Model.Platform;
 
 namespace Catalog.Wpf.Commands
 {
@@ -15,8 +20,7 @@ namespace Catalog.Wpf.Commands
     {
         private readonly EditGameViewModel editGameViewModel;
 
-        // TODO: Turn into an application-level option?
-        private static readonly string[] PlatformPriorities = { "Windows", "DOS" };
+        private Uri mobyGamesBaseUri = new("https://www.mobygames.com");
 
         public SearchMobyGamesCommand(EditGameViewModel editGameViewModel)
         {
@@ -45,117 +49,117 @@ namespace Catalog.Wpf.Commands
 
         private async Task SearchMobyGames(string term)
         {
-            var scraper = new Scraper(Application.Current.ScraperWebClient());
-
-            var entries = await Task.Run(() => scraper.Search(term));
-
-            if (entries.Count == 0)
+            try
             {
-                MessageBox.Show(
-                    $"No results were found for \"{term}\"",
-                    "No Results",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
+                var client = Application.Current.MobyGamesClient();
 
-                return;
-            }
+                var entries = (await client.Games(new MobyGamesClientOptions.GamesOptions { Title = term }))
+                    .ToList();
 
-            var disambiguationDialog = new GameDisambiguationDialog(entries)
-            {
-                Owner = editGameViewModel.ParentWindow
-            };
-
-            if (disambiguationDialog.ShowDialog() != true)
-            {
-                return;
-            }
-
-            var url = disambiguationDialog.SelectedResult.Url;
-
-            if (disambiguationDialog.SelectedResult.Releases.Any())
-            {
-                // Find the first release that matches our preferred platforms.
-                foreach (var platform in PlatformPriorities)
+                if (entries.Count == 0)
                 {
-                    var matchingRelease =
-                        disambiguationDialog.SelectedResult.Releases
-                            .FirstOrDefault(
-                                release =>
-                                    release.Platform.Equals(platform, StringComparison.OrdinalIgnoreCase)
-                            );
+                    MessageBox.Show(
+                        $"No results were found for \"{term}\"",
+                        "No Results",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
 
-                    if (matchingRelease == null || string.IsNullOrEmpty(matchingRelease.Url))
+                    return;
+                }
+
+                var disambiguationDialog = new GameDisambiguationDialog(entries)
+                {
+                    Owner = editGameViewModel.ParentWindow
+                };
+
+                if (disambiguationDialog.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                var gameEntry = disambiguationDialog.SelectedResult;
+                var preferredPlatform = GamePlatformSelector.SelectPreferredPlatform(gameEntry);
+
+                GetSpecs(gameEntry);
+
+                editGameViewModel.GameScreenshots.Clear();
+
+                editGameViewModel.Title = gameEntry.Title;
+                editGameViewModel.MobyGame = gameEntry;
+                editGameViewModel.GameLinks.Add(gameEntry.MobyUrl.ToString());
+
+                var gamePlatform = await client.GamePlatform(gameEntry.Id, preferredPlatform.Id);
+
+                var release = gamePlatform.Releases[0];
+                if (release.Companies.Find(
+                        c => c.Role.StartsWith("published", StringComparison.InvariantCultureIgnoreCase)
+                    )
+                    is { } company)
+                {
+                    var publisher = editGameViewModel.Publishers.FirstOrDefault(p => p.Name == company.Name);
+
+                    if (publisher == null)
                     {
-                        continue;
+                        var mobyGamesUrl = await GetCanonicalMobyGamesCompanyUrl(company);
+
+                        publisher = new Publisher(company.Name, company.Id)
+                        {
+                            Links = new List<string> { mobyGamesUrl.ToString() }
+                        };
+
+                        editGameViewModel.Publishers.Add(publisher);
                     }
 
-                    url = matchingRelease.Url;
+                    editGameViewModel.GamePublisher = publisher;
                 }
+
+                var developerCollection = editGameViewModel.Developers.ToList();
+
+                foreach (var devEntry in release.Companies.Where(
+                             c => c.Role.StartsWith("developed", StringComparison.InvariantCultureIgnoreCase)
+                         ))
+                {
+                    var developer = developerCollection.Find(d => d.Name == devEntry.Name);
+
+                    if (developer == null)
+                    {
+                        var mobyGamesUrl = await GetCanonicalMobyGamesCompanyUrl(devEntry);
+
+                        developer = new Developer(devEntry.Name, devEntry.Id)
+                        {
+                            Links = new List<string> { mobyGamesUrl.ToString() }
+                        };
+
+                        editGameViewModel.Developers.Add(developer);
+                    }
+
+                    editGameViewModel.GameDevelopers.Add(developer);
+                }
+
+                await GetScreenshots(client, gameEntry, preferredPlatform);
             }
-
-            var gameEntry = scraper.GetGame(url);
-
-            GetSpecs(gameEntry);
-
-            GetScreenshots(gameEntry);
-
-            editGameViewModel.GameScreenshots.Clear();
-
-            editGameViewModel.Title = gameEntry.Name;
-            editGameViewModel.GameMobyGamesSlug = gameEntry.Slug;
-            editGameViewModel.GameLinks.Add(gameEntry.Url);
-
-            if (gameEntry.Publisher != null)
+            catch (MobyGamesMissingApiKeyException)
             {
-                var publisher = editGameViewModel.Publishers.FirstOrDefault(
-                    p => p.Slug == gameEntry.Publisher.Slug || p.Name == gameEntry.Publisher.Name
+                MessageBox.Show(
+                    "Application is missing MobyGames API key. Please add you API key to the App.config file and restart application.",
+                    "MobyGames API key missing",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
                 );
-
-                if (publisher == null)
-                {
-                    publisher = new Publisher(gameEntry.Publisher.Name, gameEntry.Publisher.Slug)
-                    {
-                        Links = new List<string> { gameEntry.Publisher.Url }
-                    };
-
-                    editGameViewModel.Publishers.Add(publisher);
-                }
-
-                editGameViewModel.GamePublisher = publisher;
-            }
-
-            var developerCollection = editGameViewModel.Developers.ToList();
-
-            foreach (var devEntry in gameEntry.Developers)
-            {
-                var developer = developerCollection.Find(d => d.Slug == devEntry.Slug);
-
-                if (developer == null)
-                {
-                    developer = new Developer(devEntry.Name, devEntry.Slug)
-                    {
-                        Links = new List<string> { devEntry.Url },
-                    };
-
-                    editGameViewModel.Developers.Add(developer);
-                }
-
-                editGameViewModel.GameDevelopers.Add(developer);
             }
         }
 
-        private async void GetSpecs(GameEntry gameEntry)
+        private void GetSpecs(Game gameEntry)
         {
-            var specs = await Task.Run(
-                () =>
-                    new Scraper(Application.Current.ScraperWebClient()).GetGameSpecs(gameEntry.Slug)
-            );
-
             var platforms = Enum
                 .GetValues(typeof(Platform))
                 .Cast<Platform>()
-                .Where(platform => specs.Platforms.Contains(platform.GetDescription()))
+                .Where(
+                    platform => gameEntry.Platforms.Exists(
+                        gamePlatform => gamePlatform.Name.Contains(platform.GetDescription())
+                    )
+                )
                 .ToList();
 
             foreach (var platform in platforms)
@@ -164,24 +168,50 @@ namespace Catalog.Wpf.Commands
             }
         }
 
-        private async void GetScreenshots(GameEntry gameEntry)
+        private async Task GetScreenshots(MobyGamesClient client, Game gameEntry, GamePlatform gamePlatform)
         {
-            IEnumerable<ScreenshotEntry> screenshotEntries = await Task.Run(
-                () =>
-                    new Scraper(Application.Current.ScraperWebClient())
-                        .GetGameScreenshots(gameEntry.Slug)
-            );
+            var screenshotEntries = await client.GameScreenshots(gameEntry.Id, gamePlatform.Id);
 
-            // TODO: Get this from config.
-            var listItems = screenshotEntries.Take(10).ToList();
+            var screenshotLimit = AppSettingsHelper.Current.MobyGamesScreenshotLimit();
+
+            var listItems = screenshotEntries.Take((int)screenshotLimit).ToList();
 
             var images = listItems
-                .Select(item => new ScreenshotViewModel(item.Thumbnail, item.Url));
+                .Select(item => new ScreenshotViewModel(item.ThumbnailImage, item.Image));
 
             foreach (var image in images)
             {
                 editGameViewModel.GameScreenshots.Add(image);
             }
+        }
+
+        private Task<Uri> GetCanonicalMobyGamesCompanyUrl(GamePlatformReleaseCompany company) =>
+            GetCanonicalMobyGamesUrl($"company/{company.Id}");
+
+        private async Task<Uri> GetCanonicalMobyGamesUrl(string path)
+        {
+            using var httpClient = new HttpClient(
+                new HttpClientHandler
+                {
+                    AllowAutoRedirect = false
+                }
+            );
+
+            var url = new Uri(mobyGamesBaseUri, path);
+
+            using var result = await httpClient.GetAsync(url);
+
+            if (result.StatusCode is
+                HttpStatusCode.Moved or
+                HttpStatusCode.MovedPermanently or
+                HttpStatusCode.PermanentRedirect)
+            {
+                return result.Headers.Location ?? throw new InvalidOperationException("Location header missing");
+            }
+
+            result.EnsureSuccessStatusCode();
+
+            return url;
         }
     }
 }

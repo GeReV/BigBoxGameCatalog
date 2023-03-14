@@ -8,15 +8,16 @@ namespace Catalog.Wpf.ViewModel
 {
     public sealed class ScreenshotViewModel : NotifyPropertyChangedBase
     {
-        private string thumbnailUrl;
-        private string url;
+        private Uri thumbnailUrl;
+        private Uri url;
 
         public ImageSource? ThumbnailSource
         {
-            get {
+            get
+            {
                 try
                 {
-                    return new BitmapImage(new Uri(ThumbnailUrl));
+                    return new BitmapImage(ThumbnailUrl);
                 }
                 catch (IOException)
                 {
@@ -25,13 +26,13 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public ScreenshotViewModel(string thumbnailUrl, string url)
+        public ScreenshotViewModel(Uri thumbnailUrl, Uri url)
         {
             this.thumbnailUrl = thumbnailUrl;
             this.url = url;
         }
 
-        public string ThumbnailUrl
+        public Uri ThumbnailUrl
         {
             get => thumbnailUrl;
             set
@@ -43,7 +44,7 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public string Url
+        public Uri Url
         {
             get => url;
             set
@@ -54,10 +55,9 @@ namespace Catalog.Wpf.ViewModel
             }
         }
 
-        public static ScreenshotViewModel FromPath(string path) =>
-            new ScreenshotViewModel(path, path);
+        public static ScreenshotViewModel FromPath(Uri path) => new(path, path);
+        public static ScreenshotViewModel FromPath(string path) => FromPath(new Uri(path));
 
-        public static ScreenshotViewModel FromImage(Image image) =>
-            new ScreenshotViewModel(image.Path, image.Path);
+        public static ScreenshotViewModel FromImage(Image image) => FromPath(new Uri(image.Path));
     }
 }

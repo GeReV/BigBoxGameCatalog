@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
-using Catalog.Scrapers;
 using Catalog.Wpf.Extensions;
 using Catalog.Wpf.GlContexts;
 using Catalog.Wpf.GlContexts.Wgl;
@@ -32,7 +31,6 @@ namespace Catalog.Wpf
             var homeDirectory = EnsureHomeDirectory();
 
             Current.Properties.Add(nameof(ApplicationHelpers.HomeDirectory), homeDirectory);
-            Current.Properties.Add(nameof(ApplicationHelpers.ScraperWebClient), new WebClient());
 
             InitializeDatabase();
 
@@ -125,6 +123,7 @@ namespace Catalog.Wpf
         {
             base.OnExit(e);
 
+            this.MobyGamesClient().Dispose();
             this.Database().Dispose();
         }
     }

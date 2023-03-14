@@ -19,7 +19,7 @@ namespace Catalog.Wpf.Commands
                     Process.Start(explorerPath, resource.Path);
                     break;
                 case ScreenshotViewModel screenshot:
-                    Process.Start(explorerPath, screenshot.Url);
+                    Process.Start(explorerPath, screenshot.Url.ToString());
                     break;
             }
         }

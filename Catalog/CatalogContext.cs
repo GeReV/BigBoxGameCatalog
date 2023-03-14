@@ -25,6 +25,7 @@ namespace Catalog
         public DbSet<Developer> Developers { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<GameCopyTag> GameCopyTags { get; set; }
 
         public CatalogContext() : this("database.sqlite")
         {
@@ -62,6 +63,7 @@ namespace Catalog
 
             gameCopyBuilder.HasIndex(v => v.Title);
             gameCopyBuilder.HasIndex(v => v.MobyGamesSlug);
+            gameCopyBuilder.HasIndex(v => v.MobyGamesId);
 
             gameCopyBuilder.Property(v => v.Links).HasConversion(SplitJoinValueConverter);
             gameCopyBuilder.Property(v => v.TwoLetterIsoLanguageName).HasConversion(SplitJoinValueConverter);
@@ -88,7 +90,6 @@ namespace Catalog
             var developerBuilder = modelBuilder.Entity<Developer>();
 
             developerBuilder.HasIndex(v => v.Name).IsUnique();
-            developerBuilder.HasIndex(v => v.Slug).IsUnique();
             developerBuilder.Property(v => v.Links).HasConversion(SplitJoinValueConverter);
 
             ConfigureTimestamps(developerBuilder);
@@ -99,7 +100,6 @@ namespace Catalog
             var publisherBuilder = modelBuilder.Entity<Publisher>();
 
             publisherBuilder.HasIndex(v => v.Name).IsUnique();
-            publisherBuilder.HasIndex(v => v.Slug).IsUnique();
             publisherBuilder.Property(v => v.Links).HasConversion(SplitJoinValueConverter);
 
             ConfigureTimestamps(publisherBuilder);

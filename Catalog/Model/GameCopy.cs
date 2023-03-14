@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.IO;
 using System.Linq;
 
 namespace Catalog.Model
@@ -30,13 +27,15 @@ namespace Catalog.Model
 
         public string? MobyGamesSlug { get; set; }
 
+        public uint? MobyGamesId { get; set; }
+
         public int PublisherId { get; set; }
 
         public Publisher? Publisher { get; set; }
 
-        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; } = new List<GameCopyDeveloper>();
+        public List<GameCopyDeveloper> GameCopyDevelopers { get; set; } = new();
 
-        public IEnumerable<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer);
+        public List<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer).ToList();
 
         public ICollection<GameCopyTag> GameCopyTags { get; set; } = new List<GameCopyTag>();
 
@@ -57,7 +56,7 @@ namespace Catalog.Model
 
         public List<string> Screenshots { get; set; } = new();
 
-        public ICollection<GameItem> Items { get; set; } = new List<GameItem>();
+        public List<GameItem> Items { get; set; } = new();
 
         public DateTime DateCreated { get; set; }
 
@@ -81,6 +80,7 @@ namespace Catalog.Model
                     .ToList(),
                 Links = Links.ToList(),
                 MobyGamesSlug = MobyGamesSlug,
+                MobyGamesId = MobyGamesId,
                 Notes = Notes,
                 Platforms = Platforms.ToList(),
                 Publisher = Publisher,

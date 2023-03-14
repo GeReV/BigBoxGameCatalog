@@ -6,18 +6,20 @@ namespace Catalog.Model
 {
     public sealed class Publisher : IEquatable<Publisher>, IModel
     {
-        public Publisher(string name, string slug)
+        public Publisher(string name, uint mobyGamesCompanyId)
         {
-            Slug = slug;
             Name = name;
+            MobyGamesCompanyId = mobyGamesCompanyId;
         }
 
         public int PublisherId { get; set; }
-        [Required] public string Slug { get; set; }
+
+        [Required] public uint MobyGamesCompanyId { get; set; }
+
         [Required] public string Name { get; set; }
         public List<string> Links { get; set; } = new();
 
-        public ICollection<GameCopy> Games { get; set; } = new List<GameCopy>();
+        public List<GameCopy> Games { get; set; } = new();
 
         public DateTime DateCreated { get; set; }
 
@@ -32,12 +34,12 @@ namespace Catalog.Model
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return PublisherId == other.PublisherId || Slug == other.Slug;
+            return PublisherId == other.PublisherId || MobyGamesCompanyId == other.MobyGamesCompanyId;
         }
 
         public override bool Equals(object? obj) =>
             ReferenceEquals(this, obj) || obj is Publisher other && Equals(other);
 
-        public override int GetHashCode() => HashCode.Combine(PublisherId, Slug);
+        public override int GetHashCode() => HashCode.Combine(PublisherId, MobyGamesCompanyId);
     }
 }

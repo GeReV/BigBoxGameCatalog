@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 using Catalog.Model;
-using Catalog.Scrapers.MobyGames;
 using Catalog.Wpf.Extensions;
 using Catalog.Wpf.ViewModel;
 using Microsoft.EntityFrameworkCore;
@@ -155,12 +155,15 @@ namespace Catalog.Wpf.Commands
         {
             game.Title = editGameViewModel.Title;
             game.Sealed = editGameViewModel.GameSealed;
-            game.MobyGamesSlug = editGameViewModel.GameMobyGamesSlug ?? string.Empty;
+            game.MobyGamesId = editGameViewModel.MobyGame?.Id;
+            game.MobyGamesSlug =
+                editGameViewModel.MobyGame?.MobyUrl.GetComponents(UriComponents.Path, UriFormat.Unescaped)
+                    .Split('/')
+                    .Last() ?? string.Empty;
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();
 
-            if (editGameViewModel.GamePublisher != null && (editGameViewModel.GamePublisher.IsNew ||
-                                                            editGameViewModel.GamePublisher.PublisherId !=
-                                                            game.PublisherId))
+            if (editGameViewModel.GamePublisher is { } publisher && (publisher.IsNew ||
+                                                                     publisher.PublisherId != game.PublisherId))
             {
                 game.Publisher = editGameViewModel.GamePublisher;
             }
@@ -204,15 +207,17 @@ namespace Catalog.Wpf.Commands
         )
         {
             var screenshotsToDownload = selectedScreenshots
-                .Where(ss => Uri.TryCreate(ss.Url, UriKind.Absolute, out var uri) && !uri.IsFile)
+                .Where(ss => ss.Url.IsFile)
                 .ToList();
 
             var existingScreenshots = selectedScreenshots
                 .Except(screenshotsToDownload)
-                .Select(ss => ss.Url);
+                .Select(ss => ss.Url.ToString());
 
-            var newScreenshots = await new ImageDownloader(Application.Current.ScraperWebClient())
-                .DownloadScreenshots(
+            using var httpClient = new HttpClient();
+
+            var newScreenshots = await new ImageDownloader(httpClient)
+                .DownloadImages(
                     destinationDirectory,
                     screenshotsToDownload.Select(ss => ss.Url),
                     progress
@@ -236,15 +241,17 @@ namespace Catalog.Wpf.Commands
 
             var url = gameCoverImage.Url;
 
-            if (new Uri(url).IsFile)
+            if (url.IsFile)
             {
-                return url;
+                return url.ToString();
             }
 
-            var path = await new ImageDownloader(Application.Current.ScraperWebClient())
-                .DownloadCoverArt(destinationDirectory, url);
+            using var httpClient = new HttpClient();
 
-            return HomeDirectoryExtensions.ToRelativePath(path);
+            var path = await new ImageDownloader(httpClient)
+                .DownloadImages(destinationDirectory, new[] { url });
+
+            return HomeDirectoryExtensions.ToRelativePath(path[0]);
         }
     }
 }

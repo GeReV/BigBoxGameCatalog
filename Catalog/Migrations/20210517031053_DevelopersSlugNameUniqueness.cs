@@ -19,13 +19,13 @@ namespace Catalog.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex("IX_Developers_Name_Slug");
-
+            
             migrationBuilder.CreateIndex(
                 name: "IX_Developers_Name",
                 table: "Developers",
                 column: "Name",
                 unique: true);
-
+            
             migrationBuilder.CreateIndex(
                 name: "IX_Developers_Slug",
                 table: "Developers",

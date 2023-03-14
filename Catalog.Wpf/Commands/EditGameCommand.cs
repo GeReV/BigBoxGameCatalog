@@ -1,9 +1,5 @@
-﻿using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using Catalog.Model;
+﻿using System.Windows;
 using Catalog.Wpf.ViewModel;
-using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Wpf.Commands
 {

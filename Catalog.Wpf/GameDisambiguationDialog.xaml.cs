@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Input;
-using Catalog.Scrapers.MobyGames.Model;
 using Catalog.Wpf.ViewModel;
+using MobyGames.API.DataObjects;
 
 namespace Catalog.Wpf
 {
     public partial class GameDisambiguationDialog : Window
     {
-        private readonly ICollection<SearchResult> entries;
+        private readonly ICollection<Game> entries;
 
-        public GameDisambiguationDialog(ICollection<SearchResult> entries)
+        public GameDisambiguationDialog(ICollection<Game> entries)
         {
             InitializeComponent();
 
@@ -19,7 +18,13 @@ namespace Catalog.Wpf
 
             DataContext = new GameDisambiguationViewModel
             {
-                Items = entries.Select(item => new GameDisambiguationViewModel.Item(item.Name, string.Join(", ", item.Releases.Select(r => r.Text)), item))
+                Items = entries.Select(
+                    item => new GameDisambiguationViewModel.Item(
+                        item.Title,
+                        string.Join(", ", item.Platforms.Select(r => r.Name)),
+                        item
+                    )
+                )
             };
 
             ResultCount.Text = $"Found {entries.Count} results:";
@@ -27,7 +32,7 @@ namespace Catalog.Wpf
             ResultList.Focus();
         }
 
-        public SearchResult SelectedResult => ((GameDisambiguationViewModel.Item)ResultList.SelectedItem).Result;
+        public Game SelectedResult => ((GameDisambiguationViewModel.Item)ResultList.SelectedItem).Result;
 
         private void Close(bool result)
         {
