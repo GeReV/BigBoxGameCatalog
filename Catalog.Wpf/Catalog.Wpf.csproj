@@ -25,11 +25,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
+        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
         <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
         <PackageReference Include="SkiaSharp" Version="2.80.4" />
         <PackageReference Include="SkiaSharp.Views.WPF" Version="2.80.4" />
-        <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+        <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
         <PackageReference Include="Topten.RichTextKit" Version="0.4.151" />
     </ItemGroup>
 
