@@ -2,9 +2,9 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class Platform
+public sealed record Platform
 {
-    [JsonPropertyName("platform_id")] public uint Id { get; set; }
+    [JsonPropertyName("platform_id")] public uint Id { get; init; }
 
-    [JsonPropertyName("platform_name")] public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("platform_name")] public string Name { get; init; } = string.Empty;
 }

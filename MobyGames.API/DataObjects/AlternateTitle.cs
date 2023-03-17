@@ -2,9 +2,9 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class AlternateTitle
+public sealed record AlternateTitle
 {
-    [JsonPropertyName("title")] public string Title { get; set; } = string.Empty;
+    [JsonPropertyName("title")] public string Title { get; init; } = string.Empty;
 
-    [JsonPropertyName("description")] public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("description")] public string Description { get; init; } = string.Empty;
 }

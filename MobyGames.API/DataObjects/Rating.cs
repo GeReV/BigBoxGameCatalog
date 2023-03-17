@@ -2,14 +2,14 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class Rating
+public sealed record Rating
 {
-    [JsonPropertyName("rating_id")] public uint Id { get; set; }
+    [JsonPropertyName("rating_id")] public uint Id { get; init; }
 
-    [JsonPropertyName("rating_name")] public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("rating_name")] public string Name { get; init; } = string.Empty;
 
-    [JsonPropertyName("rating_system_id")] public uint RatingSystemId { get; set; }
+    [JsonPropertyName("rating_system_id")] public uint RatingSystemId { get; init; }
 
     [JsonPropertyName("rating_system_name")]
-    public string RatingSystemName { get; set; } = string.Empty;
+    public string RatingSystemName { get; init; } = string.Empty;
 }

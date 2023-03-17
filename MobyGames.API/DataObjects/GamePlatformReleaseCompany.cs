@@ -2,11 +2,11 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class GamePlatformReleaseCompany
+public sealed record GamePlatformReleaseCompany
 {
-    [JsonPropertyName("company_id")] public uint Id { get; set; }
+    [JsonPropertyName("company_id")] public uint Id { get; init; }
 
-    [JsonPropertyName("company_name")] public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("company_name")] public string Name { get; init; } = string.Empty;
 
-    [JsonPropertyName("role")] public string Role { get; set; } = string.Empty;
+    [JsonPropertyName("role")] public string Role { get; init; } = string.Empty;
 }

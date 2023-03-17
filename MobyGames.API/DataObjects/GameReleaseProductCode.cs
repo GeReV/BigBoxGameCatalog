@@ -2,13 +2,13 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class GameReleaseProductCode
+public sealed record GameReleaseProductCode
 {
     [JsonPropertyName("product_code_type_id")]
-    public uint ProductCodeTypeId { get; set; }
+    public uint ProductCodeTypeId { get; init; }
 
     [JsonPropertyName("product_code_type")]
-    public string ProductCodeType { get; set; } = string.Empty;
+    public string ProductCodeType { get; init; } = string.Empty;
 
-    [JsonPropertyName("product_code")] public string ProductCode { get; set; } = string.Empty;
+    [JsonPropertyName("product_code")] public string ProductCode { get; init; } = string.Empty;
 }

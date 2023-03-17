@@ -2,28 +2,28 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class Game
+public sealed record Game
 {
-    [JsonPropertyName("game_id")] public uint Id { get; set; }
+    [JsonPropertyName("game_id")] public uint Id { get; init; }
 
-    [JsonPropertyName("title")] public string Title { get; set; } = string.Empty;
+    [JsonPropertyName("title")] public string Title { get; init; } = string.Empty;
 
-    [JsonPropertyName("moby_url")] public Uri? MobyUrl { get; set; }
+    [JsonPropertyName("moby_url")] public Uri? MobyUrl { get; init; }
 
-    [JsonPropertyName("moby_score")] public double? MobyScore { get; set; }
+    [JsonPropertyName("moby_score")] public double? MobyScore { get; init; }
 
-    [JsonPropertyName("num_votes")] public uint? NumVotes { get; set; }
+    [JsonPropertyName("num_votes")] public uint? NumVotes { get; init; }
 
-    [JsonPropertyName("official_url")] public Uri? OfficialUrl { get; set; }
+    [JsonPropertyName("official_url")] public Uri? OfficialUrl { get; init; }
 
-    [JsonPropertyName("alternate_titles")] public List<AlternateTitle> AlternateTitles { get; set; } = new();
+    [JsonPropertyName("alternate_titles")] public List<AlternateTitle> AlternateTitles { get; init; } = new();
 
-    [JsonPropertyName("genres")] public List<Genre> Genres { get; set; } = new();
+    [JsonPropertyName("genres")] public List<Genre> Genres { get; init; } = new();
 
-    [JsonPropertyName("platforms")] public List<GamePlatform> Platforms { get; set; } = new();
+    [JsonPropertyName("platforms")] public List<GamePlatform> Platforms { get; init; } = new();
 
-    [JsonPropertyName("sample_cover")] public Cover? SampleCover { get; set; }
+    [JsonPropertyName("sample_cover")] public Cover? SampleCover { get; init; }
 
     [JsonPropertyName("sample_screenshots")]
-    public List<Screenshot> SampleScreenshots { get; set; } = new();
+    public List<Screenshot> SampleScreenshots { get; init; } = new();
 }

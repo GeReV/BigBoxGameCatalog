@@ -2,11 +2,11 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class CoverGroup
+public sealed record CoverGroup
 {
-    [JsonPropertyName("comments")] public string? Comments { get; set; }
+    [JsonPropertyName("comments")] public string? Comments { get; init; }
 
-    [JsonPropertyName("countries")] public List<string> Countries { get; set; } = new();
+    [JsonPropertyName("countries")] public List<string> Countries { get; init; } = new();
 
-    [JsonPropertyName("covers")] public List<Cover> Covers { get; set; } = new();
+    [JsonPropertyName("covers")] public List<Cover> Covers { get; init; } = new();
 }

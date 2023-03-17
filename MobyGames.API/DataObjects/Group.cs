@@ -2,12 +2,12 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class Group
+public sealed record Group
 {
-    [JsonPropertyName("group_id")] public uint Id { get; set; }
+    [JsonPropertyName("group_id")] public uint Id { get; init; }
 
-    [JsonPropertyName("group_name")] public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("group_name")] public string Name { get; init; } = string.Empty;
 
     [JsonPropertyName("group_description")]
-    public string Description { get; set; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
 }

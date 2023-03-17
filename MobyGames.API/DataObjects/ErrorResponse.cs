@@ -2,11 +2,11 @@
 
 namespace MobyGames.API.DataObjects;
 
-public class MobyGamesErrorResponse
+public sealed record MobyGamesErrorResponse
 {
-    [JsonPropertyName("code")] public uint Code { get; set; }
+    [JsonPropertyName("code")] public uint Code { get; init; }
 
-    [JsonPropertyName("error")] public string? Error { get; set; }
+    [JsonPropertyName("error")] public string? Error { get; init; }
 
-    [JsonPropertyName("message")] public string? Message { get; set; }
+    [JsonPropertyName("message")] public string? Message { get; init; }
 }
