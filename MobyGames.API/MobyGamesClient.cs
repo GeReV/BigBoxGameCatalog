@@ -37,51 +37,91 @@ public sealed class MobyGamesClient : IDisposable
 
     #region Endpoints
 
-    public Task<IEnumerable<Genre>> Genres() =>
-        GetList<Genre>("genres");
+    public Task<IEnumerable<Genre>> Genres(CancellationToken cancellationToken = default) =>
+        GetList<Genre>("genres", cancellationToken: cancellationToken);
 
-    public Task<IEnumerable<Group>> Groups(MobyGamesClientOptions.CommonOptions? options = null) =>
-        GetList<Group>("groups", options);
+    public Task<IEnumerable<Group>> Groups(
+        MobyGamesClientOptions.CommonOptions? options = null,
+        CancellationToken cancellationToken = default
+    ) =>
+        GetList<Group>("groups", options, cancellationToken);
 
-    public Task<IEnumerable<Platform>> Platforms() => GetList<Platform>("platforms");
+    public Task<IEnumerable<Platform>> Platforms(CancellationToken cancellationToken = default) =>
+        GetList<Platform>("platforms", cancellationToken: cancellationToken);
 
-    public Task<IEnumerable<Game>> Games(MobyGamesClientOptions.GamesOptions? options = null) =>
-        GetList<Game>("games", options);
+    public Task<IEnumerable<Game>> Games(
+        MobyGamesClientOptions.GamesOptions? options = null,
+        CancellationToken cancellationToken = default
+    ) =>
+        GetList<Game>("games", options, cancellationToken);
 
-    public Task<IEnumerable<uint>> RecentGames(MobyGamesClientOptions.RecentGamesOptions? options = null) =>
-        GetList<uint>("games/recent", "games", options);
+    public Task<IEnumerable<uint>> RecentGames(
+        MobyGamesClientOptions.RecentGamesOptions? options = null,
+        CancellationToken cancellationToken = default
+    ) =>
+        GetList<uint>("games/recent", "games", options, cancellationToken);
 
-    public Task<IEnumerable<uint>> RandomGames(MobyGamesClientOptions.RandomGamesOptions? options = null) =>
-        GetList<uint>("games/random", "games", options);
+    public Task<IEnumerable<uint>> RandomGames(
+        MobyGamesClientOptions.RandomGamesOptions? options = null,
+        CancellationToken cancellationToken = default
+    ) =>
+        GetList<uint>("games/random", "games", options, cancellationToken);
 
-    public Task<Game> Game(uint gameId, MobyGamesClientOptions.GameOptions? options = null) =>
-        Get<Game>($"games/{gameId}", options);
+    public Task<Game> Game(
+        uint gameId,
+        MobyGamesClientOptions.GameOptions? options = null,
+        CancellationToken cancellationToken = default
+    ) =>
+        Get<Game>($"games/{gameId}", options, cancellationToken);
 
-    public Task<IEnumerable<GamePlatform>> GamePlatforms(uint gameId) =>
-        GetList<GamePlatform>($"games/{gameId}/platforms", "platforms");
+    public Task<IEnumerable<GamePlatform>> GamePlatforms(uint gameId, CancellationToken cancellationToken = default) =>
+        GetList<GamePlatform>($"games/{gameId}/platforms", "platforms", cancellationToken: cancellationToken);
 
-    public Task<GamePlatform> GamePlatform(uint gameId, uint platformId) =>
-        Get<GamePlatform>($"games/{gameId}/platforms/{platformId}");
+    public Task<GamePlatform> GamePlatform(
+        uint gameId,
+        uint platformId,
+        CancellationToken cancellationToken = default
+    ) =>
+        Get<GamePlatform>($"games/{gameId}/platforms/{platformId}", cancellationToken: cancellationToken);
 
-    public Task<IEnumerable<Screenshot>> GameScreenshots(uint gameId, uint platformId) =>
-        GetList<Screenshot>($"games/{gameId}/platforms/{platformId}/screenshots", "screenshots");
+    public Task<IEnumerable<Screenshot>> GameScreenshots(
+        uint gameId,
+        uint platformId,
+        CancellationToken cancellationToken = default
+    ) =>
+        GetList<Screenshot>(
+            $"games/{gameId}/platforms/{platformId}/screenshots",
+            "screenshots",
+            cancellationToken: cancellationToken
+        );
 
     public Task<IEnumerable<CoverGroup>> GameCovers(uint gameId, uint platformId) =>
         GetList<CoverGroup>($"games/{gameId}/platforms/{platformId}/covers", "cover_groups");
 
     #endregion
 
-    private async Task<T> Get<T>(string path, IMobyClientOptions? options = null) =>
-        await PerformRequest<T>(path, options);
+    private async Task<T> Get<T>(
+        string path,
+        IMobyClientOptions? options = null,
+        CancellationToken cancellationToken = default
+    ) =>
+        await PerformRequest<T>(path, options, cancellationToken);
 
-    private Task<IEnumerable<T>> GetList<T>(string path) => GetList<T>(path, null);
+    private Task<IEnumerable<T>> GetList<T>(
+        string path,
+        IMobyClientOptions? options = null,
+        CancellationToken cancellationToken = default
+    ) =>
+        GetList<T>(path, path, options, cancellationToken);
 
-    private Task<IEnumerable<T>> GetList<T>(string path, IMobyClientOptions? options) =>
-        GetList<T>(path, path, options);
-
-    private async Task<IEnumerable<T>> GetList<T>(string path, string entityName, IMobyClientOptions? options = null)
+    private async Task<IEnumerable<T>> GetList<T>(
+        string path,
+        string entityName,
+        IMobyClientOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
     {
-        var result = await PerformRequest<JsonNode>(path, options);
+        var result = await PerformRequest<JsonNode>(path, options, cancellationToken);
 
         if (result[entityName] is { } node)
         {
@@ -105,7 +145,11 @@ public sealed class MobyGamesClient : IDisposable
         return builder.Uri;
     }
 
-    private async Task<T> PerformRequest<T>(string path, IMobyClientOptions? options = null)
+    private async Task<T> PerformRequest<T>(
+        string path,
+        IMobyClientOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
     {
         if (string.IsNullOrEmpty(apiKey))
         {
@@ -114,7 +158,7 @@ public sealed class MobyGamesClient : IDisposable
 
         string? content;
 
-        using var lease = await rateLimiter.AcquireAsync();
+        using var lease = await rateLimiter.AcquireAsync(cancellationToken: cancellationToken);
         if (!lease.IsAcquired)
         {
             throw new MobyGamesException("Failed to acquire rate limit lease");
@@ -122,31 +166,32 @@ public sealed class MobyGamesClient : IDisposable
 
         var requestUri = BuildUrl(path, options);
 
-        using var response = await httpClient.GetAsync(requestUri);
+        using var response = await httpClient.GetAsync(requestUri, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
-            var result = await response.Content.ReadFromJsonAsync<MobyGamesErrorResponse>();
+            var result =
+                await response.Content.ReadFromJsonAsync<MobyGamesErrorResponse>(cancellationToken: cancellationToken);
 
             if (result is not null)
             {
                 throw new MobyGamesApiException(result);
             }
 
-            content = await response.Content.ReadAsStringAsync();
+            content = await response.Content.ReadAsStringAsync(cancellationToken);
 
             throw new MobyGamesException($"An unknown API error has occurred:\n{content}");
         }
 
-        // Debug.WriteLine(
-        //     $"MobyGames request {requestUri}:\n{JsonSerializer.Deserialize<JsonNode>(await response.Content.ReadAsStringAsync())?.ToJsonString(new JsonSerializerOptions { WriteIndented = true })}\n\n"
-        // );
+        Debug.WriteLine(
+            $"MobyGames request {requestUri}:\n{JsonSerializer.Deserialize<JsonNode>(await response.Content.ReadAsStringAsync(cancellationToken))?.ToJsonString(new JsonSerializerOptions { WriteIndented = true })}\n\n"
+        );
 
-        var obj = await response.Content.ReadFromJsonAsync<T>();
+        var obj = await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken);
 
         if (obj is null)
         {
-            content = await response.Content.ReadAsStringAsync();
+            content = await response.Content.ReadAsStringAsync(cancellationToken);
             throw new MobyGamesException($"Could not read type {typeof(T).Name} from JSON:\n{content}");
         }
 
