@@ -82,6 +82,16 @@ namespace Catalog
                 .WithMany(p => p.Games)
                 .HasForeignKey(v => v.PublisherId);
 
+            gameCopyBuilder
+                .HasMany(v => v.Tags)
+                .WithMany(t => t.Games)
+                .UsingEntity<GameCopyTag>();
+
+            gameCopyBuilder
+                .HasMany(v => v.Developers)
+                .WithMany(t => t.Games)
+                .UsingEntity<GameCopyDeveloper>();
+
             ConfigureTimestamps(gameCopyBuilder);
         }
 
@@ -91,6 +101,11 @@ namespace Catalog
 
             developerBuilder.HasIndex(v => v.Name).IsUnique();
             developerBuilder.Property(v => v.Links).HasConversion(SplitJoinValueConverter);
+
+            developerBuilder
+                .HasMany(v => v.Games)
+                .WithMany(t => t.Developers)
+                .UsingEntity<GameCopyDeveloper>();
 
             ConfigureTimestamps(developerBuilder);
         }
@@ -134,6 +149,11 @@ namespace Catalog
 
             tagBuilder.HasIndex(v => v.Name).IsUnique();
             tagBuilder.Property(v => v.ColorArgb);
+
+            tagBuilder
+                .HasMany(v => v.Games)
+                .WithMany(t => t.Tags)
+                .UsingEntity<GameCopyTag>();
 
             ConfigureTimestamps(tagBuilder);
         }

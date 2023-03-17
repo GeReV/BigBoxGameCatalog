@@ -46,6 +46,9 @@ namespace Catalog.Migrations
 
                     b.HasKey("DeveloperId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Developers");
                 });
 
@@ -329,36 +332,6 @@ namespace Catalog.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("DeveloperGameCopy", b =>
-                {
-                    b.Property<int>("DevelopersDeveloperId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("GamesGameCopyId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("DevelopersDeveloperId", "GamesGameCopyId");
-
-                    b.HasIndex("GamesGameCopyId");
-
-                    b.ToTable("DeveloperGameCopy");
-                });
-
-            modelBuilder.Entity("GameCopyTag", b =>
-                {
-                    b.Property<int>("GamesGameCopyId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TagsTagId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("GamesGameCopyId", "TagsTagId");
-
-                    b.HasIndex("TagsTagId");
-
-                    b.ToTable("GameCopyTag");
-                });
-
             modelBuilder.Entity("Catalog.Model.File", b =>
                 {
                     b.HasOne("Catalog.Model.GameItem", "GameItem")
@@ -437,36 +410,6 @@ namespace Catalog.Migrations
                         .IsRequired();
 
                     b.Navigation("GameItem");
-                });
-
-            modelBuilder.Entity("DeveloperGameCopy", b =>
-                {
-                    b.HasOne("Catalog.Model.Developer", null)
-                        .WithMany()
-                        .HasForeignKey("DevelopersDeveloperId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Catalog.Model.GameCopy", null)
-                        .WithMany()
-                        .HasForeignKey("GamesGameCopyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("GameCopyTag", b =>
-                {
-                    b.HasOne("Catalog.Model.GameCopy", null)
-                        .WithMany()
-                        .HasForeignKey("GamesGameCopyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Catalog.Model.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsTagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Catalog.Model.Developer", b =>

@@ -33,16 +33,13 @@ namespace Catalog.Model
 
         public Publisher? Publisher { get; set; }
 
-        public List<GameCopyDeveloper> GameCopyDevelopers { get; set; } = new();
+        public ICollection<GameCopyDeveloper> GameCopyDevelopers { get; set; } = new List<GameCopyDeveloper>();
 
-        public List<Developer> Developers => GameCopyDevelopers.Select(gcd => gcd.Developer).ToList();
+        public ICollection<Developer> Developers { get; set; } = new List<Developer>();
 
         public ICollection<GameCopyTag> GameCopyTags { get; set; } = new List<GameCopyTag>();
 
-        public IList<Tag> Tags => GameCopyTags
-            .Select(gct => gct.Tag)
-            .OrderBy(tag => tag.Name)
-            .ToImmutableList();
+        public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
         public DateTime ReleaseDate { get; set; }
 
