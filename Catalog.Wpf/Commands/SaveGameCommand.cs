@@ -157,7 +157,7 @@ namespace Catalog.Wpf.Commands
             game.Sealed = editGameViewModel.GameSealed;
             game.MobyGamesId = editGameViewModel.MobyGame?.Id;
             game.MobyGamesSlug =
-                editGameViewModel.MobyGame?.MobyUrl.GetComponents(UriComponents.Path, UriFormat.Unescaped)
+                editGameViewModel.MobyGame?.MobyUrl?.GetComponents(UriComponents.Path, UriFormat.Unescaped)
                     .Split('/')
                     .Last() ?? string.Empty;
             game.Platforms = editGameViewModel.GamePlatforms.Distinct().ToList();

@@ -210,7 +210,7 @@ namespace Catalog.Wpf.ViewModel
                 mobyGame = value;
 
                 gameCopy.MobyGamesId = value?.Id;
-                gameCopy.MobyGamesSlug = value?.MobyUrl.GetComponents(UriComponents.Path, UriFormat.Unescaped)
+                gameCopy.MobyGamesSlug = value?.MobyUrl?.GetComponents(UriComponents.Path, UriFormat.Unescaped)
                     .Split('/', StringSplitOptions.RemoveEmptyEntries)
                     .Last();
 

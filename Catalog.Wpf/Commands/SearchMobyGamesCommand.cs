@@ -97,7 +97,11 @@ namespace Catalog.Wpf.Commands
 
                 editGameViewModel.Title = gameEntry.Title;
                 editGameViewModel.MobyGame = gameEntry;
-                editGameViewModel.GameLinks.Add(gameEntry.MobyUrl.ToString());
+
+                if (gameEntry.MobyUrl is not null)
+                {
+                    editGameViewModel.GameLinks.Add(gameEntry.MobyUrl.ToString());
+                }
 
                 var gamePlatform = await client.GamePlatform(gameEntry.Id, preferredPlatform.Id);
 
