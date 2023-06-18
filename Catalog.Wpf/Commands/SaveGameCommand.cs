@@ -103,10 +103,19 @@ namespace Catalog.Wpf.Commands
             var addGameDevelopers = nextGameDevelopers
                 .Where(gd => !currentGameDeveloperIds.Contains(gd.DeveloperId))
                 .Select(
-                    dev => new GameCopyDeveloper
+                    dev =>
                     {
-                        DeveloperId = dev.DeveloperId,
-                        Developer = dev
+                        var gdc = new GameCopyDeveloper
+                        {
+                            DeveloperId = dev.DeveloperId,
+                        };
+
+                        if (dev.IsNew)
+                        {
+                            gdc.Developer = dev;
+                        }
+
+                        return gdc;
                     }
                 );
 
