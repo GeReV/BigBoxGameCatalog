@@ -17,11 +17,17 @@ namespace Catalog.Wpf
 
         public string ImageKey { get; }
 
-        public static Task<AtlasSprite> Create(string path, int targetWidth) =>
+        public static Task<AtlasSprite?> Create(string path, int targetWidth) =>
             Task.Run(
                 () =>
                 {
-                    var image = SKImage.FromBitmap(SKBitmap.Decode(path));
+                    var bitmap = SKBitmap.Decode(path);
+                    if (bitmap is null)
+                    {
+                        return null;
+                    }
+
+                    var image = SKImage.FromBitmap(bitmap);
 
                     return new AtlasSprite(path, image, targetWidth);
                 }
@@ -180,7 +186,7 @@ namespace Catalog.Wpf
             var sprites = await Task.WhenAll(
                 images
                     .Select(path => AtlasSprite.Create(path, spriteWidth))
-                    .OrderByDescending(info => info.Result.ImageInfo.Height)
+                    .OrderByDescending(info => info.Result?.ImageInfo.Height)
                     .ToArray()
             );
 
@@ -190,6 +196,11 @@ namespace Catalog.Wpf
 
             foreach (var sprite in sprites)
             {
+                if (sprite is null)
+                {
+                    continue;
+                }
+
                 var targetBin =
                     bins.FirstOrDefault(bin => bin.TotalHeight + sprite.AtlasSize.Height <= atlasSize);
 

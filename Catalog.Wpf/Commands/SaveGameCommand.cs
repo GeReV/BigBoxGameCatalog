@@ -221,7 +221,7 @@ namespace Catalog.Wpf.Commands
 
             var existingScreenshots = selectedScreenshots
                 .Except(screenshotsToDownload)
-                .Select(ss => ss.Url.ToString());
+                .Select(ss => HomeDirectoryExtensions.ToRelativePath(ss.Url.LocalPath));
 
             using var httpClient = new HttpClient();
 
@@ -252,7 +252,7 @@ namespace Catalog.Wpf.Commands
 
             if (url.IsFile)
             {
-                return url.ToString();
+                return HomeDirectoryExtensions.ToRelativePath(url.LocalPath);
             }
 
             using var httpClient = new HttpClient();
