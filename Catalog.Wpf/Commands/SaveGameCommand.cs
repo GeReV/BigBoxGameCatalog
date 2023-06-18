@@ -216,7 +216,7 @@ namespace Catalog.Wpf.Commands
         )
         {
             var screenshotsToDownload = selectedScreenshots
-                .Where(ss => ss.Url.IsFile)
+                .Where(ss => !ss.Url.IsFile)
                 .ToList();
 
             var existingScreenshots = selectedScreenshots
