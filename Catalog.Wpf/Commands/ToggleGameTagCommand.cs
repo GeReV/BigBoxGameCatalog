@@ -59,7 +59,7 @@ namespace Catalog.Wpf.Commands
                         new GameCopyTag
                         {
                             GameCopyId = game.GameCopyId,
-                            TagId = tag.TagId
+                            TagId = tag.TagId,
                         }
                     );
                 }
